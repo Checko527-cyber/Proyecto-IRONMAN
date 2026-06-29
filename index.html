@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>La Ruta · Camino al IRONMAN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1119; --surface:#171C28; --elev:#1E2532; --border:#2A3242; --border-strong:#3A4458;
+    --ink:#ECEFF6; --muted:#A7B0C4; --eyebrow:#B9C2D6; --faint:#7E889E;
+    --accent:#FF6B43; --accent-2:#FFB23E; --accent-soft:rgba(255,107,67,.16);
+    --swim:#2DD4BF; --bike:#FBBF45; --run:#FF6B6B; --rest:#8893AB; --strength:#A78BFA; --brick:#34D399;
+    --done:#34D399; --done-soft:rgba(52,211,153,.15);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35); --r:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--bg)}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:84px;min-height:100vh}
+  h1,h2,h3,.disp{font-family:'Space Grotesk',sans-serif;letter-spacing:-.01em}
+  .num{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input{font-family:inherit}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  header{padding:24px 0 6px}
+  .brandrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .brand{font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .datechip{font-size:12px;color:var(--muted);font-weight:500}
+  .hgoal{margin:4px 0 0;font-size:27px;font-weight:700;line-height:1.08;color:var(--ink)}
+  .hgoal small{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-top:5px;font-family:'Inter'}
+  .view{display:none;animation:fade .35s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.view{animation:none}}
+  section{margin:22px 0}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--eyebrow);margin:0 0 12px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+  .pad{padding:16px}
+  .phasebadge{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);color:var(--accent-2);font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px}
+  .phasebadge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .road{position:relative;padding-left:34px}
+  .road::before{content:"";position:absolute;left:11px;top:8px;bottom:14px;width:3px;background:linear-gradient(var(--accent),var(--accent-2) 55%,var(--border-strong))}
+  .station{position:relative;margin-bottom:16px}
+  .station:last-child{margin-bottom:0}
+  .station .pin{position:absolute;left:-34px;top:0;width:25px;height:25px;border-radius:50%;background:var(--surface);border:3px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)}
+  .station.next .pin{border-color:var(--accent);box-shadow:0 0 0 5px var(--accent-soft);color:var(--accent)}
+  .station.summit .pin{border-color:var(--accent-2);background:var(--accent-2);color:#1a1205}
+  .st-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .st-name{font-weight:600;font-size:15px;color:var(--ink)}
+  .st-date{font-size:12px;color:var(--muted);white-space:nowrap}
+  .st-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .st-count{font-size:13px;font-weight:700;color:var(--accent-2)}
+  .station.summit .st-count{color:var(--bike)}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:6px;color:#10141d;vertical-align:middle}
+  .t-swim{background:var(--swim);color:#06302C} .t-bike{background:var(--bike);color:#3A2A05} .t-run{background:var(--run);color:#3A0E0E}
+  .t-rest{background:#4A5365;color:#fff} .t-str{background:#6D5BD0;color:#fff} .t-brick{background:var(--brick);color:#06301F}
+  .t-tri{background:linear-gradient(90deg,var(--swim),var(--bike),var(--run));color:#10141d}
+  .t-race{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#2A1505}
+  .today-sess{display:flex;gap:12px;align-items:flex-start}
+  .today-sess .ic{font-size:22px;line-height:1}
+  .sess-title{font-weight:600;font-size:16px;color:var(--ink)}
+  .sess-obj{font-size:13.5px;color:var(--muted);margin-top:2px}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .btn{padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:600;border:1px solid var(--border-strong);background:var(--elev);color:var(--ink);transition:.15s}
+  .btn:active{transform:scale(.97)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.done{background:var(--done-soft);color:var(--done);border-color:var(--done)}
+  .ministats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .mstat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 10px;text-align:center}
+  .mstat .v{font-size:21px;font-weight:700;color:var(--ink)}
+  .mstat .l{font-size:11px;color:var(--muted);margin-top:1px}
+  .calib-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .cstat{background:var(--elev);border:1px solid var(--border);border-radius:12px;padding:11px}
+  .cstat .v{font-family:'Space Grotesk';font-size:18px;font-weight:700;color:var(--ink)}
+  .cstat .l{font-size:11px;color:var(--muted);margin-top:1px}
+  .vd{border-left:3px solid var(--border-strong);background:var(--elev);border-radius:10px;padding:11px 13px;font-size:13px;margin-top:9px;line-height:1.5;color:var(--ink)}
+  .vd.ok{border-color:var(--done)} .vd.mid{border-color:var(--accent-2)} .vd.warn{border-color:var(--accent)}
+  .vd b{color:var(--ink)}
+  .rem{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}
+  .rem:last-child{border-bottom:none}
+  .rem .ic{font-size:16px}
+  .rem .tx{font-size:13.5px;color:var(--ink)}
+  .rem .tx b{font-weight:600}
+  .priority{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:12px;padding:13px 14px;font-size:13.5px;color:var(--ink)}
+  .priority b{color:var(--accent-2)}
+  .phase{border-left:3px solid var(--border-strong);padding:0 0 4px 16px;margin-left:6px;margin-bottom:18px;position:relative}
+  .phase::before{content:"";position:absolute;left:-7px;top:4px;width:11px;height:11px;border-radius:50%;background:var(--border-strong)}
+  .phase.cur{border-color:var(--accent)} .phase.cur::before{background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  #phaseList .phase:last-child{margin-bottom:0}
+  .ph-head{cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .ph-n{font-size:11px;font-weight:700;color:var(--faint);letter-spacing:.1em}
+  .ph-title{font-weight:600;font-size:16px;margin:1px 0;color:var(--ink)}
+  .ph-when{font-size:12px;color:var(--muted)}
+  .ph-body{font-size:13.5px;color:var(--muted);margin-top:8px;display:none}
+  .phase.open .ph-body{display:block}
+  .ph-focus{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .chev{font-size:12px;color:var(--faint);transition:.2s}
+  .phase.open .chev{transform:rotate(90deg)}
+  .weeknav{display:flex;gap:7px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+  .wtab{flex:0 0 auto;padding:9px 13px;border-radius:11px;background:var(--surface);border:1px solid var(--border);font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+  .wtab .sub{display:block;font-size:10px;font-weight:500;color:var(--faint);margin-top:1px}
+  .wtab.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-2)}
+  .wtab.active .sub{color:var(--accent)}
+  .weeknote{font-size:12.5px;color:var(--muted);background:var(--elev);border:1px dashed var(--border-strong);border-radius:12px;padding:12px 13px;margin-bottom:14px;line-height:1.5}
+  .weeknote b{color:var(--ink)}
+  .day{border:1px solid var(--border);border-radius:14px;background:var(--surface);margin-bottom:9px;padding:13px;transition:.15s}
+  .day.is-today{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .day.checked{background:var(--done-soft);border-color:var(--done)}
+  .dtop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .dname{font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .day.is-today .dname{color:var(--accent-2)}
+  .check{flex:0 0 26px;width:26px;height:26px;border-radius:8px;border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:15px;color:transparent;background:transparent}
+  .day.checked .check{background:var(--done);border-color:var(--done);color:#0E1119}
+  .dttl{font-weight:600;font-size:14.5px;margin-top:5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:var(--ink)}
+  .ddetail{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .dtip{font-size:12px;color:var(--accent-2);margin-top:6px;background:var(--accent-soft);border-radius:8px;padding:6px 9px}
+  .dstr{font-size:12px;color:var(--strength);margin-top:6px;border:1px solid var(--strength);border-radius:8px;padding:6px 9px;opacity:.92}
+  .dstrat{margin-top:8px;border:1px solid var(--accent);border-radius:8px;overflow:hidden}
+  .dstrat summary{cursor:pointer;list-style:none;padding:8px 11px;font-size:12.5px;font-weight:700;color:#2A1505;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .dstrat summary::-webkit-details-marker{display:none}
+  .strat-body{padding:11px 13px;font-size:12.5px;color:var(--ink);line-height:1.55}
+  .strat-body h5{margin:10px 0 3px;font-size:12.5px;color:var(--accent-2)}
+  .strat-body h5:first-child{margin-top:0}
+  .strat-body p{margin:3px 0}
+  .livebtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#FC4C02,#F2641F);color:#fff;font-weight:700;font-size:15px;box-shadow:var(--shadow);transition:.15s}
+  .livebtn:active{transform:scale(.98)}
+  .livebtn:disabled{opacity:.6}
+  .livemini{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;background:linear-gradient(135deg,#FC4C02,#F2641F);color:#fff;font-weight:700;font-size:12.5px;box-shadow:var(--shadow);transition:.15s}
+  .livemini:active{transform:scale(.97)}
+  .livemini:disabled{opacity:.6}
+  .livemini .livedot{width:7px;height:7px}
+  .live-row{display:flex;justify-content:flex-end;margin:14px 0 -4px}
+  .livedot{width:9px;height:9px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  @media(prefers-reduced-motion:reduce){.livedot{animation:none}}
+  .livestatus{font-size:12px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.45}
+  .sess-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+  .sess-row:last-child{border:none}
+  .sess-row .si{font-size:18px;flex:0 0 24px;text-align:center}
+  .sess-row .smain{flex:1;min-width:0}
+  .sess-row .sn{font-weight:600;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sess-row .sd{font-size:11.5px;color:var(--muted);text-transform:capitalize}
+  .sess-row .sv{font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-align:right;white-space:nowrap;color:var(--ink)}
+  .logform{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:6px}
+  .field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .field input{width:100%;padding:10px;border:1px solid var(--border-strong);border-radius:11px;font-family:'Space Grotesk';font-size:15px;background:var(--elev);color:var(--ink)}
+  .field input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+  .chartcard{margin-top:14px}
+  .chart-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+  .chart-h .ttl{font-weight:600;font-size:14px;color:var(--ink)}
+  .chart-h .now{font-size:13px;color:var(--muted)} .chart-h .now b{color:var(--ink);font-family:'Space Grotesk'}
+  svg.chart{width:100%;height:120px;display:block;overflow:visible}
+  .empty{font-size:12.5px;color:var(--faint);padding:18px 6px;text-align:center}
+  .empty b{color:var(--muted)}
+  .bench{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--ink)}
+  .bench:last-child{border:none}.bench .b-v{font-weight:600;font-family:'Space Grotesk';color:var(--accent-2)}
+  .risk{border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:11px;background:var(--surface)}
+  .risk h4{margin:0 0 4px;font-size:14.5px;color:var(--ink);display:flex;align-items:center;gap:7px}
+  .risk .shield{font-size:13px;color:var(--muted);margin-top:6px}
+  .risk .shield b{color:var(--done)}
+  .checkitem{display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+  .checkitem:last-child{border:none}
+  .checkitem .cb{flex:0 0 24px;width:24px;height:24px;border-radius:7px;border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;margin-top:1px}
+  .checkitem.on .cb{background:var(--done);border-color:var(--done);color:#0E1119}
+  .checkitem .ct{font-size:13.5px;color:var(--ink)}.checkitem .ct b{font-weight:600}
+  .checkitem.on .ct{opacity:.5;text-decoration:line-through}
+  .principle{font-size:13.5px;padding:9px 0;border-bottom:1px solid var(--border);color:var(--muted)}
+  .principle:last-child{border:none}.principle b{color:var(--ink);font-weight:600}
+  .anchor{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#2A1505;border-radius:var(--r);padding:18px}
+  .anchor .q{font-family:'Space Grotesk';font-size:17px;font-weight:700;line-height:1.3}
+  .anchor .a{font-size:12.5px;opacity:.88;margin-top:8px}
+  nav{position:fixed;bottom:0;left:0;right:0;background:rgba(14,17,25,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+  .nav-wrap{max-width:760px;margin:0 auto;display:flex;width:100%}
+  .navbtn{flex:1;padding:9px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--faint);font-size:10px;font-weight:600}
+  .navbtn .ni{font-size:19px;line-height:1}
+  .navbtn.active{color:var(--accent-2)}
+  .savetoast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;padding:9px 16px;border-radius:999px;z-index:60;transition:.25s;pointer-events:none}
+  .savetoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brandrow"><span class="brand">La Ruta</span><span class="datechip" id="todayChip"></span></div>
+    <h1 class="hgoal">Camino al IRONMAN<small>Conocer mis límites · ver mi mejor versión</small></h1>
+  </header>
+
+  <div class="view active" id="v-hoy">
+    <section><div class="card pad">
+      <span class="phasebadge"><span class="dot"></span><span id="curPhaseName">—</span></span>
+      <div class="today-sess" style="margin-top:14px" id="todaySessBox"></div>
+      <div class="btnrow" id="todayBtns"></div>
+    </div></section>
+    <section><p class="eyebrow">Próximas estaciones</p><div class="card pad"><div class="road" id="roadBox"></div></div></section>
+    <section><p class="eyebrow">Tu semana en números</p><div class="ministats" id="miniStats"></div></section>
+    <section><p class="eyebrow">Calibración · lo que ya soportas</p><div class="card pad" id="calibHoy"></div></section>
+    <section><p class="eyebrow">Recordatorios</p>
+      <div class="priority" style="margin-bottom:11px"><b>Prioridad nº1 · Dormir.</b> Adelanta la hora de acostarte a ~8:15 pm los días de madrugón. Meta: 7.5–8 h. Tu mejora más rentable y tu escudo contra el abandono.</div>
+      <div class="card pad" id="remList"></div>
+    </section>
+  </div>
+
+  <div class="view" id="v-plan">
+    <div class="live-row"><button class="livemini js-live"><span class="livedot"></span> Live Strava</button></div>
+    <section><p class="eyebrow">El mapa completo · jun 2026 → IRONMAN</p><div class="card pad"><div id="phaseList"></div></div></section>
+  </div>
+
+  <div class="view" id="v-semana">
+    <div class="live-row"><button class="livemini js-live"><span class="livedot"></span> Live Strava</button></div>
+    <section>
+      <p class="eyebrow">Plan semanal · Fase 1 — Afinar la 21K</p>
+      <div class="weeknav" id="weekNav"></div>
+      <div class="weeknote" id="weekNote"></div>
+      <div id="weekDays"></div>
+      <div class="card pad" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:12px;color:var(--muted)">Sesiones cumplidas</div><div class="num" style="font-size:22px;font-weight:700" id="weekProg">0 / 7</div></div>
+        <div style="text-align:right"><div style="font-size:12px;color:var(--muted)">Volumen objetivo</div><div class="num" style="font-size:22px;font-weight:700" id="weekVol">~8 h</div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="view" id="v-progreso">
+    <section><p class="eyebrow">Seguimiento en vivo · Strava (6 meses)</p>
+      <div class="card pad">
+        <button class="livebtn js-live"><span class="livedot"></span> Live · traer datos de Strava</button>
+        <div class="livestatus" id="liveStatusP">Trae tus últimos 6 meses de entrenamiento con un toque.</div>
+        <div class="livestatus" id="syncInfo" style="margin-top:1px"></div>
+      </div>
+    </section>
+    <section><p class="eyebrow">Calibración · tu carga real vs el plan</p><div class="card pad" id="calibBox"></div></section>
+    <section><p class="eyebrow">Sesiones recientes · Strava</p><div class="card pad" id="sessList"></div></section>
+    <section><p class="eyebrow">Registro de hoy</p>
+      <div class="card pad">
+        <div class="logform">
+          <div class="field"><label>Peso (kg)</label><input type="number" step="0.1" inputmode="decimal" id="inWeight" placeholder="94.0"></div>
+          <div class="field"><label>Sueño · h</label><input type="number" step="1" min="0" max="14" inputmode="numeric" id="inSleepH" placeholder="7"></div>
+          <div class="field"><label>Sueño · min</label><input type="number" step="1" min="0" max="59" inputmode="numeric" id="inSleepM" placeholder="30"></div>
+        </div>
+        <div class="logform" style="margin-top:9px">
+          <div class="field"><label>HRV (ms)</label><input type="number" step="1" inputmode="numeric" id="inHRV" placeholder="65"></div>
+          <div class="field"><label>Body Battery</label><input type="number" step="1" min="0" max="100" inputmode="numeric" id="inBB" placeholder="80"></div>
+          <div class="field"></div>
+        </div>
+        <div class="btnrow"><button class="btn primary" id="saveLog">Guardar registro de hoy</button></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:11px;line-height:1.45"><b style="color:var(--ink)">Sueño, HRV y Body Battery</b> vienen de tu Garmin — regístralos a mano (son tus semáforos de recuperación). El <b style="color:var(--ink)">volumen</b> se toma solo de tus entrenamientos de Strava con Live.</div>
+      </div>
+    </section>
+    <section><p class="eyebrow">Tendencias</p>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">Peso</span><span class="now">último <b id="wNow">—</b> kg</span></div><div id="wChart"></div></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">Sueño · meta 7.5 h</span><span class="now">media <b id="sNow">—</b></span></div><div id="sChart"></div></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">HRV</span><span class="now">último <b id="hNow">—</b> ms</span></div><div id="hChart"></div></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">Body Battery</span><span class="now">último <b id="bNow">—</b></span></div><div id="bChart"></div></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">Volumen semanal · 6 meses</span><span class="now">última <b id="vNow">—</b> h</span></div><div id="vChart"></div></div>
+    </section>
+    <section><p class="eyebrow">Marcas de referencia · punto de partida</p>
+      <div class="card pad">
+        <div class="bench"><span>🏊 Natación continua</span><span class="b-v">3.000 m +</span></div>
+        <div class="bench"><span>🚴 Salida larga bici</span><span class="b-v">88 km / 3–4 h</span></div>
+        <div class="bench"><span>🏃 Fondo de carrera</span><span class="b-v">12–16 km</span></div>
+        <div class="bench"><span>⚖️ Peso inicial</span><span class="b-v">94 kg</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="view" id="v-salud">
+    <div class="live-row"><button class="livemini js-live"><span class="livedot"></span> Live Strava</button></div>
+    <section><p class="eyebrow">Tu ancla · por qué madrugas</p>
+      <div class="anchor"><div class="q">"Quiero conocer mis límites emocionales, físicos y mentales."</div><div class="a">Cada madrugada a las 4 am ya es una respuesta. La meta es la ceremonia; el viaje ya empezó.</div></div>
+    </section>
+    <section><p class="eyebrow">Tu mapa de riesgos personal</p>
+      <div class="risk"><h4>😴 Abandono por fatiga y "falta de tiempo"</h4><div class="shield"><b>Escudo:</b> el plan vive dentro de tus 7–8 h reales. Dormir 7.5–8 h. En semanas difíciles, versión mínima de mantenimiento en vez de cero.</div></div>
+      <div class="risk"><h4>🤕 Lesión por acelerar el proceso</h4><div class="shield"><b>Escudo:</b> progresión lenta de carga (sobre todo en carrera, por peso y rodillas). Body Battery y HRV como semáforo: aflojar a tiempo es ejecutar el plan, no rendirse.</div></div>
+    </section>
+    <section><p class="eyebrow">Hitos médicos y de equipo</p><div class="card pad" id="checkList"></div></section>
+    <section><p class="eyebrow">Principios que no se negocian</p>
+      <div class="card pad">
+        <div class="principle"><b>La recuperación es donde ocurre la mejora.</b> Poder entrenar más no significa que debamos.</div>
+        <div class="principle"><b>El sueño es una sesión más.</b> Y hoy, la nº1.</div>
+        <div class="principle"><b>Carbohidratos = combustible.</b> No los recortes alrededor de las sesiones largas.</div>
+        <div class="principle"><b>Recomposición lenta.</b> Bajar grasa a la velocidad que el rendimiento permita.</div>
+        <div class="principle"><b>Fuerza = durabilidad.</b> 2 sesiones cortas/semana te blindan rodillas y tobillos.</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<nav><div class="nav-wrap">
+  <button class="navbtn active" data-v="hoy"><span class="ni">◎</span>Hoy</button>
+  <button class="navbtn" data-v="plan"><span class="ni">⛰</span>Plan</button>
+  <button class="navbtn" data-v="semana"><span class="ni">▦</span>Semana</button>
+  <button class="navbtn" data-v="progreso"><span class="ni">📈</span>Progreso</button>
+  <button class="navbtn" data-v="salud"><span class="ni">♥</span>Salud</button>
+</div></nav>
+<div class="savetoast" id="toast">Guardado ✓</div>
+
+<script>
+const Store={mem:{},
+  async get(k){try{if(window.storage){const r=await window.storage.get(k);if(r&&r.value!=null)return JSON.parse(r.value);}}catch(e){}
+    try{const ls=localStorage.getItem('laruta_'+k);if(ls!=null)return JSON.parse(ls);}catch(e){}
+    return (k in this.mem)?this.mem[k]:null;},
+  async set(k,v){this.mem[k]=v;
+    try{if(window.storage){await window.storage.set(k,JSON.stringify(v));}}catch(e){}
+    try{localStorage.setItem('laruta_'+k,JSON.stringify(v));}catch(e){}}};
+const toast=(m)=>{const t=document.getElementById('toast');t.textContent=m||'Guardado ✓';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)};
+
+const RACES=[
+  {name:"Media Maratón de Bogotá",date:"2026-07-26",tag:'<span class="tag t-run">21K</span>',meta:"Tu pico de carrera. A 2.600 m — pacea por esfuerzo, no por ritmo."},
+  {name:"5150 Cartagena",date:"2026-09-06",tag:'<span class="tag t-tri">Tri olímpico</span>',meta:"1.5 km nado · 40 km bici · 10 km carrera. Tu estreno encadenando las tres."},
+  {name:"Allianz 15K Bogotá",date:"2026-10-18",tag:'<span class="tag t-run">15K</span>',meta:"Velocidad y umbral. Cierre de temporada en ruta."},
+  {name:"IRONMAN 70.3 Victoria",date:"2027-05-23",approx:true,tag:'<span class="tag t-tri">Medio IRONMAN</span>',meta:"1.9 km · 90 km · 21.1 km. Ensayo general del IRONMAN. Wetsuit ✓."},
+  {name:"IRONMAN completo",date:"2028-06-01",approx:true,summit:true,tag:'<span class="tag" style="background:var(--bike);color:#10141d">META 2028</span>',meta:"Tu destino final. Ventana objetivo: 2028. Fecha exacta a definir tras Victoria."}
+];
+
+const PHASES=[
+  {n:"FASE 1",title:"Afinar la Media Maratón",when:"28 jun → 26 jul 2026 · 4 sem",cur:true,
+   body:"Recta final, no construcción. Mantenemos tu estructura, llevamos el fondo a su pico (~18 km) y bajamos carga los últimos 10 días para llegar fresco al 21K. Entran 2 sesiones cortas de fuerza para blindar rodillas y tobillos.",
+   focus:['<span class="tag t-run">Carrera</span>','<span class="tag t-str">Fuerza</span>','<span class="tag t-rest">Taper</span>']},
+  {n:"FASE 2",title:"Estreno en triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",
+   body:"Recuperar de la 21K y girar el foco hacia la bici (tu mayor margen). Entran bricks, transiciones y ritmo olímpico. Ojo al calor del Caribe: aclimatación e hidratación.",
+   focus:['<span class="tag t-bike">+ Bici</span>','<span class="tag t-brick">Bricks</span>','<span class="tag t-swim">Nado</span>']},
+  {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",
+   body:"Recuperar del 5150 y afilar velocidad y umbral para la 15K. Bloque corto y de buenas sensaciones para cerrar 2026.",
+   focus:['<span class="tag t-run">Velocidad</span>']},
+  {n:"FASE 4",title:"Base y recomposición",when:"19 oct → fin ene 2027 · ~14 sem",
+   body:"El cimiento del 70.3. Base aeróbica suave, fuerza de gimnasio en serio, técnica en las tres disciplinas y recomposición corporal con calma.",
+   focus:['<span class="tag t-str">Fuerza</span>','<span class="tag t-bike">Base bici</span>','<span class="tag t-swim">Técnica</span>']},
+  {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → med may 2027 · ~16 sem",
+   body:"Build específico: fondos largos progresivos en bici, bricks largos, nutrición de carrera, potencia en bici y aguas abiertas con wetsuit.",
+   focus:['<span class="tag t-brick">Bricks largos</span>','<span class="tag t-bike">Fondos</span>','<span class="tag t-swim">Aguas abiertas</span>']},
+  {n:"FASE 6",title:"Victoria → base del IRONMAN",when:"jun → sep 2027",
+   body:"Corres tu primer 70.3, recuperas, y con datos reales definimos la fecha exacta del IRONMAN 2028. Empieza la construcción del gran volumen con cabeza.",
+   focus:['<span class="tag t-tri">70.3</span>','<span class="tag" style="background:var(--bike);color:#10141d">→ IRONMAN</span>']},
+  {n:"FASE 7",title:"Camino al IRONMAN · 2028",when:"oct 2027 → carrera 2028",
+   body:"El gran bloque: volumen progresivo hasta jornadas largas, dos o tres fondos clave de bici de 5–6 h, brick largo, y un tapering de 2–3 semanas. Aquí se forja el finisher.",
+   focus:['<span class="tag t-brick">Fondos 5-6h</span>','<span class="tag t-race">IRONMAN</span>']}
+];
+
+const STR_A="Fuerza A · tren inferior (30'): sentadilla goblet, peso muerto a 1 pierna, zancadas, elevación de gemelos, plancha lateral. 2–3 series, carga moderada.";
+const STR_B="Fuerza B · core e hips (25'): plancha, dead bug, puente de glúteo, clamshell, bird-dog. 2–3 series. Activa glúteos = seguro antilesión.";
+const STR_MOB="Movilidad y activación (15'): cadera, tobillos, glúteos. Sin cargas pesadas — solo despertar el cuerpo.";
+
+const RACE_STRAT='<h5>2 días antes</h5><p>Sube un poco los carbohidratos, hidrátate, prioriza el sueño. No estrenes nada (comida, zapatillas). El viernes deja dorsal, chip y ropa listos.</p>'+
+'<h5>La mañana (salida 8:00 am)</h5><p>Despierta ~3 h antes. Desayuna 2.5–3 h antes: carbohidratos de fácil digestión, poca grasa/fibra (avena, pan con miel, banano; café solo si estás acostumbrado). Calentamiento: 8–10 min trote suave + 3–4 progresiones.</p>'+
+'<h5>Ritmo · clave a 2.600 m</h5><p>El aire enrarecido castiga al que arranca fuerte. Sal CONSERVADOR y haz negative split. Los primeros 5 km deben sentirse "demasiado fáciles". No persigas a nadie en la salida; pacea por sensación, no por ego.</p>'+
+'<h5>Hidratación y geles</h5><p>El sol de montaña deshidrata aunque haga fresco. Aprovecha cada punto de hidratación (cada 3–5 km) con sorbos, no tragos. Gel hacia el km 7 y el km 14, como lo ensayaste.</p>'+
+'<h5>La cabeza</h5><p>Divídela en 4 tramos (5+5+5+6 km). El tramo duro será km 16–19: ahí recuerda tu ancla, conocer tus límites. El km 20 ya es celebración. Disfruta: es la graduación del bloque.</p>';
+
+const PLAN_WEEKS=[
+ {label:"Semana 1",sub:"29 jun – 5 jul",focus:"Construcción",vol:"~8 h",start:"2026-06-29",end:"2026-07-05",
+  note:"<b>Foco:</b> recuperar el ritmo del bloque y construir base de fondo. Ensaya tu nutrición en el fondo del sábado: gel cada 35–40 min.",
+  days:[
+   {d:"Lun",t:"Bici · rodillo 60'",tag:'<span class="tag t-bike">Bici Z2</span>',detail:"Aeróbico suave, cadencia 90+, sin forzar.",tip:"Piernas frescas para la calidad del miércoles.",str:STR_A},
+   {d:"Mar",t:"Natación 1:15",tag:'<span class="tag t-swim">Nado</span>',detail:"Técnica + aeróbico. Foco en rolido y respiración bilateral.",tip:"Día de recuperar piernas — disfruta tu fortaleza."},
+   {d:"Mié",t:"Pista · intervalos",tag:'<span class="tag t-run">Calidad</span>',detail:"15' calent + 6×800 m a ritmo 10K con 2' trote + 10' suelta.",tip:"Los últimos 800 deben ser los mejores, no los peores."},
+   {d:"Jue",t:"Natación 50'",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave + movilidad de hombros.",tip:"Rango sin dolor en el hombro izq. (clavícula 2016)."},
+   {d:"Vie",t:"Fuerza + trote opcional",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza B. Si te sientes bien, suma 20' de trote muy suave.",tip:"Si las piernas vienen pesadas, solo fuerza.",str:STR_B},
+   {d:"Sáb",t:"Fondo 14–15 km",tag:'<span class="tag t-run">Long run</span>',detail:"Ritmo conversado (Z2). Gel cada 35–40', sorbos de electrolitos.",tip:"Termina sintiendo que podías 2 km más."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo o caminata ligera. Estira e hidrata.",tip:"Duerme largo, sin culpa. Aquí absorbes la semana."}
+  ]},
+ {label:"Semana 2",sub:"6 – 12 jul",focus:"Pico de volumen",vol:"~8.5 h",start:"2026-07-06",end:"2026-07-12",
+  note:"<b>Foco:</b> tu fondo más largo del bloque (pico) y la sesión de umbral. La semana más exigente — cuida el sueño y la comida post-entreno como nunca.",
+  days:[
+   {d:"Lun",t:"Bici · rodillo 60'",tag:'<span class="tag t-bike">Bici Z2</span>',detail:"Aeróbico + 4×30\" cadencia alta al final.",tip:"Moviliza tobillos antes de empezar.",str:STR_A},
+   {d:"Mar",t:"Natación 1:15",tag:'<span class="tag t-swim">Nado</span>',detail:"Aeróbico continuo, recuperación activa.",tip:"Relaja cuello y hombros."},
+   {d:"Mié",t:"Pista · umbral",tag:'<span class="tag t-run">Tempo</span>',detail:"15' calent + 3×10' a ritmo tempo con 3' trote + suelta.",tip:"'Cómodamente difícil': podrías decir solo frases cortas."},
+   {d:"Jue",t:"Natación 60'",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave + movilidad de hombros y cadera.",tip:"Descarga las piernas del miércoles."},
+   {d:"Vie",t:"Fuerza B",tag:'<span class="tag t-str">Fuerza</span>',detail:"Core e hips. Baja una serie si vienes cargado.",tip:"Mañana es el fondo rey: llega con piernas.",str:STR_B},
+   {d:"Sáb",t:"Fondo LARGO 17–18 km",tag:'<span class="tag t-run">Pico</span>',detail:"El más largo del bloque. Nutrición de carrera COMPLETA ensayada.",tip:"Tu ensayo general de energía y de estómago."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo real o caminata. Proteína e hidratación.",tip:"Si el Body Battery está bajo, duerme hasta tarde."}
+  ]},
+ {label:"Semana 3",sub:"13 – 19 jul",focus:"Inicia el taper",vol:"~6.5 h",start:"2026-07-13",end:"2026-07-19",
+  note:"<b>Foco:</b> empieza el afinamiento. Bajamos volumen pero mantenemos algo de intensidad. Sentirás las piernas con ganas — buena señal, no la desperdicies entrenando de más.",
+  days:[
+   {d:"Lun",t:"Bici · rodillo 45'",tag:'<span class="tag t-bike">Bici fácil</span>',detail:"Suave, regenerativo.",tip:"Menos volumen, motor encendido.",str:STR_MOB},
+   {d:"Mar",t:"Natación 60'",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave, sin series duras.",tip:"Relájate, no busques marcas."},
+   {d:"Mié",t:"Pista · afinado",tag:'<span class="tag t-run">Calidad corta</span>',detail:"15' calent + 5×600 m a ritmo 10K con 2' trote + suelta.",tip:"Mantener velocidad, recortar volumen."},
+   {d:"Jue",t:"Natación 45'",tag:'<span class="tag t-swim">Nado</span>',detail:"Fácil, descanso activo.",tip:"Escucha al cuerpo."},
+   {d:"Vie",t:"Descanso o trote 20'",tag:'<span class="tag t-rest">Suave</span>',detail:"Descanso, o trote muy suave si lo necesitas.",tip:"Si el HRV está bajo, descansa sin dudar."},
+   {d:"Sáb",t:"Fondo en bajada 12–13 km",tag:'<span class="tag t-run">Pre-carrera</span>',detail:"Cómodo, con los últimos 2 km a ritmo objetivo.",tip:"Sensaciones, no números."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Prioriza sueño esta semana.",tip:"El cuerpo se recarga para el gran día."}
+  ]},
+ {label:"Semana 4",sub:"20 – 26 jul",focus:"Semana de carrera 🏁",vol:"~3.5 h",start:"2026-07-20",end:"2026-07-26",
+  note:"<b>Foco:</b> llegar fresco y confiado. Volumen mínimo, toques de velocidad. Regla de oro: <b>nada nuevo</b> esta semana. La forma ya está hecha.",
+  days:[
+   {d:"Lun",t:"Descanso o bici 30'",tag:'<span class="tag t-rest">Suave</span>',detail:"Reposo o spin muy fácil.",tip:"Piernas frescas es la única meta."},
+   {d:"Mar",t:"Activación 30'",tag:'<span class="tag t-run">Strides</span>',detail:"15' trote suave + 4×100 m progresivos.",tip:"Despierta las piernas sin fatigarlas."},
+   {d:"Mié",t:"Natación 40'",tag:'<span class="tag t-swim">Nado</span>',detail:"Muy suave, relajante.",tip:"Afloja cuerpo y mente."},
+   {d:"Jue",t:"Trote 25' + ritmo",tag:'<span class="tag t-run">Toque</span>',detail:"25' suave + 3×100 m a ritmo de carrera.",tip:"Último recordatorio de velocidad."},
+   {d:"Vie",t:"Descanso total",tag:'<span class="tag t-rest">Off</span>',detail:"Hidrata, comida con carbohidratos. Prepara dorsal, chip, ropa, kit.",tip:"Deja TODO listo hoy."},
+   {d:"Sáb",t:"Soltar 15' + ensayo",tag:'<span class="tag t-rest">Pre</span>',detail:"Caminata/trote muy suave 15'. Desayuna como lo harás mañana.",tip:"Acuéstate temprano. Visualiza la carrera."},
+   {d:"Dom",t:"🏁 MEDIA MARATÓN BOGOTÁ",tag:'<span class="tag t-race">21K</span>',detail:"Sal CONSERVADOR (la altitud engaña). Hidrata cada 3–5 km, geles según ensayo.",tip:"Disfruta: tu primera meta del proyecto.",strat:RACE_STRAT}
+  ]}
+];
+
+const CHECKS=[
+  {id:'blood',t:"<b>Analítica de sangre base</b> · perfil lipídico, glucosa, hierro/ferritina, vit. D, función renal/hepática. Primeras semanas."},
+  {id:'ergo',t:"<b>Prueba de esfuerzo (ergometría)</b> · antes de la fase intensa del 70.3. Complementa tu ECG normal."},
+  {id:'sleep',t:"<b>Adelantar la hora de dormir</b> a ~8:15 pm los días de madrugón · meta 7.5–8 h."},
+  {id:'wetsuit',t:"<b>Wetsuit (neopreno)</b> · ✓ ya lo tienes. Listo para las aguas frías de Victoria.",done:true},
+  {id:'power',t:"<b>Medidor de potencia</b> para la bici de calle · mejor inversión de rendimiento al iniciar el build del 70.3."},
+  {id:'mount',t:"<b>Soporte de reloj para manillar</b> · accesorio barato para ver el FR965 sobre la bici."}
+];
+
+const MS=864e5;
+function today(){const d=new Date();d.setHours(0,0,0,0);return d;}
+function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function daysTo(s){return Math.round((parse(s)-today())/MS);}
+function fmtDate(s){return parse(s).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'});}
+function fmtNice(s){try{return parse(s).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'});}catch(e){return s;}}
+function countLabel(n){if(n<0)return"completado";if(n===0)return"¡HOY!";if(n===1)return"mañana";if(n<14)return n+" días";if(n<70)return Math.round(n/7)+" semanas";return Math.round(n/30.4)+" meses";}
+function isoWeekKey(dt){const d=new Date(Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate()));const day=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-day);const ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));const wk=Math.ceil((((d-ys)/86400000)+1)/7);return d.getUTCFullYear()+'-W'+wk;}
+const dowIdx=(today().getDay()+6)%7;
+
+document.getElementById('todayChip').textContent=today().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'});
+document.getElementById('curPhaseName').textContent="Fase 1 · Afinar la Media Maratón";
+
+function currentWeekIdx(){const t=today();for(let i=0;i<PLAN_WEEKS.length;i++){if(t>=parse(PLAN_WEEKS[i].start)&&t<=parse(PLAN_WEEKS[i].end))return i;}if(t<parse(PLAN_WEEKS[0].start))return 0;return PLAN_WEEKS.length-1;}
+let selWeek=currentWeekIdx();
+
+function renderRoad(){
+  document.getElementById('roadBox').innerHTML=RACES.map((r,idx)=>{
+    const n=r.date?daysTo(r.date):null;
+    const isNext=r.date&&n>=0&&!RACES.slice(0,idx).some(x=>x.date&&daysTo(x.date)>=0);
+    const cls=r.summit?'summit':(isNext?'next':'');
+    const cnt=r.date?`<span class="st-count">${countLabel(n)}</span>`:`<span class="st-count">por definir</span>`;
+    const dt=r.date?`${r.approx?'~':''}${fmtDate(r.date)}`:'fecha abierta';
+    const pin=r.summit?'★':(isNext?'▲':'○');
+    return `<div class="station ${cls}"><div class="pin">${pin}</div><div class="st-top"><span class="st-name">${r.name} ${r.tag||''}</span><span class="st-date">${dt}</span></div><div class="st-meta">${r.meta}</div><div style="margin-top:3px">${cnt}</div></div>`;
+  }).join('');
+}
+function renderTodaySession(){
+  const t=PLAN_WEEKS[currentWeekIdx()].days[dowIdx];
+  const ic=t.tag.includes('Bici')?'🚴':t.tag.includes('Nado')?'🏊':t.tag.includes('Fuerza')?'💪':(t.tag.includes('Off')||t.tag.includes('Suave')||t.tag.includes('Pre'))?'🌙':'🏃';
+  document.getElementById('todaySessBox').innerHTML=`<div class="ic">${ic}</div><div><div class="sess-title">Hoy · ${t.t} ${t.tag}</div><div class="sess-obj">${t.detail}</div></div>`;
+}
+async function renderTodayButtons(){
+  const wk=await Store.get('week_done')||{};const key=currentWeekIdx()+'-'+dowIdx;const done=wk[key];
+  document.getElementById('todayBtns').innerHTML=`<button class="btn ${done?'done':'primary'}" id="markToday">${done?'✓ Sesión cumplida':'Marcar sesión cumplida'}</button><button class="btn js-live">⚡ Live Strava</button><button class="btn" onclick="go('progreso')">Registrar</button>`;
+  document.getElementById('markToday').onclick=async()=>{const w=await Store.get('week_done')||{};w[key]=!w[key];await Store.set('week_done',w);renderTodayButtons();renderWeek();toast(w[key]?'¡Hecho! 💪':'Desmarcado');};
+}
+function renderMiniStats(){
+  const next=RACES.find(r=>r.date&&daysTo(r.date)>=0);
+  document.getElementById('miniStats').innerHTML=`<div class="mstat"><div class="v num">${next?daysTo(next.date):'—'}</div><div class="l">días a tu próxima carrera</div></div><div class="mstat"><div class="v num" id="msVol">—</div><div class="l">h última semana</div></div><div class="mstat"><div class="v num" id="msSleep">—</div><div class="l">sueño medio</div></div>`;
+}
+const REMINDERS=[{ic:'🛏️',t:'<b>Acostarte temprano</b> hoy si mañana madrugas a las 4 am.'},{ic:'⌚',t:'<b>Revisa Body Battery y HRV</b> en el Garmin: tu semáforo de recuperación.'},{ic:'🥤',t:'<b>Come e hidrátate</b> justo después de la sesión.'},{ic:'🩺',t:'<b>Pendiente:</b> agendar analítica de sangre base (pestaña Salud).'}];
+function renderReminders(){document.getElementById('remList').innerHTML=REMINDERS.map(r=>`<div class="rem"><span class="ic">${r.ic}</span><span class="tx">${r.t}</span></div>`).join('');}
+
+function renderPhases(){
+  document.getElementById('phaseList').innerHTML=PHASES.map((p,i)=>{const cls=(p.cur?'cur ':'')+(i===0?'open':'');return `<div class="phase ${cls}"><div class="ph-head"><div><div class="ph-n">${p.n}</div><div class="ph-title">${p.title}</div><div class="ph-when">${p.when}</div></div><span class="chev">▸</span></div><div class="ph-body">${p.body}<div class="ph-focus">${p.focus.join('')}</div></div></div>`;}).join('');
+  document.querySelectorAll('.ph-head').forEach(h=>h.onclick=()=>h.closest('.phase').classList.toggle('open'));
+}
+
+function renderWeekNav(){
+  document.getElementById('weekNav').innerHTML=PLAN_WEEKS.map((w,i)=>`<button class="wtab ${i===selWeek?'active':''}" data-w="${i}">${w.label}<span class="sub">${w.focus}</span></button>`).join('');
+  document.querySelectorAll('.wtab').forEach(b=>b.onclick=()=>{selWeek=+b.dataset.w;renderWeekNav();renderWeek();});
+}
+async function renderWeek(){
+  const wk=PLAN_WEEKS[selWeek];
+  document.getElementById('weekNote').innerHTML=wk.note;
+  document.getElementById('weekVol').textContent=wk.vol;
+  const done=await Store.get('week_done')||{};const isCur=selWeek===currentWeekIdx();
+  document.getElementById('weekDays').innerHTML=wk.days.map((d,i)=>{
+    const key=selWeek+'-'+i,ck=done[key],isT=isCur&&i===dowIdx;
+    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''}" data-key="${key}"><div class="dtop"><span class="dname">${d.d}${isT?' · hoy':''}</span><button class="check">✓</button></div><div class="dttl">${d.t} ${d.tag}</div><div class="ddetail">${d.detail}</div><div class="dtip">💡 ${d.tip}</div>${d.str?`<div class="dstr">💪 ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>📋 Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}</div>`;
+  }).join('');
+  document.querySelectorAll('#weekDays .check').forEach(btn=>btn.onclick=async(ev)=>{ev.stopPropagation();const key=btn.closest('.day').dataset.key;const dn=await Store.get('week_done')||{};dn[key]=!dn[key];await Store.set('week_done',dn);renderWeek();renderTodayButtons();});
+  document.getElementById('weekProg').textContent=wk.days.filter((d,i)=>done[selWeek+'-'+i]).length+' / 7';
+}
+
+function spark(id,data,opts={}){
+  const el=document.getElementById(id);if(!el)return;
+  if(!data.length){el.innerHTML='<div class="empty">Aún no hay datos. Registra unos días o usa <b>Live</b> y verás tu tendencia aquí.</div>';return;}
+  const W=320,H=120,pad=8,vals=data.map(d=>d.v);
+  let mn=Math.min(...vals),mx=Math.max(...vals);
+  if(opts.min!=null)mn=Math.min(mn,opts.min);if(opts.max!=null)mx=Math.max(mx,opts.max);
+  if(mn===mx){mn-=1;mx+=1;}
+  const n=data.length,x=i=>pad+(n===1?W/2:(i/(n-1))*(W-2*pad)),y=v=>H-pad-((v-mn)/(mx-mn))*(H-2*pad);
+  let body='';
+  if(opts.target!=null){const ty=y(opts.target);body+=`<line x1="0" y1="${ty}" x2="${W}" y2="${ty}" stroke="var(--accent-2)" stroke-width="1.2" stroke-dasharray="4 4"/>`;}
+  if(opts.bars){const bw=Math.min(26,(W-2*pad)/n-6);body+=data.map((d,i)=>`<rect x="${x(i)-bw/2}" y="${y(d.v)}" width="${bw}" height="${H-pad-y(d.v)}" rx="4" fill="var(--accent)" opacity=".9"/>`).join('');}
+  else{const pts=data.map((d,i)=>`${x(i)},${y(d.v)}`).join(' ');body+=`<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+data.map((d,i)=>`<circle cx="${x(i)}" cy="${y(d.v)}" r="3" fill="var(--accent)"/>`).join('');}
+  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${body}</svg>`;
+}
+function hm(dec){if(dec==null||isNaN(dec))return '—';const h=Math.floor(dec);const m=Math.round((dec-h)*60);return h+'h'+(m?(' '+m+'m'):'');}
+async function renderProgress(){
+  const logs=await Store.get('logs')||{};const dates=Object.keys(logs).sort();
+  const series=k=>dates.map(d=>({d,v:logs[d][k]})).filter(p=>p.v!=null&&!isNaN(p.v));
+  const wt=series('weight'),sl=series('sleep'),hv=series('hrv'),bb=series('bb');
+  spark('wChart',wt.slice(-30));
+  spark('sChart',sl.slice(-30),{target:7.5,min:5,max:9});
+  spark('hChart',hv.slice(-30));
+  spark('bChart',bb.slice(-30),{min:0,max:100});
+  const sm=await Store.get('strava_summary');
+  let volSeries=[];
+  if(sm&&sm.byWeek&&sm.byWeek.length){volSeries=sm.byWeek.slice(-16).map(w=>({d:w.week,v:+(w.hours||0).toFixed(1)}));}
+  else{const vo=series('vol'),bw={};vo.forEach(p=>{const k=isoWeekKey(parse(p.d));bw[k]=(bw[k]||0)+p.v;});volSeries=Object.keys(bw).sort().map(k=>({d:k,v:+bw[k].toFixed(1)})).slice(-12);}
+  spark('vChart',volSeries,{bars:true});
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('wNow',wt.length?wt[wt.length-1].v:'—');
+  const sAvgDec=sl.length?(sl.slice(-7).reduce((a,b)=>a+b.v,0)/Math.min(7,sl.length)):null;
+  set('sNow',hm(sAvgDec));
+  set('hNow',hv.length?hv[hv.length-1].v:'—');
+  set('bNow',bb.length?bb[bb.length-1].v:'—');
+  const lastVol=volSeries.length?volSeries[volSeries.length-1].v:'—';
+  set('vNow',lastVol);set('msVol',lastVol);set('msSleep',hm(sAvgDec));
+}
+document.getElementById('saveLog').onclick=async()=>{
+  const k=today().toISOString().slice(0,10);const logs=await Store.get('logs')||{};
+  const gv=id=>parseFloat(document.getElementById(id).value);
+  const w=gv('inWeight'),sh=gv('inSleepH'),sm=gv('inSleepM'),hrv=gv('inHRV'),bb=gv('inBB');
+  logs[k]=logs[k]||{};
+  if(!isNaN(w))logs[k].weight=w;
+  if(!isNaN(sh)||!isNaN(sm))logs[k].sleep=+(((isNaN(sh)?0:sh))+((isNaN(sm)?0:sm)/60)).toFixed(2);
+  if(!isNaN(hrv))logs[k].hrv=hrv;
+  if(!isNaN(bb))logs[k].bb=bb;
+  await Store.set('logs',logs);
+  ['inWeight','inSleepH','inSleepM','inHRV','inBB'].forEach(id=>document.getElementById(id).value='');
+  renderProgress();toast('Registro guardado ✓');
+};
+
+function setLiveStatus(t){const e=document.getElementById('liveStatusP');if(e)e.textContent=t;}
+async function renderSessions(){
+  const box=document.getElementById('sessList');if(!box)return;
+  const acts=await Store.get('strava_sessions')||[];const synced=await Store.get('strava_synced');const sy=document.getElementById('syncInfo');
+  if(sy)sy.textContent=synced?'Última sincronización: '+new Date(synced).toLocaleString('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+  if(!acts.length){box.innerHTML='<div class="empty">Toca <b>Live</b> para traer tus sesiones reales desde Strava.</div>';return;}
+  const ic={swim:'🏊',bike:'🚴',run:'🏃',other:'🏋️'};
+  box.innerHTML=acts.slice(0,20).map(a=>`<div class="sess-row"><span class="si">${ic[a.sport]||'🏋️'}</span><div class="smain"><div class="sn">${a.name||a.sport||'Sesión'}</div><div class="sd">${fmtNice(a.date)}</div></div><div class="sv">${a.km?a.km+' km':''}${(a.km&&a.min)?' · ':''}${a.min?a.min+' min':''}</div></div>`).join('');
+}
+
+function computeCalibration(sm){
+  if(!sm)return null;
+  const avgWeekH=sm.avgWeeklyHours||0,sessPerWeek=sm.sessPerWeek||0,weeks=sm.weeks||0;
+  const L=sm.longest||{};const longestRunKm=+(L.run_km||0),longestRideKm=+(L.bike_km||0),longestSwimKm=+(L.swim_km||0);
+  const target=8,volRatio=avgWeekH/target,volState=volRatio>=0.95?'ok':(volRatio>=0.75?'mid':'low');
+  const recs=[];
+  if(volState==='ok')recs.push({k:'ok',t:`<b>Volumen en objetivo.</b> Promedias ${avgWeekH} h/sem y el plan pide ~${target} h. Tu cuerpo ya sostiene esta carga — seguimos según plan.`});
+  else if(volState==='mid')recs.push({k:'mid',t:`<b>Volumen cerca del objetivo.</b> ${avgWeekH} h/sem frente a ~${target} h. Subamos suave, sin saltos bruscos.`});
+  else recs.push({k:'warn',t:`<b>Volumen por debajo del plan.</b> ${avgWeekH} h/sem frente a ~${target} h. Construyamos a ~+10% por semana, no de golpe.`});
+  const peak=18;
+  if(longestRunKm>=peak)recs.push({k:'ok',t:`<b>Fondo listo.</b> Tu carrera más larga (${longestRunKm} km) ya cubre el pico del plan (${peak} km). Vas sobrado para la 21K.`});
+  else if(longestRunKm>0){const cap=Math.round(longestRunKm*1.1);if(peak>cap)recs.push({k:'warn',t:`<b>Escudo antilesión.</b> El pico del plan (${peak} km) supera en más del 10% tu fondo más largo (${longestRunKm} km). Sugerencia: lleva el próximo fondo a ~${cap} km y sube ~10%/semana hasta la carrera.`});else recs.push({k:'mid',t:`<b>Progresión de fondo OK.</b> Vienes de ${longestRunKm} km; el pico de ${peak} km es un salto razonable. Mantén el fondo suave.`});}
+  else recs.push({k:'mid',t:`No veo carreras largas en tus últimos 6 meses de Strava. Si tu fondo real es menor a 14 km, avísame y suavizo la progresión.`});
+  if(longestRideKm>0)recs.push({k:'ok',t:`<b>Bici.</b> Salida más larga: ${longestRideKm} km. Buen fondo de base para el 5150 y el 70.3.`});
+  return {weeks,avgWeekH,sessPerWeek,longestRunKm,longestRideKm,longestSwimKm,volState,recs};
+}
+async function renderCalibration(){
+  const sm=await Store.get('strava_summary');const box=document.getElementById('calibBox'),hoy=document.getElementById('calibHoy');
+  const c=computeCalibration(sm);
+  if(!c){const empty='<div class="empty">Toca <b>Live</b> para calibrar el plan con tu carga real de Strava (6 meses).</div>';if(box)box.innerHTML=empty;if(hoy)hoy.innerHTML=empty;return;}
+  const grid=`<div class="calib-grid"><div class="cstat"><div class="v">${c.avgWeekH} h</div><div class="l">volumen real / semana</div></div><div class="cstat"><div class="v">${c.sessPerWeek}</div><div class="l">sesiones / semana</div></div><div class="cstat"><div class="v">${c.longestRunKm||'—'} km</div><div class="l">fondo de carrera máx</div></div><div class="cstat"><div class="v">${c.longestRideKm||'—'} km</div><div class="l">salida de bici máx</div></div></div>`;
+  if(box){const recs=c.recs.map(r=>`<div class="vd ${r.k}">${r.t}</div>`).join('');box.innerHTML=`<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Esto es lo que <b style="color:var(--ink)">ya soportas</b> (últimos 6 meses):</div>${grid}${recs}<div style="font-size:11.5px;color:var(--faint);margin-top:10px">Basado en ${c.weeks} semana(s) de Strava · se recalibra con cada Live.</div>`;}
+  if(hoy){const top=c.recs[0];hoy.innerHTML=`${grid}<div class="vd ${top.k}" style="margin-top:9px">${top.t}</div><div style="margin-top:9px"><button class="btn" style="padding:7px 12px;font-size:12px" onclick="go('progreso')">Ver calibración completa →</button></div>`;}
+}
+
+let liveBusy=false;
+function parseJsonLoose(text){let s=text.indexOf('{'),e=text.lastIndexOf('}');if(s>=0&&e>s){try{return JSON.parse(text.slice(s,e+1));}catch(_){}}s=text.indexOf('[');e=text.lastIndexOf(']');if(s>=0&&e>s){try{return {sessions:JSON.parse(text.slice(s,e+1))};}catch(_){}}return null;}
+function aggregateFromSessions(sessions){
+  if(!sessions||!sessions.length)return {weeks:0,avgWeeklyHours:0,sessPerWeek:0,longest:{run_km:0,bike_km:0,swim_km:0},byWeek:[]};
+  const wk={},longest={run_km:0,bike_km:0,swim_km:0};let totMin=0;
+  sessions.forEach(a=>{const min=Number(a.min)||0,km=Number(a.km)||0;totMin+=min;const k=isoWeekKey(parse(a.date));wk[k]=wk[k]||{hours:0,sessions:0};wk[k].hours+=min/60;wk[k].sessions++;if(a.sport==='run'&&km>longest.run_km)longest.run_km=km;if(a.sport==='bike'&&km>longest.bike_km)longest.bike_km=km;if(a.sport==='swim'&&km>longest.swim_km)longest.swim_km=km;});
+  const byWeek=Object.keys(wk).sort().map(k=>({week:k,hours:+wk[k].hours.toFixed(1),sessions:wk[k].sessions}));const weeks=Math.max(1,byWeek.length);
+  return {weeks,avgWeeklyHours:+(totMin/60/weeks).toFixed(1),sessPerWeek:+(sessions.length/weeks).toFixed(1),longest:{run_km:+longest.run_km.toFixed(1),bike_km:+longest.bike_km.toFixed(1),swim_km:+longest.swim_km.toFixed(1)},byWeek};
+}
+async function tryBackend(){try{const r=await fetch('/api/strava',{method:'GET',headers:{'Accept':'application/json'}});if(!r.ok)return null;const j=await r.json();if(j&&(j.sessions||j.summary))return j;return null;}catch(e){return null;}}
+async function tryAnthropic(){
+  const msg='Usa la herramienta de Strava para obtener mis actividades de los últimos 6 meses (180 días). '+
+    'Devuelve ÚNICAMENTE un objeto JSON válido, sin texto antes ni después y sin backticks, con esta forma exacta: '+
+    '{"sessions":[{"date":"YYYY-MM-DD","sport":"swim|bike|run|other","name":"nombre corto","km":number,"min":number}],'+
+    '"summary":{"weeks":number,"avgWeeklyHours":number,"sessPerWeek":number,"longest":{"run_km":number,"bike_km":number,"swim_km":number},"byWeek":[{"week":"YYYY-Www","hours":number,"sessions":number}]}}. '+
+    'En "sessions" incluye solo las 25 MÁS RECIENTES. En "summary" agrega TODO el periodo de 6 meses por semana ISO. '+
+    'Mapea Run y TrailRun a "run"; Ride, VirtualRide y MountainBikeRide a "bike"; Swim y OpenWaterSwim a "swim"; el resto a "other". '+
+    'km = distancia/1000 (1 decimal); min = tiempo en movimiento en minutos (entero). Si no hay datos: sessions vacío y summary en ceros.';
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3500,messages:[{role:"user",content:msg}],mcp_servers:[{type:"url",url:"https://mcp.strava.com/mcp",name:"strava"}]})});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const data=await res.json();const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const obj=parseJsonLoose(text);if(!obj)throw new Error('sin datos');return obj;
+}
+async function runLive(){
+  if(liveBusy)return;liveBusy=true;
+  document.querySelectorAll('.js-live').forEach(b=>b.disabled=true);
+  setLiveStatus('Conectando con Strava (últimos 6 meses)…');
+  try{
+    let payload=await tryBackend();
+    if(!payload)payload=await tryAnthropic();
+    let sessions=Array.isArray(payload.sessions)?payload.sessions:[];
+    sessions.sort((a,b)=>a.date<b.date?1:-1);
+    let summary=(payload.summary&&payload.summary.byWeek)?payload.summary:aggregateFromSessions(sessions);
+    await Store.set('strava_sessions',sessions);await Store.set('strava_summary',summary);await Store.set('strava_synced',new Date().toISOString());
+    await renderSessions();await renderProgress();await renderCalibration();
+    setLiveStatus('Sincronizado · '+(summary.weeks||0)+' semanas de datos (6 meses).');toast('Strava sincronizado ✓');
+  }catch(err){
+    setLiveStatus('No se pudo conectar con Strava. En Claude, verifica que el conector de Strava esté activo. En tu web de Vercel, revisa la configuración del backend (/api/strava).');toast('Error al sincronizar');
+  }finally{liveBusy=false;document.querySelectorAll('.js-live').forEach(b=>b.disabled=false);}
+}
+document.addEventListener('click',e=>{if(e.target.closest('.js-live'))runLive();});
+
+async function renderChecks(){
+  const st=await Store.get('checks')||{};
+  document.getElementById('checkList').innerHTML=CHECKS.map(c=>{const on=(c.id in st)?st[c.id]:!!c.done;return `<div class="checkitem ${on?'on':''}" data-id="${c.id}"><div class="cb">✓</div><div class="ct">${c.t}</div></div>`;}).join('');
+  document.querySelectorAll('.checkitem').forEach(el=>el.onclick=async()=>{const s=await Store.get('checks')||{};const id=el.dataset.id;const cur=(id in s)?s[id]:!!(CHECKS.find(c=>c.id===id)||{}).done;s[id]=!cur;await Store.set('checks',s);el.classList.toggle('on');});
+}
+
+function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById('v-'+v).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+(async function(){
+  renderRoad();renderTodaySession();await renderTodayButtons();renderMiniStats();renderReminders();
+  renderPhases();renderWeekNav();await renderWeek();await renderProgress();await renderSessions();await renderCalibration();await renderChecks();
+})();
+</script>
+</body>
+</html>
