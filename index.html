@@ -200,6 +200,16 @@
   .sessdet .sess-row{border:none}
   .sessdet[open] summary .sn{color:var(--accent-2)}
   .sessdet .sdwrap{margin-bottom:11px}
+  .inlineextra{margin-top:10px;border:1px dashed #FC4C02;border-radius:11px;padding:10px;background:rgba(252,76,2,.06)}
+  .iehead{display:flex;gap:10px;align-items:center}
+  .iehead .si{font-size:18px;flex:0 0 24px;text-align:center}
+  .iehead .smain{flex:1;min-width:0}
+  .iehead .sn{font-weight:600;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .iehead .sd{font-size:10.5px;color:#FC4C02;font-weight:700;letter-spacing:.03em}
+  .iehead .sv{font-family:'Space Grotesk';font-weight:600;font-size:12.5px;text-align:right;white-space:nowrap;color:var(--ink)}
+  .inlineextra .sdwrap{margin-top:8px;background:var(--surface)}
+  .day.is-future{opacity:.72}
+  .day.is-future.checked{opacity:1}
   .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:7px;padding-left:2px}
   .lgi{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted)}
   .lgd{width:9px;height:3px;border-radius:2px}
@@ -272,7 +282,7 @@
       <span class="brand">Proyecto IRONMAN</span>
       <div style="display:flex;align-items:center;gap:9px">
         <span class="datechip" id="todayChip"></span>
-        <button class="livemini js-live"><span class="livedot"></span> Live</button>
+        <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
       </div>
     </div>
     <h1 class="hgoal">Camino al IRONMAN<small>Conocer mis límites · ver mi mejor versión</small></h1>
@@ -297,7 +307,6 @@
   </div>
 
   <div class="view" id="v-plan">
-    <div class="live-row"><button class="livemini js-live"><span class="livedot"></span> Live Strava</button></div>
     <div id="reviewBanner"></div>
     <section><p class="eyebrow">El mapa completo · jun 2026 → IRONMAN</p><div class="card pad"><div id="phaseList"></div></div></section>
     <section><p class="eyebrow">Tus competencias</p>
@@ -318,7 +327,6 @@
   </div>
 
   <div class="view" id="v-semana">
-    <div class="live-row"><button class="livemini js-live"><span class="livedot"></span> Live Strava</button></div>
     <section>
       <p class="eyebrow">Plan semanal · Fase 1 — Afinar la 21K</p>
       <div class="weeknav" id="weekNav"></div>
@@ -333,17 +341,11 @@
   </div>
 
   <div class="view" id="v-progreso">
-    <section><p class="eyebrow">Seguimiento en vivo · Strava (6 meses)</p>
+    <section><p class="eyebrow">Sincronización</p>
       <div class="card pad">
-        <button class="livebtn js-live"><span class="livedot"></span> Live · traer datos de Strava</button>
-        <div class="livestatus" id="liveStatusP">Trae tus últimos 6 meses de entrenamiento con un toque.</div>
-        <div class="livestatus" id="syncInfo" style="margin-top:1px"></div>
-      </div>
-    </section>
-    <section><p class="eyebrow">Recuperación · Garmin vía Intervals.icu</p>
-      <div class="card pad">
-        <button class="garminbtn" id="garminSync"><span class="livedot"></span> Sincronizar Garmin · sueño, HRV y Body Battery</button>
-        <div class="livestatus" id="garminStatus">Trae solos tus datos de recuperación, sin registrarlos a mano.</div>
+        <div class="livestatus" id="liveStatusP">Usa el botón <b>Sync</b> del encabezado para traer Strava y Garmin de una sola vez.</div>
+        <div class="livestatus" id="garminStatus" style="margin-top:5px"></div>
+        <div class="livestatus" id="syncInfo" style="margin-top:5px"></div>
       </div>
     </section>
     <section><p class="eyebrow">Estado de forma · modelo de carga</p>
@@ -384,7 +386,6 @@
   </div>
 
   <div class="view" id="v-salud">
-    <div class="live-row"><button class="livemini js-live"><span class="livedot"></span> Live Strava</button></div>
     <section><p class="eyebrow">Tu ancla · por qué madrugas</p>
       <div class="anchor"><div class="q">"Quiero conocer mis límites emocionales, físicos y mentales."</div><div class="a">Cada madrugada a las 4 am ya es una respuesta. La meta es la ceremonia; el viaje ya empezó.</div></div>
     </section>
@@ -637,7 +638,7 @@ async function renderTodayButtons(){
   const wk=await Store.get('week_done')||{};const key=currentWeekIdx()+'-'+dowIdx;const manual=wk[key];
   const auto=!!(await todayStravaMatch());const done=manual||auto;
   const label=auto?'✓ Cumplida (en Strava)':(manual?'✓ Sesión cumplida':'Marcar sesión cumplida');
-  document.getElementById('todayBtns').innerHTML=`<button class="btn ${done?'done':'primary'}" id="markToday">${label}</button><button class="btn js-live">⚡ Live Strava</button><button class="btn" onclick="go('progreso')">Registrar</button>`;
+  document.getElementById('todayBtns').innerHTML=`<button class="btn ${done?'done':'primary'}" id="markToday">${label}</button><button class="btn" onclick="go('progreso')">Registrar</button>`;
   document.getElementById('markToday').onclick=async()=>{const w=await Store.get('week_done')||{};w[key]=!w[key];await Store.set('week_done',w);renderTodayButtons();renderWeek();toast(w[key]?'¡Hecho! 💪':'Desmarcado');};
 }
 function renderMiniStats(){
@@ -666,24 +667,23 @@ async function renderWeek(){
   const wt=await latestWeight();
   const {autoDone,extra}=matchStravaWeek(selWeek,sessions);
   const todayStr=fmtLocal(today());
-  document.getElementById('weekDays').innerHTML=wk.days.map((d,i)=>{
+  // Orden: del m\u00e1s reciente al m\u00e1s antiguo.
+  const order=wk.days.map((d,i)=>i).sort((a,b)=>dayDateStr(selWeek,b).localeCompare(dayDateStr(selWeek,a)));
+  document.getElementById('weekDays').innerHTML=order.map(i=>{
+    const d=wk.days[i];
     const key=selWeek+'-'+i,manual=done[key],auto=autoDone[i],ck=manual||!!auto;
-    const ds=dayDateStr(selWeek,i);const isT=ds===todayStr;
+    const ds=dayDateStr(selWeek,i);const isT=ds===todayStr;const future=ds>todayStr;
     const dLabel=parse(ds).toLocaleDateString('es',{day:'numeric',month:'short'});
     const ctx={longest:auto?L[auto.sport+'_km']:null,weight:wt};
     const stravaBadge=auto?`<span class="stravatag">\u2713 Strava \u00b7 ${auto.name||''}</span>`:'';
     const detail=auto?sessionDetailHtml(auto,ctx):'';
     const objHtml=d.obj?`<div class="dobj">\ud83c\udfaf <b>Objetivo:</b> ${d.obj}</div>`:'';
-    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''}" data-key="${key}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}</div>`;
+    // Sesiones no planeadas registradas ESE d\u00eda \u2192 integradas aqu\u00ed mismo.
+    const dayExtras=extra.filter(s=>s.date===ds);
+    const extraHtml=dayExtras.map(s=>`<div class="inlineextra"><div class="iehead"><span class="si">${SPORT_IC[s.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">\u26a1 Adicional \u00b7 no estaba en el plan</div></div><div class="sv">${distStr(s)||''}${(s.km&&s.min)?' \u00b7 ':''}${hhmm(s.min)||''}</div></div>${sessionDetailHtml(s,{longest:L[s.sport+'_km'],weight:wt})}</div>`).join('');
+    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''} ${future?'is-future':''}" data-key="${key}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}${extraHtml}</div>`;
   }).join('');
-  let extraHtml='';
-  if(extra.length){
-    extraHtml=`<div class="extrawrap"><div class="extrahead">\u26a1 Trabajo adicional \u00b7 no estaba en el plan</div>`+extra.map(s=>{
-      const ctx={longest:L[s.sport+'_km'],weight:wt};
-      return `<div class="extraitem"><div class="extrarow"><span class="si">${SPORT_IC[s.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">${fmtNice(s.date)}</div></div><div class="sv">${distStr(s)||''}${(s.km&&s.min)?' \u00b7 ':''}${hhmm(s.min)||''}</div></div>${sessionDetailHtml(s,ctx)}</div>`;
-    }).join('')+`</div>`;
-  }
-  document.getElementById('weekExtra').innerHTML=extraHtml;
+  document.getElementById('weekExtra').innerHTML='';
   document.querySelectorAll('#weekDays .check').forEach(btn=>btn.onclick=async(ev)=>{ev.stopPropagation();const key=btn.closest('.day').dataset.key;const dn=await Store.get('week_done')||{};dn[key]=!dn[key];await Store.set('week_done',dn);renderWeek();renderTodayButtons();});
   const total=wk.days.filter((d,i)=>done[selWeek+'-'+i]||autoDone[i]).length;
   document.getElementById('weekProg').textContent=total+' / 7';
@@ -782,11 +782,12 @@ document.getElementById('saveLog').onclick=async()=>{
 function setLiveStatus(t){const e=document.getElementById('liveStatusP');if(e)e.textContent=t;}
 async function renderSessions(){
   const box=document.getElementById('sessList');if(!box)return;
-  const acts=await Store.get('strava_sessions')||[];const synced=await Store.get('strava_synced');const sy=document.getElementById('syncInfo');
+  let acts=await Store.get('strava_sessions')||[];const synced=await Store.get('strava_synced');const sy=document.getElementById('syncInfo');
   if(sy)sy.textContent=synced?'Última sincronización: '+new Date(synced).toLocaleString('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
   if(!acts.length){box.innerHTML='<div class="empty">Toca <b>Live</b> para traer tus sesiones reales desde Strava.</div>';return;}
   const ic={swim:'🏊',bike:'🚴',run:'🏃',other:'🏋️'};
   const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};const wt=await latestWeight();
+  acts=acts.slice().sort((a,b)=>b.date.localeCompare(a.date));
   box.innerHTML=acts.slice(0,20).map(a=>`<details class="sessdet"><summary class="sess-row"><span class="si">${ic[a.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${a.name||a.sport||'Sesi\u00f3n'}</div><div class="sd">${fmtNice(a.date)}</div></div><div class="sv">${distStr(a)||''}${(a.km&&a.min)?' \u00b7 ':''}${hhmm(a.min)||''}</div></summary>${sessionDetailHtml(a,{longest:L[a.sport+'_km'],weight:wt})}</details>`).join('');
 }
 
@@ -910,7 +911,8 @@ async function computeReadiness(){
   const ds=Object.keys(logs).sort();
   const lg=k=>{for(let i=ds.length-1;i>=0;i--){if(logs[ds[i]][k]!=null)return logs[ds[i]][k];}return null;};
   const hrv=lastVal(w,'hrv')??lg('hrv');
-  const bb=lastVal(w,'bb')??lg('bb');
+  const bb=lastVal(w,'bb')??lastVal(w,'readiness')??lg('bb');
+  const bbIsReady=lastVal(w,'bb')==null&&lastVal(w,'readiness')!=null;
   const sleep=lastVal(w,'sleep')??lg('sleep');
   const form=lastVal(w,'form');
   const ramp=lastVal(w,'rampRate');
@@ -925,9 +927,10 @@ async function computeReadiness(){
     else flags.push({k:'ok',t:`<b>HRV ${hrv} ms</b>, en línea con tu media de 14 días. Sistema nervioso recuperado.`});
   }
   if(bb!=null){
-    if(bb<25){score-=25;flags.push({k:'warn',t:`<b>Body Battery ${bb}</b>: llegas al día con el tanque casi vacío.`});}
-    else if(bb<45){score-=12;flags.push({k:'mid',t:`<b>Body Battery ${bb}</b>: recarga parcial.`});}
-    else flags.push({k:'ok',t:`<b>Body Battery ${bb}</b>: buena recarga.`});
+    const bbName=bbIsReady?'Training Readiness':'Body Battery';
+    if(bb<25){score-=25;flags.push({k:'warn',t:`<b>${bbName} ${bb}</b>: llegas al día con el tanque casi vacío.`});}
+    else if(bb<45){score-=12;flags.push({k:'mid',t:`<b>${bbName} ${bb}</b>: recarga parcial.`});}
+    else flags.push({k:'ok',t:`<b>${bbName} ${bb}</b>: buena recarga.`});
   }
   if(sleep!=null){
     if(sleep<6){score-=25;flags.push({k:'warn',t:`<b>${hm(sleep)} de sueño</b>. Tu prioridad nº1 sigue sin cumplirse — y es tu mayor riesgo de abandono.`});}
@@ -1066,7 +1069,7 @@ let garminBusy=false;
 function setGarminStatus(t){const e=document.getElementById('garminStatus');if(e)e.innerHTML=t;}
 async function runGarminSync(){
   if(garminBusy)return;garminBusy=true;
-  const btn=document.getElementById('garminSync');if(btn)btn.disabled=true;
+  document.querySelectorAll('.js-live').forEach(b=>b.disabled=true);
   setGarminStatus('Conectando con Intervals.icu…');
   try{
     const r=await fetch('/api/wellness',{headers:{'Accept':'application/json'}});
@@ -1081,22 +1084,24 @@ async function runGarminSync(){
       if(!w.date)return;const cur=logs[w.date]||{};const m=manual[w.date]||{};let touched=false;
       if(w.sleep!=null&&!m.sleep){cur.sleep=w.sleep;touched=true;}
       if(w.hrv!=null&&!m.hrv){cur.hrv=w.hrv;touched=true;}
-      if(w.bb!=null&&!m.bb){cur.bb=w.bb;touched=true;}
+      const bbVal=(w.bb!=null)?w.bb:(w.readiness!=null?w.readiness:null);
+      if(bbVal!=null&&!m.bb){cur.bb=bbVal;touched=true;}
       if(w.weight!=null&&!m.weight){cur.weight=w.weight;touched=true;}
       if(touched){logs[w.date]=cur;n++;}
     });
     await Store.set('logs',logs);await Store.set('garmin_wellness',rows);await Store.set('garmin_synced',new Date().toISOString());
     await renderProgress();await renderBench();await renderStatBar();await renderFormBoard();await renderReadiness();await renderTodaySession();
-    const miss=[];const mp=j.mapped||{};
-    if(!mp.bodyBattery)miss.push('Body Battery');
-    if(!mp.hrv)miss.push('HRV');
-    const warn=miss.length?` <br><span style="color:var(--accent-2)">Ojo: Intervals.icu no está enviando ${miss.join(' ni ')}. Actívalo en sus ajustes de Garmin Connect (permisos de Wellness).</span>`:'';
-    setGarminStatus(`Sincronizado · ${n} día(s) actualizados desde Garmin.${warn}`);toast('Garmin sincronizado ✓');
+    const mp=j.mapped||{};const notes=[];
+    if(!mp.bodyBattery&&mp.readiness)notes.push('Body Battery no viaja por la API de Intervals.icu: usamos <b>Training Readiness</b> de Garmin como equivalente.');
+    else if(!mp.bodyBattery)notes.push('Body Battery no viene en el feed. Puedes registrarlo a mano abajo si quieres usarlo.');
+    if(!mp.hrv)notes.push('No llega HRV. Revisa en intervals.icu → Settings → Garmin Connect que el permiso de <b>Wellness</b> esté activo.');
+    if(!mp.ctl)notes.push('Aún no hay CTL/ATL: Intervals.icu los calcula cuando lleva unas semanas recibiendo tus actividades.');
+    const warn=notes.length?`<br><span style="color:var(--muted)">${notes.join('<br>')}</span>`:'';
+    setGarminStatus(`Garmin sincronizado · ${n} día(s) actualizados.${warn}`);toast('Garmin sincronizado ✓');
   }catch(err){
     setGarminStatus('No se pudo conectar: '+String(err.message||err)+'<br>Esto solo funciona en tu web de Vercel (no en el artifact de Claude) y requiere configurar <b>INTERVALS_API_KEY</b>.');toast('Error al sincronizar Garmin');
-  }finally{garminBusy=false;if(btn)btn.disabled=false;}
+  }finally{garminBusy=false;document.querySelectorAll('.js-live').forEach(b=>b.disabled=false);}
 }
-document.addEventListener('click',e=>{if(e.target.closest('#garminSync'))runGarminSync();});
 
 let liveBusy=false;
 function parseJsonLoose(text){let s=text.indexOf('{'),e=text.lastIndexOf('}');if(s>=0&&e>s){try{return JSON.parse(text.slice(s,e+1));}catch(_){}}s=text.indexOf('[');e=text.lastIndexOf(']');if(s>=0&&e>s){try{return {sessions:JSON.parse(text.slice(s,e+1))};}catch(_){}}return null;}
@@ -1141,7 +1146,11 @@ async function runLive(){
     setLiveStatus('No se pudo conectar con Strava. En Claude, verifica que el conector de Strava esté activo. En tu web de Vercel, revisa la configuración del backend (/api/strava).');toast('Error al sincronizar');
   }finally{liveBusy=false;document.querySelectorAll('.js-live').forEach(b=>b.disabled=false);}
 }
-document.addEventListener('click',e=>{if(e.target.closest('.js-live'))runLive();});
+async function syncAll(){
+  await runLive();
+  await runGarminSync();
+}
+document.addEventListener('click',e=>{if(e.target.closest('.js-live'))syncAll();});
 
 async function renderChecks(){
   const st=await Store.get('checks')||{};
