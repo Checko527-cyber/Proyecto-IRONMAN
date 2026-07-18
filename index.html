@@ -396,6 +396,16 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
       </div>
     </section>
     <section><p class="eyebrow">Sesiones recientes</p><div class="card pad" id="sessList"></div></section>
+    <section><p class="eyebrow">Informe para tu entrenador</p>
+      <div class="card pad">
+        <div style="font-size:12.5px;color:var(--mut);line-height:1.5;margin-bottom:11px">Descarga todo tu progreso en un archivo y súbelo al chat. Incluye entrenos, carga, recuperación, cumplimiento del plan y tus carreras.</div>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn primary" id="btnExport">⬇ Descargar informe</button>
+          <button class="btn" id="btnCopy">Copiar al portapapeles</button>
+        </div>
+        <div class="livestatus" id="expStatus" style="margin-top:9px"></div>
+      </div>
+    </section>
   </div>
 
   <!-- ===== RUTA ===== -->
@@ -981,6 +991,80 @@ function adjustSession(day,level){
 
 
 
+
+// ================== MOTOR DIARIO · corte 21:00 ==================
+// El día de entrenamiento se cierra a las 9pm (tu hora de dormir). A partir de ahí
+// el foco pasa a mañana y el plan se recalibra con lo que realmente hiciste hoy.
+const CUTOFF_HOUR=21;
+function afterCutoff(){return new Date().getHours()>=CUTOFF_HOUR;}
+function focusDateStr(){const d=today();if(afterCutoff())d.setDate(d.getDate()+1);return fmtLocal(d);}
+function dayInfoFor(ds){
+  for(let i=0;i<PLAN_WEEKS.length;i++){const w=PLAN_WEEKS[i];
+    if(ds>=w.start&&ds<=w.end){const di=Math.round((parse(ds)-parse(w.start))/MS);
+      if(w.days[di])return{wi:i,di,day:w.days[di],ds};}}
+  return null;
+}
+function minutesBetween(sessions,from,to){return sessions.filter(s=>s.date>=from&&s.date<to).reduce((a,s)=>a+(+s.min||0),0);}
+function shiftStr(ds,n){const d=parse(ds);d.setDate(d.getDate()+n);return fmtLocal(d);}
+
+// Recalibración diaria: mira carga real de 7 y 14 días, cumplimiento y semáforo.
+async function dailyRecalc(){
+  const f=dayInfoFor(focusDateStr());if(!f)return null;
+  const sessions=await Store.get('strava_sessions')||[];
+  const r=await computeReadiness();
+  const last7=minutesBetween(sessions,shiftStr(f.ds,-7),f.ds);
+  const prev7=minutesBetween(sessions,shiftStr(f.ds,-14),shiftStr(f.ds,-7));
+  const rampPct=prev7>30?((last7/prev7-1)*100):null;
+  // cumplimiento de la semana en curso
+  const wk=PLAN_WEEKS[f.wi];
+  const {autoDone}=matchStravaWeek(f.wi,sessions);
+  const done=await Store.get('week_done')||{};
+  let pasados=0,hechos=0;
+  wk.days.forEach((d,i)=>{const dds=dayDateStr(f.wi,i);
+    if(dds<f.ds&&sportFromTag(d.tag)){pasados++;if(autoDone[i]||done[f.wi+'-'+i])hechos++;}});
+  const cumpl=pasados?hechos/pasados:1;
+  // factor de ajuste acumulado
+  const mods=[];let factor=1;
+  if(r.level==='rojo'){factor=0;mods.push({k:'warn',t:`<b>Semáforo rojo</b> (${r.score}/100): hoy el entrenamiento es recuperarte.`});}
+  else if(r.level==='amarillo'){factor=Math.min(factor,0.8);mods.push({k:'mid',t:`<b>Semáforo amarillo</b> (${r.score}/100): bajamos una marcha.`});}
+  if(rampPct!=null&&rampPct>25&&factor>0){factor=Math.min(factor,0.85);mods.push({k:'warn',t:`<b>Tu carga subió ${Math.round(rampPct)}%</b> respecto a la semana pasada (${(last7/60).toFixed(1)} h vs ${(prev7/60).toFixed(1)} h). Por encima del +10% semanal es donde aparecen las lesiones — y tus rodillas ya están en la lista.`});}
+  else if(rampPct!=null&&rampPct<-35&&factor>0){mods.push({k:'mid',t:`Tu carga bajó ${Math.round(Math.abs(rampPct))}% ((${(last7/60).toFixed(1)} h vs ${(prev7/60).toFixed(1)} h). Si no es taper ni descanso planeado, retomemos con calma — no lo compenses de golpe.`});}
+  if(cumpl<0.6&&pasados>=3&&factor>0){mods.push({k:'mid',t:`Llevas <b>${hechos} de ${pasados}</b> sesiones de la semana. No acumules lo perdido: las sesiones no se recuperan, se sueltan.`});}
+  if(!mods.length)mods.push({k:'ok',t:`Carga y recuperación en orden. El plan de ${afterCutoff()?'mañana':'hoy'} va como está escrito.`});
+  return {...f,factor,mods,rampPct,last7,prev7,cumpl,hechos,pasados,readiness:r};
+}
+// Reescribe el objetivo del día aplicando el factor.
+function scaleTarget(day,factor){
+  const tg=planTarget(day);
+  if(!tg||factor>=0.98)return null;
+  if(factor===0)return{text:'Descanso o movilidad suave',sub:'Sin carga. Duerme, come, hidrátate.'};
+  const lo=+(tg.lo*factor).toFixed(tg.type==='km'?1:0),hi=+(tg.hi*factor).toFixed(tg.type==='km'?1:0);
+  const u=tg.type==='km'?'km':'min';
+  const orig=tg.lo===tg.hi?`${tg.lo} ${u}`:`${tg.lo}–${tg.hi} ${u}`;
+  const nuevo=lo===hi?`${lo} ${u}`:`${lo}–${hi} ${u}`;
+  return{text:`${day.t.replace(/[\d.,]+\s*[–\-]?\s*[\d.,]*\s*km/i,nuevo).replace(/\d+\s*['\u2032]/,nuevo)}`,
+    sub:`Ajustado de <b>${orig}</b> a <b>${nuevo}</b> (${Math.round(factor*100)}% de la carga prevista).`,orig,nuevo};
+}
+// Tarjeta de cierre del día (aparece a partir de las 9pm)
+async function closeCard(){
+  const sessions=await Store.get('strava_sessions')||[];
+  const ds=fmtLocal(today());
+  const hoy=sessions.filter(s=>s.date===ds);
+  const min=hoy.reduce((a,s)=>a+(+s.min||0),0);
+  const info=dayInfoFor(ds);
+  const planned=info?sportFromTag(info.day.tag):null;
+  const hecho=hoy.length>0;
+  let t,k;
+  if(!planned&&!hecho){t='Día de descanso, cumplido. El cuerpo asimila mientras duermes.';k='ok';}
+  else if(hecho){t=`Cerraste el día con <b>${hoy.length} sesión${hoy.length>1?'es':''}</b> y <b>${hhmm(min)}</b> de trabajo. Registrado.`;k='ok';}
+  else{t=`Hoy tocaba <b>${info?info.day.t:'entrenar'}</b> y no hay registro. Un día no define nada; dos seguidos empiezan a hacerlo.`;k='mid';}
+  return`<article class="fcard" style="--c:var(--line2)">
+    <div class="fhead"><span class="fic">🌙</span><div class="fhx"><div class="ftitle">Cierre del día · 9:00 pm</div><div class="fmeta">${parse(ds).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'short'})}</div></div></div>
+    <p class="verdict">${t}</p>
+    <div class="vsub">Hora de dormir. Es tu prioridad nº1 y tu escudo contra el abandono: a las 8:15 pm en cama, 7.5–8 h de sueño.</div>
+  </article>`;
+}
+
 // ================== FEED · veredictos honestos ==================
 const SPORT_COLOR={swim:'var(--swim)',bike:'var(--bike)',run:'var(--run)',strength:'var(--str)',other:'var(--str)',rest:'var(--rest)'};
 const SPORT_NAME={swim:'Nado',bike:'Bici',run:'Carrera',strength:'Fuerza',other:'Otro'};
@@ -1166,6 +1250,124 @@ async function renderFormBoard(){
 }
 
 
+
+// ================== INFORME EXPORTABLE + CORTE DIARIO 9 PM ==================
+// Última frontera de corte (hoy 21:00 si ya pasó; si no, ayer 21:00)
+function lastCutoff(){
+  const n=new Date();const c=new Date(n.getFullYear(),n.getMonth(),n.getDate(),CUTOFF_HOUR,0,0,0);
+  if(n<c)c.setDate(c.getDate()-1);
+  return c;
+}
+// ¿Los datos que tengo son de antes del último corte? Entonces toca refrescar.
+async function needsAutoSync(){
+  const last=await Store.get('last_auto_sync');
+  if(!last)return true;
+  return new Date(last)<lastCutoff();
+}
+async function autoSyncOnOpen(){
+  if(!(await needsAutoSync()))return;
+  const st=document.getElementById('liveStatusP');
+  if(st)st.innerHTML='Actualizando al corte de las 9 pm…';
+  try{await syncAll();await Store.set('last_auto_sync',new Date().toISOString());}catch(e){}
+}
+
+// Construye el informe completo con todo lo que necesito para analizarte.
+async function buildReport(){
+  const sessions=(await Store.get('strava_sessions'))||[];
+  const summary=(await Store.get('strava_summary'))||null;
+  const wellness=(await Store.get('garmin_wellness'))||[];
+  const logs=(await Store.get('logs'))||{};
+  const manual=(await Store.get('logs_manual'))||{};
+  const weekDone=(await Store.get('week_done'))||{};
+  const races=(await Store.get('custom_races'))||[];
+  const wt=await latestWeight();
+  const r=await computeReadiness();
+  const w=wellAsc(wellness);
+
+  // Cumplimiento por semana del plan
+  const plan=PLAN_WEEKS.map((wk,i)=>{
+    const {autoDone,extra}=matchStravaWeek(i,sessions);
+    const dias=wk.days.map((d,j)=>{
+      const a=autoDone[j];
+      return {dia:d.d,fecha:dayDateStr(i,j),planeado:d.t,deporte:sportFromTag(d.tag),
+        cumplido:!!(a||weekDone[i+'-'+j]),
+        real:a?{nombre:a.name,km:a.km,min:a.min,fc_media:a.avgHr||null,ritmo:paceStr(a)}:null};
+    });
+    return {semana:wk.label,rango:wk.sub,inicio:wk.start,fin:wk.end,foco:wk.focus,
+      volumen_objetivo:wk.vol,
+      cumplidas:dias.filter(d=>d.cumplido).length,
+      dias,
+      no_planeadas:extra.map(s=>({fecha:s.date,nombre:s.name,deporte:s.sport,km:s.km,min:s.min}))};
+  });
+
+  // Volumen real por semana ISO y por deporte
+  const porSemana={};
+  sessions.forEach(s=>{
+    const k=isoWeekKey(parse(s.date));
+    porSemana[k]=porSemana[k]||{horas:0,sesiones:0,km_run:0,km_bike:0,m_swim:0,kcal:0};
+    const b=porSemana[k];
+    b.horas+=(+s.min||0)/60;b.sesiones++;b.kcal+=kcalForSession(s,wt);
+    if(s.sport==='run')b.km_run+=(+s.km||0);
+    if(s.sport==='bike')b.km_bike+=(+s.km||0);
+    if(s.sport==='swim')b.m_swim+=(+s.km||0)*1000;
+  });
+  Object.keys(porSemana).forEach(k=>{const b=porSemana[k];b.horas=+b.horas.toFixed(1);b.km_run=+b.km_run.toFixed(1);b.km_bike=+b.km_bike.toFixed(1);b.m_swim=Math.round(b.m_swim);b.kcal=Math.round(b.kcal);});
+
+  return {
+    _informe:'Proyecto IRONMAN · informe para análisis del entrenador',
+    _generado:new Date().toISOString(),
+    _corte:lastCutoff().toISOString(),
+    _instrucciones:'Súbelo al chat de Claude. Contiene entrenos reales de Strava, carga (CTL/ATL/forma), recuperación (HRV, sueño), cumplimiento del plan semanal y carreras.',
+    atleta:{peso_kg:wt,altura_m:1.72,nacimiento:'1991-09-27'},
+    proximas_carreras:allRaces().filter(x=>x.date&&daysTo(x.date)>=0).map(x=>({nombre:x.name,fecha:x.date,dias_faltantes:daysTo(x.date),distancia:x.dist||null})),
+    estado_hoy:{
+      fecha:fmtLocal(today()),
+      semaforo:r.level,puntaje:r.score,
+      hrv:r.hrv,hrv_base_14d:r.hrvBase?+r.hrvBase.toFixed(1):null,
+      body_battery_o_readiness:r.bb,sueno_h:r.sleep,
+      forma_tsb:r.form,condicion_ctl:r.ctl,fatiga_atl:r.atl,ramp_rate:r.ramp,vo2max:r.vo2,
+      alertas:r.flags.map(f=>f.t.replace(/<[^>]+>/g,''))
+    },
+    resumen_strava_6m:summary,
+    volumen_por_semana:porSemana,
+    cumplimiento_plan:plan,
+    sesiones:sessions.map(s=>({fecha:s.date,deporte:s.sport,nombre:s.name,km:s.km,min:s.min,
+      ritmo:paceStr(s),fc_media:s.avgHr||null,fc_max:s.maxHr||null,desnivel_m:s.elev||null,
+      watts:s.watts||null,cadencia:s.cadence||null,esfuerzo:s.effort||null,
+      kcal:kcalForSession(s,wt),records:s.prs||0,logros:s.achv||0})),
+    recuperacion_diaria:w.slice(-90).map(x=>({fecha:x.date,sueno_h:x.sleep,hrv:x.hrv,
+      body_battery:x.bb,readiness:x.readiness,fc_reposo:x.restingHR,peso:x.weight,
+      ctl:x.ctl,atl:x.atl,forma:x.form,ramp_rate:x.rampRate,vo2max:x.vo2max})),
+    registros_manuales:Object.keys(logs).sort().map(d=>({fecha:d,...logs[d],campos_manuales:Object.keys(manual[d]||{})})),
+    carreras_agregadas:races
+  };
+}
+async function exportReport(download){
+  const st=document.getElementById('expStatus');
+  try{
+    const rep=await buildReport();
+    const txt=JSON.stringify(rep,null,1);
+    const kb=(txt.length/1024).toFixed(0);
+    if(download){
+      const blob=new Blob([txt],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download=`proyecto-ironman_${fmtLocal(today())}.json`;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      if(st)st.innerHTML=`Informe descargado · ${kb} KB · ${rep.sesiones.length} sesiones, ${rep.recuperacion_diaria.length} días de recuperación.<br>Súbelo al chat para que lo analice.`;
+      toast('Informe descargado');
+    } else {
+      await navigator.clipboard.writeText(txt);
+      if(st)st.innerHTML=`Copiado · ${kb} KB. Pégalo en el chat.`;
+      toast('Copiado');
+    }
+  }catch(e){
+    if(st)st.textContent='No se pudo generar el informe: '+String(e.message||e);
+    toast('Error al exportar');
+  }
+}
+
 // ---- Cinta de disciplinas (elemento firma) ----
 async function renderRibbon(){
   const box=document.getElementById('ribbon');if(!box)return;
@@ -1211,25 +1413,39 @@ async function renderFeed(){
   html+=`<div class="daysep today"><span class="dl">Hoy · ${parse(todayStr).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'short'})}</span><span class="dline"></span></div>`;
   html+=`<div class="card pad" id="readyBox" style="margin-bottom:10px"></div>`;
 
-  // 2) Sesión de hoy (pendiente o hecha)
-  const dayToday=PLAN_WEEKS[wi].days[dowIdx];
-  const doneToday=sessions.find(s=>s.date===todayStr&&sportMatch(sportFromTag(dayToday.tag),s.sport));
-  if(!doneToday){
-    const sp=sportFromTag(dayToday.tag);
+  // 2) Cierre del día (a partir de las 9pm)
+  if(afterCutoff())html+=await closeCard();
+
+  // 3) Sesión en foco (hoy, o mañana si ya pasó el corte) recalibrada con tus datos
+  const rc=await dailyRecalc();
+  const f=rc||dayInfoFor(todayStr);
+  if(f){
+    const dayF=f.day,fds=f.ds;
+    const sp=sportFromTag(dayF.tag);
     const col=SPORT_COLOR[sp||'rest'];
     const ic=sp?SPORT_IC[sp]:'🌙';
-    html+=`<article class="fcard" style="--c:${col}">
-      <div class="fhead"><span class="fic">${ic}</span><div class="fhx"><div class="ftitle">${dayToday.t}</div><div class="fmeta">Pendiente hoy</div></div><span class="fchip chip-plan">Plan</span></div>
-      <p class="verdict">${dayToday.detail}</p>
-      ${dayToday.obj?`<div class="vsub"><b>Objetivo:</b> ${dayToday.obj}</div>`:''}
-      <div id="adjustBox"></div>
-      <div class="btnrow" id="todayBtns"></div>
-    </article>`;
+    const doneF=sessions.find(s=>s.date===fds&&sportMatch(sp,s.sport));
+    const esManana=fds!==todayStr;
+    const sc=rc?scaleTarget(dayF,rc.factor):null;
+    const mods=rc?rc.mods.map(m=>`<div class="vsub"><span class="fi ${m.k}" style="display:inline-block;margin-right:5px"></span>${m.t}</div>`).join(''):'';
+    if(!doneF){
+      html+=`<article class="fcard" style="--c:${col}">
+        <div class="fhead"><span class="fic">${ic}</span><div class="fhx"><div class="ftitle">${sc?sc.text:dayF.t}</div><div class="fmeta">${esManana?'Mañana':'Pendiente hoy'} · ${parse(fds).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'})}</div></div><span class="fchip chip-plan">${sc?'Ajustado':'Plan'}</span></div>
+        <p class="verdict">${dayF.detail}</p>
+        ${sc?`<div class="vsub" style="color:var(--caution)">${sc.sub}</div>`:''}
+        ${dayF.obj?`<div class="vsub"><b>Objetivo:</b> ${dayF.obj}</div>`:''}
+        ${mods}
+        <div id="adjustBox"></div>
+        <div class="btnrow" id="todayBtns"></div>
+      </article>`;
+    } else {
+      html+=`<div id="adjustBox"></div><div class="btnrow" id="todayBtns" style="margin-bottom:12px"></div>`;
+    }
   } else {
     html+=`<div id="adjustBox"></div><div class="btnrow" id="todayBtns" style="margin-bottom:12px"></div>`;
   }
 
-  // 3) Corriente de sesiones, agrupada por día
+  // 4) Corriente de sesiones, agrupada por día
   if(!sessions.length){
     html+=`<div class="card pad"><div class="empty">Aún no hay sesiones. Pulsa <b>Sync</b> arriba y tu historial de Strava aparecerá aquí, con el veredicto de cada entreno.</div></div>`;
   } else {
@@ -1393,6 +1609,11 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
   await step('formulario',wireRaceForm);
   await step('revision',renderReviewBanner);
   await step('forma',renderFormBoard);
+  await step('export',()=>{
+    const b=document.getElementById('btnExport');if(b)b.onclick=()=>exportReport(true);
+    const c=document.getElementById('btnCopy');if(c)c.onclick=()=>exportReport(false);
+  });
+  await step('autosync',autoSyncOnOpen);
 })();
 </script>
 </body>
