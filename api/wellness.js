@@ -98,9 +98,26 @@ export default async function handler(req, res) {
 
     wellness.sort((a, b) => (a.date < b.date ? 1 : -1));
 
+    // Cuenta cuántos días traen dato REAL de cada métrica (no basta con que el campo exista).
+    const countData = (k) => wellness.reduce((acc, d) => acc + (d[k] != null ? 1 : 0), 0);
+    const withData = {
+      sleep: countData('sleep'), hrv: countData('hrv'), bodyBattery: countData('bb'),
+      readiness: countData('readiness'), weight: countData('weight'), restingHR: countData('restingHR'),
+      ctl: countData('ctl'), atl: countData('atl'), rampRate: countData('rampRate'), vo2max: countData('vo2max')
+    };
+    // ¿Llega algo de salud (Garmin) o solo carga calculada de actividades?
+    const healthDays = withData.sleep + withData.hrv + withData.bodyBattery + withData.readiness + withData.restingHR;
+    const diagnosis = healthDays === 0
+      ? (withData.ctl > 0
+        ? 'ACTIVIDADES_SI_SALUD_NO'   // Intervals recibe entrenos, pero ningún dato de salud de Garmin
+        : 'SIN_DATOS')
+      : 'OK';
+
     return res.status(200).json({
       wellness,
       count: wellness.length,
+      diagnosis,
+      withData,
       mapped: { sleep: kSleep, hrv: kHrv, bodyBattery: kBB, weight: kWeight, restingHR: kRhr, readiness: kReady, ctl: kCtl, atl: kAtl, rampRate: kRamp, vo2max: kVo2 },
       availableFields: Object.keys(sample)
     });

@@ -694,7 +694,7 @@ async function renderWeek(){
 function chartLines(id,series,opts={}){
   const el=document.getElementById(id);if(!el)return;
   const live=series.filter(s=>s.data&&s.data.length);
-  if(!live.length){el.innerHTML='<div class="empty">Sin datos aún. Pulsa <b>Sincronizar Garmin</b> para verlo aquí.</div>';return;}
+  if(!live.length){el.innerHTML=`<div class="empty">${opts.empty||'Sin datos a\u00fan. Pulsa <b>Sync</b> arriba para verlo aqu\u00ed.'}</div>`;return;}
   const W=340,H=opts.h||150,padL=30,padR=8,padT=10,padB=18;
   const dates=[...new Set(live.flatMap(s=>s.data.map(p=>p.d)))].sort();
   const xi=d=>dates.indexOf(d);
@@ -730,7 +730,7 @@ function chartLines(id,series,opts={}){
 
 function spark(id,data,opts={}){
   const el=document.getElementById(id);if(!el)return;
-  if(!data.length){el.innerHTML='<div class="empty">Aún no hay datos. Registra unos días o usa <b>Live</b> y verás tu tendencia aquí.</div>';return;}
+  if(!data.length){el.innerHTML=`<div class="empty">${opts.empty||'A\u00fan no hay datos. Reg\u00edstralos abajo o pulsa <b>Sync</b> y ver\u00e1s tu tendencia aqu\u00ed.'}</div>`;return;}
   const W=320,H=120,pad=8,vals=data.map(d=>d.v);
   let mn=Math.min(...vals),mx=Math.max(...vals);
   if(opts.min!=null)mn=Math.min(mn,opts.min);if(opts.max!=null)mx=Math.max(mx,opts.max);
@@ -748,9 +748,9 @@ async function renderProgress(){
   const series=k=>dates.map(d=>({d,v:logs[d][k]})).filter(p=>p.v!=null&&!isNaN(p.v));
   const wt=series('weight'),sl=series('sleep'),hv=series('hrv'),bb=series('bb');
   spark('wChart',wt.slice(-30));
-  spark('sChart',sl.slice(-30),{target:7.5,min:5,max:9});
+  spark('sChart',sl.slice(-30),{target:7.5,min:5,max:9,empty:'El sue\u00f1o viene de <b>Garmin</b> v\u00eda Intervals.icu (o reg\u00edstralo abajo a mano).'});
   spark('hChart',hv.slice(-30));
-  spark('bChart',bb.slice(-30),{min:0,max:100});
+  spark('bChart',bb.slice(-30),{min:0,max:100,empty:'Body Battery / Training Readiness viene de <b>Garmin</b> (o reg\u00edstralo abajo a mano).'});
   const sm=await Store.get('strava_summary');
   let volSeries=[];
   if(sm&&sm.byWeek&&sm.byWeek.length){volSeries=sm.byWeek.slice(-16).map(w=>({d:w.week,v:+(w.hours||0).toFixed(1)}));}
@@ -976,7 +976,7 @@ async function renderReadiness(){
   const box=document.getElementById('readyBox'),adj=document.getElementById('adjustBox');
   if(!box)return;
   const r=await computeReadiness();
-  if(!r.hasData){box.innerHTML='<div class="empty">Sin datos de recuperación todavía. Pulsa <b>Sincronizar Garmin</b> en Progreso (o registra HRV y Body Battery a mano) y aquí verás tu semáforo diario.</div>';if(adj)adj.innerHTML='';return;}
+  if(!r.hasData){box.innerHTML='<div class="empty">Sin datos de recuperaci\u00f3n todav\u00eda. Conecta <b>Garmin</b> en intervals.icu (o registra HRV y Body Battery a mano en Progreso) y aqu\u00ed ver\u00e1s tu sem\u00e1foro diario.</div>';if(adj)adj.innerHTML='';return;}
   const txt=r.level==='verde'?{s:'Luz verde',d:'Tus señales están en orden. Ejecuta la sesión de hoy como está planeada.'}
     :r.level==='amarillo'?{s:'Luz amarilla',d:'Recuperación parcial. Podemos entrenar, pero bajando una marcha.'}
     :{s:'Luz roja',d:'Tu cuerpo pide recuperación. Hoy, aflojar es ejecutar el plan.'};
@@ -1000,7 +1000,7 @@ async function renderFormBoard(){
   const box=document.getElementById('formBox');if(!box)return;
   const w=wellAsc(await getWell());
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  if(!w.length){box.innerHTML='<div class="empty">Pulsa <b>Sincronizar Garmin</b> para traer tu modelo de carga (condición, fatiga, forma y ramp rate) desde Intervals.icu.</div>';
+  if(!w.length){box.innerHTML='<div class="empty">Pulsa <b>Sync</b> arriba para traer tu modelo de carga (condici\u00f3n, fatiga, forma y ramp rate) desde Intervals.icu.</div>';
     ['ctlChart','tsbChart','hrvChart','vo2Chart'].forEach(id=>chartLines(id,[]));return;}
   const ctl=lastVal(w,'ctl'),atl=lastVal(w,'atl'),form=lastVal(w,'form'),ramp=lastVal(w,'rampRate'),vo2=lastVal(w,'vo2max');
   const hrvB=baseline(w,'hrv',14);
@@ -1018,12 +1018,13 @@ async function renderFormBoard(){
   if(ctl==null)html+=`<div class="vd mid">Intervals.icu aún no calcula tu condición (CTL/ATL). Necesita tus actividades sincronizadas desde Garmin — dale unos minutos tras conectar, o revisa que la sincronización de actividades esté activa.</div>`;
   box.innerHTML=html;
   const S=d=>w.filter(x=>x[d]!=null).slice(-90).map(x=>({d:x.date,v:x[d]}));
-  chartLines('ctlChart',[{name:'Condición (CTL)',color:'#34D399',data:S('ctl'),area:true},{name:'Fatiga (ATL)',color:'#FF6B6B',data:S('atl')}]);
-  chartLines('tsbChart',[{name:'Forma (TSB)',color:'#FFB23E',data:S('form'),area:true}],{zero:true});
+  const NOGAR='Este dato viene de <b>Garmin</b>. Con\u00e9ctalo en intervals.icu \u2192 Settings \u2192 Integrations \u2192 Garmin Connect (permisos Wellness y Sleep).';
+  chartLines('ctlChart',[{name:'Condición (CTL)',color:'#34D399',data:S('ctl'),area:true},{name:'Fatiga (ATL)',color:'#FF6B6B',data:S('atl')}],{empty:'Intervals.icu a\u00fan no calcula tu carga. Necesita unas semanas de actividades sincronizadas.'});
+  chartLines('tsbChart',[{name:'Forma (TSB)',color:'#FFB23E',data:S('form'),area:true}],{zero:true,empty:'La forma aparece cuando haya CTL y ATL calculados.'});
   const hrvS=S('hrv');
   const baseS=hrvB?hrvS.map(p=>({d:p.d,v:+hrvB.toFixed(1)})):[];
-  chartLines('hrvChart',[{name:'HRV',color:'#2DD4BF',data:hrvS},{name:'Base 14d',color:'#7E889E',data:baseS,w:1.3}]);
-  chartLines('vo2Chart',[{name:'VO2max',color:'#A78BFA',data:S('vo2max')}]);
+  chartLines('hrvChart',[{name:'HRV',color:'#2DD4BF',data:hrvS},{name:'Base 14d',color:'#7E889E',data:baseS,w:1.3}],{empty:NOGAR});
+  chartLines('vo2Chart',[{name:'VO2max',color:'#A78BFA',data:S('vo2max')}],{empty:NOGAR});
   set('fNow',form!=null?((form>0?'+':'')+form):'—');
   set('tsbNow',form!=null?((form>0?'+':'')+form):'—');
   set('hrvBaseNow',hrvB?Math.round(hrvB)+' ms':'—');
@@ -1091,11 +1092,21 @@ async function runGarminSync(){
     });
     await Store.set('logs',logs);await Store.set('garmin_wellness',rows);await Store.set('garmin_synced',new Date().toISOString());
     await renderProgress();await renderBench();await renderStatBar();await renderFormBoard();await renderReadiness();await renderTodaySession();
-    const mp=j.mapped||{};const notes=[];
-    if(!mp.bodyBattery&&mp.readiness)notes.push('Body Battery no viaja por la API de Intervals.icu: usamos <b>Training Readiness</b> de Garmin como equivalente.');
-    else if(!mp.bodyBattery)notes.push('Body Battery no viene en el feed. Puedes registrarlo a mano abajo si quieres usarlo.');
-    if(!mp.hrv)notes.push('No llega HRV. Revisa en intervals.icu → Settings → Garmin Connect que el permiso de <b>Wellness</b> esté activo.');
-    if(!mp.ctl)notes.push('Aún no hay CTL/ATL: Intervals.icu los calcula cuando lleva unas semanas recibiendo tus actividades.');
+    const wd=j.withData||{};
+    if(j.diagnosis==='ACTIVIDADES_SI_SALUD_NO'){
+      setGarminStatus(`<b style="color:var(--accent-2)">Falta conectar Garmin en Intervals.icu.</b><br>Intervals.icu sí tiene tus entrenos (por eso calcula la carga), pero <b>no está recibiendo ningún dato de salud</b>: cero días con sueño, HRV, Body Battery o Training Readiness.<br><br>Tus actividades le están llegando desde <b>Strava</b>, no desde Garmin — y Strava no transporta datos de recuperación.<br><br>Solución: en intervals.icu → <b>Settings → Integrations → Garmin Connect → Connect</b>, y autoriza los permisos de <b>Wellness</b> y <b>Sleep</b>. Luego usa "Download old data" y vuelve a pulsar Sync.`);
+      toast('Falta conectar Garmin en Intervals.icu');return;
+    }
+    if(j.diagnosis==='SIN_DATOS'){
+      setGarminStatus('Intervals.icu respondió, pero no hay datos en el rango. Conecta Garmin Connect en sus ajustes y pulsa "Download old data".');
+      toast('Sin datos');return;
+    }
+    const notes=[];
+    if(!wd.bodyBattery&&wd.readiness)notes.push(`Body Battery no viaja por la API: usamos <b>Training Readiness</b> (${wd.readiness} días) como equivalente.`);
+    else if(!wd.bodyBattery&&!wd.readiness)notes.push('Sin Body Battery ni Training Readiness. Puedes registrarlo a mano abajo.');
+    if(!wd.hrv)notes.push('No llega <b>HRV</b>. Revisa el permiso de Wellness en intervals.icu → Garmin Connect.');
+    if(!wd.vo2max)notes.push('Sin <b>VO2max</b>: Garmin no siempre lo envía por la API.');
+    if(!wd.ctl)notes.push('Aún no hay CTL/ATL: Intervals.icu los calcula tras unas semanas recibiendo actividades.');
     const warn=notes.length?`<br><span style="color:var(--muted)">${notes.join('<br>')}</span>`:'';
     setGarminStatus(`Garmin sincronizado · ${n} día(s) actualizados.${warn}`);toast('Garmin sincronizado ✓');
   }catch(err){
