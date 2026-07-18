@@ -344,6 +344,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div class="view" id="v-semana">
     <section>
       <p class="eyebrow">Plan semanal · Fase 1 — Afinar la 21K</p>
+      <div id="travelBar"></div>
       <div class="weeknav" id="weekNav"></div>
       <div class="weeknote" id="weekNote"></div>
       <div id="weekDays"></div>
@@ -625,11 +626,12 @@ function sessionDetailHtml(s,ctx){
 function dayDateStr(wIdx,i){const d=parse(PLAN_WEEKS[wIdx].start);d.setDate(d.getDate()+i);return fmtLocal(d);}
 function matchStravaWeek(wIdx,sessions){
   const wk=PLAN_WEEKS[wIdx];if(!wk)return {autoDone:{},extra:[]};
+  const WD=daysFor(wIdx);
   const inWeek=(sessions||[]).filter(s=>s.date>=wk.start&&s.date<=wk.end);
   const todayStr=fmtLocal(today());
   const used=new Set(),autoDone={};
   // Empareja SOLO por fecha exacta + deporte, y nunca en días futuros.
-  wk.days.forEach((d,i)=>{
+  WD.forEach((d,i)=>{
     const sport=sportFromTag(d.tag);if(!sport)return;
     const ds=dayDateStr(wIdx,i);
     if(ds>todayStr)return; // el futuro jamás se marca como hecho
@@ -683,6 +685,7 @@ function renderWeekNav(){
 }
 async function renderWeek(){
   const wk=PLAN_WEEKS[selWeek];
+  const WD=daysFor(selWeek);
   document.getElementById('weekNote').innerHTML=wk.note;
   document.getElementById('weekVol').textContent=wk.vol;
   const done=await Store.get('week_done')||{};
@@ -692,9 +695,9 @@ async function renderWeek(){
   const {autoDone,extra}=matchStravaWeek(selWeek,sessions);
   const todayStr=fmtLocal(today());
   // Orden: del m\u00e1s reciente al m\u00e1s antiguo.
-  const order=wk.days.map((d,i)=>i).sort((a,b)=>dayDateStr(selWeek,b).localeCompare(dayDateStr(selWeek,a)));
+  const order=WD.map((d,i)=>i).sort((a,b)=>dayDateStr(selWeek,b).localeCompare(dayDateStr(selWeek,a)));
   document.getElementById('weekDays').innerHTML=order.map(i=>{
-    const d=wk.days[i];
+    const d=WD[i];
     const key=selWeek+'-'+i,manual=done[key],auto=autoDone[i],ck=manual||!!auto;
     const ds=dayDateStr(selWeek,i);const isT=ds===todayStr;const future=ds>todayStr;
     const dLabel=parse(ds).toLocaleDateString('es',{day:'numeric',month:'short'});
@@ -709,7 +712,7 @@ async function renderWeek(){
   }).join('');
   document.getElementById('weekExtra').innerHTML='';
   document.querySelectorAll('#weekDays .check').forEach(btn=>btn.onclick=async(ev)=>{ev.stopPropagation();const key=btn.closest('.day').dataset.key;const dn=await Store.get('week_done')||{};dn[key]=!dn[key];await Store.set('week_done',dn);renderWeek();renderTodayButtons();});
-  const total=wk.days.filter((d,i)=>done[selWeek+'-'+i]||autoDone[i]).length;
+  const total=WD.filter((d,i)=>done[selWeek+'-'+i]||autoDone[i]).length;
   document.getElementById('weekProg').textContent=total+' / 7';
 }
 
@@ -1001,7 +1004,7 @@ function focusDateStr(){const d=today();if(afterCutoff())d.setDate(d.getDate()+1
 function dayInfoFor(ds){
   for(let i=0;i<PLAN_WEEKS.length;i++){const w=PLAN_WEEKS[i];
     if(ds>=w.start&&ds<=w.end){const di=Math.round((parse(ds)-parse(w.start))/MS);
-      if(w.days[di])return{wi:i,di,day:w.days[di],ds};}}
+      const WD=daysFor(i);if(WD[di])return{wi:i,di,day:WD[di],ds};}}
   return null;
 }
 function minutesBetween(sessions,from,to){return sessions.filter(s=>s.date>=from&&s.date<to).reduce((a,s)=>a+(+s.min||0),0);}
@@ -1025,6 +1028,9 @@ async function dailyRecalc(){
   const cumpl=pasados?hechos/pasados:1;
   // factor de ajuste acumulado
   const mods=[];let factor=1;
+  const rp=returnPlan();
+  if(rp){factor=Math.min(factor,rp.factor);mods.push({k:'mid',t:rp.t});}
+  if(TRAVEL.active)mods.push({k:'mid',t:'<b>Modo viaje activo.</b> Semana mínima: 2 trotes y 20\u2032 de fuerza. Mantener ya es ganar.'});
   if(r.level==='rojo'){factor=0;mods.push({k:'warn',t:`<b>Semáforo rojo</b> (${r.score}/100): hoy el entrenamiento es recuperarte.`});}
   else if(r.level==='amarillo'){factor=Math.min(factor,0.8);mods.push({k:'mid',t:`<b>Semáforo amarillo</b> (${r.score}/100): bajamos una marcha.`});}
   if(rampPct!=null&&rampPct>25&&factor>0){factor=Math.min(factor,0.85);mods.push({k:'warn',t:`<b>Tu carga subió ${Math.round(rampPct)}%</b> respecto a la semana pasada (${(last7/60).toFixed(1)} h vs ${(prev7/60).toFixed(1)} h). Por encima del +10% semanal es donde aparecen las lesiones — y tus rodillas ya están en la lista.`});}
@@ -1063,6 +1069,73 @@ async function closeCard(){
     <p class="verdict">${t}</p>
     <div class="vsub">Hora de dormir. Es tu prioridad nº1 y tu escudo contra el abandono: a las 8:15 pm en cama, 7.5–8 h de sueño.</div>
   </article>`;
+}
+
+
+// ================== MODO VIAJE ==================
+// Semana mínima de mantenimiento: ~2.5 h, sin equipo, cabe en una maleta.
+// Principio: lo que mata la forma no es una semana floja, es la semana en cero
+// seguida del intento de "recuperar lo perdido".
+let TRAVEL={active:false,since:null,returnFrom:null,daysAway:0};
+const TRAVEL_DAYS=[
+ {d:"Lun",t:"Trote 35–40'",tag:'<span class="tag t-run">Run</span>',detail:"Sal del hotel y trota 35–40' a ritmo cómodo. No importa la ruta, el ritmo ni el desnivel.",obj:"Mantener el estímulo aeróbico y la mecánica de carrera. Con esto conservas casi toda la condición.",tip:"Solo necesitas zapatillas. Si llueve, escaleras o gimnasio del hotel."},
+ {d:"Mar",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Sin sesión. Camina lo que el viaje te imponga.",obj:"Recuperar del desfase horario y la carga del viaje.",tip:"Hidrátate: volar y las salas deshidratan más de lo que crees."},
+ {d:"Mié",t:"Fuerza de habitación 20'",tag:'<span class="tag t-str">Fuerza</span>',detail:"Sentadillas, zancadas, plancha, puente de glúteo, elevación de gemelos. 2–3 series, sin equipo.",obj:"Blindar rodillas y tobillos, que es justo lo que más se pierde al parar. 20 minutos compran mucha durabilidad.",tip:"Entre la cama y la maleta hay espacio suficiente."},
+ {d:"Jue",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Sin sesión.",obj:"Priorizar sueño y compromisos del viaje sin culpa.",tip:"Dormir es la sesión de hoy."},
+ {d:"Vie",t:"Trote 35–40'",tag:'<span class="tag t-run">Run</span>',detail:"Segundo trote de la semana, igual de simple. Ritmo cómodo, sin reloj si quieres.",obj:"Segundo estímulo aeróbico. Dos trotes por semana sostienen la base varias semanas.",tip:"Conocer una ciudad corriendo es la mejor parte del viaje."},
+ {d:"Sáb",t:"Trote o caminata · opcional",tag:'<span class="tag t-rest">Suave</span>',detail:"Si el día lo permite, 30' suaves. Si no, no pasa nada.",obj:"Bonus. Su valor es que existe la opción, no la obligación.",tip:"Opcional de verdad. Sin culpa si no ocurre."},
+ {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Vuelve a casa entero.",obj:"Cerrar la semana. Con 3 sesiones ya cumpliste el objetivo del modo viaje.",tip:"Meta cumplida: mantuviste, que era todo lo que había que hacer."}
+];
+async function loadTravel(){const t=await Store.get('travel');if(t)TRAVEL=Object.assign(TRAVEL,t);}
+async function saveTravel(){await Store.set('travel',TRAVEL);}
+function daysFor(wi){return (TRAVEL.active&&wi===currentWeekIdx())?TRAVEL_DAYS:PLAN_WEEKS[wi].days;}
+
+// Protocolo de regreso: se retoma, no se recupera.
+function returnPlan(){
+  if(TRAVEL.active||!TRAVEL.returnFrom)return null;
+  const back=Math.floor((today()-parse(TRAVEL.returnFrom))/MS); // días desde que volviste
+  const away=TRAVEL.daysAway||0;
+  if(away<5)return null;                       // viaje corto: sin protocolo
+  let dur,f1,f2;
+  if(away<=9){dur=5;f1=0.85;f2=1;}             // hasta 9 días fuera → 5 días al 85%
+  else if(away<=16){dur=10;f1=0.75;f2=0.9;}    // hasta 16 → 2 semanas
+  else {dur=17;f1=0.65;f2=0.8;}                // más de 16 → 3 semanas
+  if(back>dur)return null;                     // protocolo terminado
+  const half=Math.ceil(dur/2);
+  const factor=back<half?f1:f2;
+  if(factor>=0.98)return null; // ya estás al 100%: el protocolo terminó, fuera ruido
+  return {factor,back,away,dur,restantes:(back<half?half:dur)-back,
+    t:`<b>Vuelves de ${away} días fuera.</b> Los próximos ${dur-back} día(s) van al <b>${Math.round(factor*100)}%</b> de la carga escrita. Las sesiones perdidas no se recuperan: se sueltan. Retomar despacio es lo que te devuelve la forma sin lesionarte.`};
+}
+async function toggleTravel(on){
+  if(on){
+    TRAVEL.active=true;TRAVEL.since=fmtLocal(today());TRAVEL.returnFrom=null;
+    await saveTravel();toast('Modo viaje activado');
+  } else {
+    const away=TRAVEL.since?Math.max(1,Math.floor((today()-parse(TRAVEL.since))/MS)+1):1;
+    TRAVEL.active=false;TRAVEL.daysAway=away;TRAVEL.returnFrom=fmtLocal(today());
+    await saveTravel();toast(`De vuelta · ${away} días fuera`);
+  }
+  await renderTravelBar();await renderWeek();await renderRibbon();await renderFeed();
+}
+async function renderTravelBar(){
+  const box=document.getElementById('travelBar');if(!box)return;
+  const rp=returnPlan();
+  if(TRAVEL.active){
+    const d=TRAVEL.since?Math.floor((today()-parse(TRAVEL.since))/MS)+1:1;
+    box.innerHTML=`<div class="travelcard on">
+      <div class="tvh"><span class="tvi">✈️</span><div><div class="tvt">Modo viaje · día ${d}</div><div class="tvs">Semana mínima activa: 3 sesiones, ~2.5 h, sin equipo. Mantener es el objetivo — no hay nada que cumplir de más.</div></div></div>
+      <div class="btnrow"><button class="btn primary" id="tvOff">Volví a casa</button></div></div>`;
+    document.getElementById('tvOff').onclick=()=>toggleTravel(false);
+  } else if(rp){
+    box.innerHTML=`<div class="travelcard back">
+      <div class="tvh"><span class="tvi">🏠</span><div><div class="tvt">Retomando · ${rp.restantes} día(s) al ${Math.round(rp.factor*100)}%</div><div class="tvs">${rp.t}</div></div></div>
+      <div class="btnrow"><button class="btn" id="tvSkip">Ya me siento bien, seguir el plan completo</button></div></div>`;
+    document.getElementById('tvSkip').onclick=async()=>{TRAVEL.returnFrom=null;TRAVEL.daysAway=0;await saveTravel();await renderTravelBar();await renderWeek();await renderFeed();toast('Plan completo restaurado');};
+  } else {
+    box.innerHTML=`<div class="travelcard off"><div class="tvh"><span class="tvi">✈️</span><div><div class="tvt">¿Viaje o semana imposible?</div><div class="tvs">Activa la versión mínima: 2 trotes y 20' de fuerza, sin equipo. Mejor una semana floja que una en cero.</div></div></div><div class="btnrow"><button class="btn" id="tvOn">Activar modo viaje</button></div></div>`;
+    document.getElementById('tvOn').onclick=()=>toggleTravel(true);
+  }
 }
 
 // ================== FEED · veredictos honestos ==================
@@ -1409,6 +1482,15 @@ async function renderFeed(){
   const todayStr=fmtLocal(today());
   let html='';
 
+  // 0) Modo viaje / regreso
+  const rpF=returnPlan();
+  if(TRAVEL.active){
+    const dv=TRAVEL.since?Math.floor((today()-parse(TRAVEL.since))/MS)+1:1;
+    html+=`<article class="fcard" style="--c:var(--swim)"><div class="fhead"><span class="fic">✈️</span><div class="fhx"><div class="ftitle">Modo viaje · día ${dv}</div><div class="fmeta">Semana mínima activa</div></div><span class="fchip chip-plan">Viaje</span></div><p class="verdict">Objetivo de la semana: <b>mantener</b>. 2 trotes de 35–40′ y 20′ de fuerza sin equipo. Nada más se te pide.</p><div class="vsub">Desactívalo en la pestaña Semana cuando vuelvas y te armo el regreso.</div></article>`;
+  } else if(rpF){
+    html+=`<article class="fcard" style="--c:var(--caution)"><div class="fhead"><span class="fic">🏠</span><div class="fhx"><div class="ftitle">Retomando tras ${rpF.away} días fuera</div><div class="fmeta">${rpF.restantes} día(s) al ${Math.round(rpF.factor*100)}%</div></div><span class="fchip chip-plan">Regreso</span></div><p class="verdict">${rpF.t}</p></article>`;
+  }
+
   // 1) Semáforo de hoy
   html+=`<div class="daysep today"><span class="dl">Hoy · ${parse(todayStr).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'short'})}</span><span class="dline"></span></div>`;
   html+=`<div class="card pad" id="readyBox" style="margin-bottom:10px"></div>`;
@@ -1593,10 +1675,12 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
 (async function(){
   const step=async(name,fn)=>{try{await fn();}catch(e){console.error('[Proyecto IRONMAN] fallo en '+name+':',e);}};
   await step('carreras',loadCustomRaces);
+  await step('viaje',loadTravel);
   await step('fecha',()=>{const c=document.getElementById('todayChip');if(c)c.textContent=today().toLocaleDateString('es',{day:'numeric',month:'short'}).toUpperCase();});
   await step('ruta',renderRoad);
   await step('fases',renderPhases);
   await step('weekNav',renderWeekNav);
+  await step('barraViaje',renderTravelBar);
   await step('semana',renderWeek);
   await step('cinta',renderRibbon);
   await step('feed',renderFeed);
