@@ -630,9 +630,6 @@ function matchStravaWeek(wIdx,sessions){
   return {autoDone,extra};
 }
 
-document.getElementById('todayChip').textContent=today().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'});
-document.getElementById('curPhaseName').textContent="Fase 1 · Afinar la Media Maratón";
-
 function currentWeekIdx(){const t=today();for(let i=0;i<PLAN_WEEKS.length;i++){if(t>=parse(PLAN_WEEKS[i].start)&&t<=parse(PLAN_WEEKS[i].end))return i;}if(t<parse(PLAN_WEEKS[0].start))return 0;return PLAN_WEEKS.length-1;}
 let selWeek=currentWeekIdx();
 
@@ -1378,13 +1375,24 @@ function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove(
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
 
 (async function(){
-  await loadCustomRaces();
-  document.getElementById('todayChip').textContent=today().toLocaleDateString('es',{day:'numeric',month:'short'}).toUpperCase();
-  renderRoad();renderPhases();renderWeekNav();
-  await renderWeek();await renderRibbon();await renderFeed();
-  await renderProgress();await renderSessions();await renderCalibration();await renderChecks();
-  await renderBench();renderCustomRaces();wireRaceForm();await renderReviewBanner();
-  await renderFormBoard();
+  const step=async(name,fn)=>{try{await fn();}catch(e){console.error('[Proyecto IRONMAN] fallo en '+name+':',e);}};
+  await step('carreras',loadCustomRaces);
+  await step('fecha',()=>{const c=document.getElementById('todayChip');if(c)c.textContent=today().toLocaleDateString('es',{day:'numeric',month:'short'}).toUpperCase();});
+  await step('ruta',renderRoad);
+  await step('fases',renderPhases);
+  await step('weekNav',renderWeekNav);
+  await step('semana',renderWeek);
+  await step('cinta',renderRibbon);
+  await step('feed',renderFeed);
+  await step('progreso',renderProgress);
+  await step('sesiones',renderSessions);
+  await step('calibracion',renderCalibration);
+  await step('checks',renderChecks);
+  await step('marcas',renderBench);
+  await step('competencias',renderCustomRaces);
+  await step('formulario',wireRaceForm);
+  await step('revision',renderReviewBanner);
+  await step('forma',renderFormBoard);
 })();
 </script>
 </body>
