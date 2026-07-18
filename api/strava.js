@@ -60,7 +60,17 @@ export default async function handler(req, res) {
       sport: mapSport(a.sport_type || a.type),
       name: a.name || mapSport(a.sport_type || a.type),
       km: +(((a.distance || 0) / 1000).toFixed(1)),
-      min: Math.round((a.moving_time || 0) / 60)
+      min: Math.round((a.moving_time || 0) / 60),
+      kcal: Math.round(a.calories || a.kilojoules || 0),
+      elev: Math.round(a.total_elevation_gain || 0),
+      avgHr: a.average_heartrate ? Math.round(a.average_heartrate) : null,
+      maxHr: a.max_heartrate ? Math.round(a.max_heartrate) : null,
+      mps: a.average_speed || null,
+      watts: a.average_watts ? Math.round(a.average_watts) : null,
+      cadence: a.average_cadence ? Math.round(a.average_cadence) : null,
+      effort: a.suffer_score || null,
+      prs: a.pr_count || 0,
+      achv: a.achievement_count || 0
     })).filter(a => a.date);
     norm.sort((x, y) => (x.date < y.date ? 1 : -1));
 
@@ -100,7 +110,7 @@ export default async function handler(req, res) {
       byWeek
     };
 
-    return res.status(200).json({ sessions: norm.slice(0, 25), summary });
+    return res.status(200).json({ sessions: norm.slice(0, 60), summary });
   } catch (e) {
     return res.status(500).json({ error: 'Error consultando Strava.', detail: String(e) });
   }

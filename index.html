@@ -190,6 +190,54 @@
   .navbtn.active{color:var(--accent-2)}
   .savetoast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;padding:9px 16px;border-radius:999px;z-index:60;transition:.25s;pointer-events:none}
   .savetoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .garminbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#0B6FB4,#1596E0);color:#fff;font-weight:700;font-size:14.5px;box-shadow:var(--shadow);transition:.15s;border:none}
+  .garminbtn:active{transform:scale(.98)}
+  .garminbtn:disabled{opacity:.6}
+  .sessdet{border-bottom:1px solid var(--border)}
+  .sessdet:last-child{border:none}
+  .sessdet summary{list-style:none;cursor:pointer}
+  .sessdet summary::-webkit-details-marker{display:none}
+  .sessdet .sess-row{border:none}
+  .sessdet[open] summary .sn{color:var(--accent-2)}
+  .sessdet .sdwrap{margin-bottom:11px}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:7px;padding-left:2px}
+  .lgi{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted)}
+  .lgd{width:9px;height:3px;border-radius:2px}
+  .gauge{display:flex;align-items:center;gap:14px}
+  .gring{position:relative;flex:0 0 76px;width:76px;height:76px}
+  .gring svg{transform:rotate(-90deg)}
+  .gnum{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gnum .gv{font-family:'Space Grotesk';font-weight:700;font-size:21px;line-height:1;color:var(--ink)}
+  .gnum .gl{font-size:8.5px;color:var(--muted);margin-top:1px;letter-spacing:.05em}
+  .gtxt{flex:1;min-width:0}
+  .gstate{font-family:'Space Grotesk';font-weight:700;font-size:16px;margin-bottom:2px}
+  .gstate.verde{color:var(--done)} .gstate.amarillo{color:var(--accent-2)} .gstate.rojo{color:var(--run)}
+  .gsub{font-size:12.5px;color:var(--muted);line-height:1.45}
+  .flag{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;padding:8px 0;border-bottom:1px solid var(--border);line-height:1.45;color:var(--muted)}
+  .flag:last-child{border:none}
+  .flag b{color:var(--ink)}
+  .flag .fi{flex:0 0 auto;width:7px;height:7px;border-radius:50%;margin-top:6px}
+  .fi.ok{background:var(--done)} .fi.mid{background:var(--accent-2)} .fi.warn{background:var(--run)}
+  .adjust{margin-top:12px;border:1px solid var(--accent-2);border-radius:12px;overflow:hidden}
+  .adjust-h{background:var(--accent-2);color:#2A1505;font-size:11.5px;font-weight:700;padding:7px 11px;letter-spacing:.04em;text-transform:uppercase}
+  .adjust-b{padding:11px 13px;font-size:13px;line-height:1.5}
+  .adjust-b .an{font-weight:700;color:var(--accent-2);font-size:14px;margin-bottom:3px}
+  .adjust-b .aw{font-size:12px;color:var(--muted);margin-top:6px;border-left:2px solid var(--border-strong);padding-left:9px}
+  .adjust-b .orig{font-size:11.5px;color:var(--faint);margin-top:7px;text-decoration:line-through}
+  .fmetrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:8px;margin-top:12px}
+  .fm{background:var(--elev);border:1px solid var(--border);border-radius:10px;padding:9px 7px;text-align:center}
+  .fm .fv{font-family:'Space Grotesk';font-weight:700;font-size:16px;color:var(--ink);line-height:1.1}
+  .fm .fl{font-size:9.5px;color:var(--muted);margin-top:2px}
+  .sdwrap{margin-top:9px;border:1px solid var(--border-strong);border-radius:12px;padding:11px;background:var(--elev)}
+  .sdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:7px}
+  .sdcell{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:7px 6px;text-align:center}
+  .sdv{font-family:'Space Grotesk';font-weight:700;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15}
+  .sdl{font-size:9.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sdwins{margin-top:9px;display:flex;flex-direction:column;gap:6px}
+  .sdwin{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);line-height:1.45}
+  .sdwin b{color:var(--ink);font-weight:600}
+  .ddate{font-size:11px;color:var(--faint);font-weight:500;margin-left:6px;text-transform:none;letter-spacing:0}
+  .day.is-today .ddate{color:var(--accent-2)}
   .stravatag{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;color:#FC4C02;background:rgba(252,76,2,.14);border:1px solid rgba(252,76,2,.4);border-radius:8px;padding:3px 9px}
   .dobj{font-size:12.5px;color:var(--ink);margin-top:6px;background:var(--elev);border-left:3px solid var(--accent-2);border-radius:0 8px 8px 0;padding:7px 11px;line-height:1.5}
   .dobj b{color:var(--accent-2)}
@@ -235,8 +283,10 @@
     <section><div class="card pad">
       <span class="phasebadge"><span class="dot"></span><span id="curPhaseName">—</span></span>
       <div class="today-sess" style="margin-top:14px" id="todaySessBox"></div>
+      <div id="adjustBox"></div>
       <div class="btnrow" id="todayBtns"></div>
     </div></section>
+    <section><p class="eyebrow">Semáforo de hoy</p><div class="card pad" id="readyBox"></div></section>
     <section><p class="eyebrow">Próximas estaciones</p><div class="card pad"><div class="road" id="roadBox"></div></div></section>
     <section><p class="eyebrow">Tu semana en números</p><div class="ministats" id="miniStats"></div></section>
     <section><p class="eyebrow">Calibración · lo que ya soportas</p><div class="card pad" id="calibHoy"></div></section>
@@ -290,6 +340,19 @@
         <div class="livestatus" id="syncInfo" style="margin-top:1px"></div>
       </div>
     </section>
+    <section><p class="eyebrow">Recuperación · Garmin vía Intervals.icu</p>
+      <div class="card pad">
+        <button class="garminbtn" id="garminSync"><span class="livedot"></span> Sincronizar Garmin · sueño, HRV y Body Battery</button>
+        <div class="livestatus" id="garminStatus">Trae solos tus datos de recuperación, sin registrarlos a mano.</div>
+      </div>
+    </section>
+    <section><p class="eyebrow">Estado de forma · modelo de carga</p>
+      <div class="card pad" id="formBox"></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">Condición vs Fatiga</span><span class="now">forma <b id="fNow">—</b></span></div><div id="ctlChart"></div></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">Forma (TSB)</span><span class="now">hoy <b id="tsbNow">—</b></span></div><div id="tsbChart"></div></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">HRV · con tu línea base</span><span class="now">base 14d <b id="hrvBaseNow">—</b></span></div><div id="hrvChart"></div></div>
+      <div class="card pad chartcard"><div class="chart-h"><span class="ttl">VO2max</span><span class="now">actual <b id="vo2Now">—</b></span></div><div id="vo2Chart"></div></div>
+    </section>
     <section><p class="eyebrow">Calibración · tu carga real vs el plan</p><div class="card pad" id="calibBox"></div></section>
     <section><p class="eyebrow">Sesiones recientes · Strava</p><div class="card pad" id="sessList"></div></section>
     <section><p class="eyebrow">Registro de hoy</p>
@@ -305,7 +368,7 @@
           <div class="field"></div>
         </div>
         <div class="btnrow"><button class="btn primary" id="saveLog">Guardar registro de hoy</button></div>
-        <div style="font-size:12px;color:var(--muted);margin-top:11px;line-height:1.45"><b style="color:var(--ink)">Sueño, HRV y Body Battery</b> vienen de tu Garmin — regístralos a mano (son tus semáforos de recuperación). El <b style="color:var(--ink)">volumen</b> se toma solo de tus entrenamientos de Strava con Live.</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:11px;line-height:1.45"><b style="color:var(--ink)">Sueño, HRV y Body Battery</b> entran solos con <b style="color:var(--ink)">Sincronizar Garmin</b> (arriba). Este formulario es para completar a mano o corregir: lo que escribas aquí manda y Garmin no lo pisa. El <b style="color:var(--ink)">volumen</b> viene de Strava con Live.</div>
       </div>
     </section>
     <section><p class="eyebrow">Tendencias</p>
@@ -474,14 +537,63 @@ function allRaces(){return RACES.concat(CUSTOM_RACES).slice().sort((a,b)=>{if(!a
 function sportFromTag(tag){if(!tag)return null;if(tag.includes('t-swim'))return 'swim';if(tag.includes('t-bike'))return 'bike';if(tag.includes('t-run')||tag.includes('t-race'))return 'run';if(tag.includes('t-str'))return 'strength';return null;}
 function sportMatch(planned,strava){if(!planned)return false;if(planned==='strength')return strava==='other';return planned===strava;}
 const SPORT_IC={swim:'🏊',bike:'🚴',run:'🏃',strength:'💪',other:'🏋️'};
+
+// --- Detalle y logros de una sesión ejecutada ---
+function paceStr(s){
+  if(!s.km||!s.min)return null;
+  if(s.sport==='run'){const p=s.min/s.km;const m=Math.floor(p),sec=Math.round((p-m)*60);return `${m}:${String(sec).padStart(2,'0')} /km`;}
+  if(s.sport==='bike')return `${(s.km/(s.min/60)).toFixed(1)} km/h`;
+  if(s.sport==='swim'){const p=s.min/(s.km*10);const m=Math.floor(p),sec=Math.round((p-m)*60);return `${m}:${String(sec).padStart(2,'0')} /100m`;}
+  return null;
+}
+function distStr(s){if(!s.km)return null;return s.sport==='swim'?Math.round(s.km*1000)+' m':s.km+' km';}
+function hhmm(min){if(!min)return null;const h=Math.floor(min/60),m=min%60;return h?`${h}h ${m}m`:`${m} min`;}
+// Logros: lee la sesión y devuelve frases de coach sobre lo conseguido.
+function sessionWins(s,ctx){
+  const w=[];
+  if(s.prs>0)w.push({ic:'🏅',t:`<b>${s.prs} récord${s.prs>1?'s':''} personal${s.prs>1?'es':''}</b> en esta sesión. Strava detectó tu mejor marca en algún tramo.`});
+  else if(s.achv>0)w.push({ic:'⭐',t:`<b>${s.achv} logro${s.achv>1?'s':''}</b> conseguido${s.achv>1?'s':''} según Strava.`});
+  if(ctx&&ctx.longest&&s.km>=ctx.longest*0.98&&s.km>0)w.push({ic:'📈',t:`<b>Tu ${s.sport==='bike'?'salida':(s.sport==='swim'?'nado':'fondo')} más largo</b> de los últimos 6 meses en este deporte.`});
+  if(s.elev>=400)w.push({ic:'⛰️',t:`<b>${s.elev} m de desnivel</b> acumulado. Buen trabajo de fuerza específica.`});
+  if(s.sport==='run'&&s.km>=15)w.push({ic:'🎯',t:`Fondo de <b>${s.km} km</b>: estímulo directo de resistencia para la 21K.`});
+  if(s.avgHr&&s.avgHr<=140&&s.min>=60)w.push({ic:'💚',t:`FC media de <b>${s.avgHr} ppm</b> en ${hhmm(s.min)}: sesión bien ejecutada en zona aeróbica. Así se construye la base.`});
+  if(s.avgHr&&s.avgHr>=165)w.push({ic:'🔥',t:`FC media alta (<b>${s.avgHr} ppm</b>): sesión exigente. Cuida la recuperación de hoy y mañana.`});
+  if(!w.length)w.push({ic:'✅',t:`Sesión completada y registrada. La constancia es lo que construye al finisher.`});
+  return w;
+}
+function sessionDetailHtml(s,ctx){
+  const wt=(ctx&&ctx.weight)||94;
+  const cells=[];
+  const d=distStr(s);if(d)cells.push({v:d,l:'distancia'});
+  if(s.min)cells.push({v:hhmm(s.min),l:'tiempo'});
+  const p=paceStr(s);if(p)cells.push({v:p,l:s.sport==='bike'?'velocidad':'ritmo'});
+  if(s.avgHr)cells.push({v:s.avgHr,l:'FC media'});
+  if(s.maxHr)cells.push({v:s.maxHr,l:'FC máx'});
+  if(s.elev)cells.push({v:s.elev+' m',l:'desnivel'});
+  if(s.watts)cells.push({v:s.watts+' W',l:'potencia'});
+  if(s.cadence)cells.push({v:s.cadence,l:'cadencia'});
+  const kc=kcalForSession(s,wt);if(kc)cells.push({v:kc.toLocaleString('es'),l:'kcal'+((+s.kcal>0)?'':' aprox')});
+  if(s.effort)cells.push({v:s.effort,l:'esfuerzo rel.'});
+  const grid=`<div class="sdgrid">${cells.map(c=>`<div class="sdcell"><div class="sdv">${c.v}</div><div class="sdl">${c.l}</div></div>`).join('')}</div>`;
+  const wins=sessionWins(s,ctx).map(w=>`<div class="sdwin"><span>${w.ic}</span><span>${w.t}</span></div>`).join('');
+  return `<div class="sdwrap">${grid}<div class="sdwins">${wins}</div></div>`;
+}
 // Empareja las sesiones de Strava de una semana con los días planeados del mismo deporte.
 // Devuelve {autoDone:{dayIdx:session}, extra:[sesiones no planeadas]}
+function dayDateStr(wIdx,i){const d=parse(PLAN_WEEKS[wIdx].start);d.setDate(d.getDate()+i);return fmtLocal(d);}
 function matchStravaWeek(wIdx,sessions){
   const wk=PLAN_WEEKS[wIdx];if(!wk)return {autoDone:{},extra:[]};
   const inWeek=(sessions||[]).filter(s=>s.date>=wk.start&&s.date<=wk.end);
-  const planned=wk.days.map((d,i)=>({i,sport:sportFromTag(d.tag)})).filter(p=>p.sport);
+  const todayStr=fmtLocal(today());
   const used=new Set(),autoDone={};
-  planned.forEach(p=>{const idx=inWeek.findIndex((s,si)=>!used.has(si)&&sportMatch(p.sport,s.sport));if(idx>=0){used.add(idx);autoDone[p.i]=inWeek[idx];}});
+  // Empareja SOLO por fecha exacta + deporte, y nunca en días futuros.
+  wk.days.forEach((d,i)=>{
+    const sport=sportFromTag(d.tag);if(!sport)return;
+    const ds=dayDateStr(wIdx,i);
+    if(ds>todayStr)return; // el futuro jamás se marca como hecho
+    const idx=inWeek.findIndex((s,si)=>!used.has(si)&&s.date===ds&&sportMatch(sport,s.sport));
+    if(idx>=0){used.add(idx);autoDone[i]=inWeek[idx];}
+  });
   const extra=inWeek.filter((s,si)=>!used.has(si));
   return {autoDone,extra};
 }
@@ -505,14 +617,27 @@ function renderRoad(){
     return `<div class="station ${cls}"><div class="pin">${pin}</div><div class="st-top"><span class="st-name">${r.name} ${tagHtml}</span><span class="st-date">${dt}</span></div><div class="st-meta">${r.meta||''}</div><div style="margin-top:3px">${cnt}</div></div>`;
   }).join('');
 }
-function renderTodaySession(){
+async function todayStravaMatch(){
+  const t=PLAN_WEEKS[currentWeekIdx()].days[dowIdx];
+  const sp=sportFromTag(t.tag);if(!sp)return null;
+  const sessions=await Store.get('strava_sessions')||[];
+  const ds=fmtLocal(today());
+  return sessions.find(s=>s.date===ds&&sportMatch(sp,s.sport))||null;
+}
+async function renderTodaySession(){
   const t=PLAN_WEEKS[currentWeekIdx()].days[dowIdx];
   const ic=t.tag.includes('Bici')?'🚴':t.tag.includes('Nado')?'🏊':t.tag.includes('Fuerza')?'💪':(t.tag.includes('Off')||t.tag.includes('Suave')||t.tag.includes('Pre'))?'🌙':'🏃';
-  document.getElementById('todaySessBox').innerHTML=`<div class="ic">${ic}</div><div><div class="sess-title">Hoy · ${t.t} ${t.tag}</div><div class="sess-obj">${t.detail}</div></div>`;
+  const m=await todayStravaMatch();
+  const badge=m?`<span class="stravatag" style="margin-top:8px">\u2713 Strava \u00b7 ${m.name||''}</span>`:'';
+  let det='';
+  if(m){const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};const wt=await latestWeight();det=sessionDetailHtml(m,{longest:L[m.sport+'_km'],weight:wt});}
+  document.getElementById('todaySessBox').innerHTML=`<div class="ic">${ic}</div><div style="flex:1;min-width:0"><div class="sess-title">Hoy \u00b7 ${t.t} ${t.tag}</div><div class="sess-obj">${t.detail}</div>${badge}${det}</div>`;
 }
 async function renderTodayButtons(){
-  const wk=await Store.get('week_done')||{};const key=currentWeekIdx()+'-'+dowIdx;const done=wk[key];
-  document.getElementById('todayBtns').innerHTML=`<button class="btn ${done?'done':'primary'}" id="markToday">${done?'✓ Sesión cumplida':'Marcar sesión cumplida'}</button><button class="btn js-live">⚡ Live Strava</button><button class="btn" onclick="go('progreso')">Registrar</button>`;
+  const wk=await Store.get('week_done')||{};const key=currentWeekIdx()+'-'+dowIdx;const manual=wk[key];
+  const auto=!!(await todayStravaMatch());const done=manual||auto;
+  const label=auto?'✓ Cumplida (en Strava)':(manual?'✓ Sesión cumplida':'Marcar sesión cumplida');
+  document.getElementById('todayBtns').innerHTML=`<button class="btn ${done?'done':'primary'}" id="markToday">${label}</button><button class="btn js-live">⚡ Live Strava</button><button class="btn" onclick="go('progreso')">Registrar</button>`;
   document.getElementById('markToday').onclick=async()=>{const w=await Store.get('week_done')||{};w[key]=!w[key];await Store.set('week_done',w);renderTodayButtons();renderWeek();toast(w[key]?'¡Hecho! 💪':'Desmarcado');};
 }
 function renderMiniStats(){
@@ -535,24 +660,72 @@ async function renderWeek(){
   const wk=PLAN_WEEKS[selWeek];
   document.getElementById('weekNote').innerHTML=wk.note;
   document.getElementById('weekVol').textContent=wk.vol;
-  const done=await Store.get('week_done')||{};const isCur=selWeek===currentWeekIdx();
+  const done=await Store.get('week_done')||{};
   const sessions=await Store.get('strava_sessions')||[];
+  const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};
+  const wt=await latestWeight();
   const {autoDone,extra}=matchStravaWeek(selWeek,sessions);
+  const todayStr=fmtLocal(today());
   document.getElementById('weekDays').innerHTML=wk.days.map((d,i)=>{
-    const key=selWeek+'-'+i,manual=done[key],auto=autoDone[i],ck=manual||!!auto,isT=isCur&&i===dowIdx;
-    const stravaBadge=auto?`<span class="stravatag">✓ Strava · ${auto.km?auto.km+' km':''}${(auto.km&&auto.min)?' · ':''}${auto.min?auto.min+' min':''}</span>`:'';
-    const objHtml=d.obj?`<div class="dobj">🎯 <b>Objetivo:</b> ${d.obj}</div>`:'';
-    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''}" data-key="${key}"><div class="dtop"><span class="dname">${d.d}${isT?' · hoy':''}</span><button class="check">✓</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">💡 ${d.tip}</div>${d.str?`<div class="dstr">💪 ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>📋 Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}</div>`;
+    const key=selWeek+'-'+i,manual=done[key],auto=autoDone[i],ck=manual||!!auto;
+    const ds=dayDateStr(selWeek,i);const isT=ds===todayStr;
+    const dLabel=parse(ds).toLocaleDateString('es',{day:'numeric',month:'short'});
+    const ctx={longest:auto?L[auto.sport+'_km']:null,weight:wt};
+    const stravaBadge=auto?`<span class="stravatag">\u2713 Strava \u00b7 ${auto.name||''}</span>`:'';
+    const detail=auto?sessionDetailHtml(auto,ctx):'';
+    const objHtml=d.obj?`<div class="dobj">\ud83c\udfaf <b>Objetivo:</b> ${d.obj}</div>`:'';
+    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''}" data-key="${key}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}</div>`;
   }).join('');
-  // Trabajo adicional: sesiones de Strava de la semana que no estaban planeadas
   let extraHtml='';
   if(extra.length){
-    extraHtml=`<div class="extrawrap"><div class="extrahead">⚡ Trabajo adicional · no estaba en el plan</div>`+extra.map(s=>`<div class="extrarow"><span class="si">${SPORT_IC[s.sport]||'🏋️'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">${fmtNice(s.date)}</div></div><div class="sv">${s.km?s.km+' km':''}${(s.km&&s.min)?' · ':''}${s.min?s.min+' min':''}</div></div>`).join('')+`</div>`;
+    extraHtml=`<div class="extrawrap"><div class="extrahead">\u26a1 Trabajo adicional \u00b7 no estaba en el plan</div>`+extra.map(s=>{
+      const ctx={longest:L[s.sport+'_km'],weight:wt};
+      return `<div class="extraitem"><div class="extrarow"><span class="si">${SPORT_IC[s.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">${fmtNice(s.date)}</div></div><div class="sv">${distStr(s)||''}${(s.km&&s.min)?' \u00b7 ':''}${hhmm(s.min)||''}</div></div>${sessionDetailHtml(s,ctx)}</div>`;
+    }).join('')+`</div>`;
   }
   document.getElementById('weekExtra').innerHTML=extraHtml;
   document.querySelectorAll('#weekDays .check').forEach(btn=>btn.onclick=async(ev)=>{ev.stopPropagation();const key=btn.closest('.day').dataset.key;const dn=await Store.get('week_done')||{};dn[key]=!dn[key];await Store.set('week_done',dn);renderWeek();renderTodayButtons();});
   const total=wk.days.filter((d,i)=>done[selWeek+'-'+i]||autoDone[i]).length;
   document.getElementById('weekProg').textContent=total+' / 7';
+}
+
+
+// ---- Gráfica multi-serie con ejes, rejilla y leyenda ----
+function chartLines(id,series,opts={}){
+  const el=document.getElementById(id);if(!el)return;
+  const live=series.filter(s=>s.data&&s.data.length);
+  if(!live.length){el.innerHTML='<div class="empty">Sin datos aún. Pulsa <b>Sincronizar Garmin</b> para verlo aquí.</div>';return;}
+  const W=340,H=opts.h||150,padL=30,padR=8,padT=10,padB=18;
+  const dates=[...new Set(live.flatMap(s=>s.data.map(p=>p.d)))].sort();
+  const xi=d=>dates.indexOf(d);
+  let vals=live.flatMap(s=>s.data.map(p=>p.v));
+  if(opts.zero)vals.push(0);
+  let mn=Math.min(...vals),mx=Math.max(...vals);
+  if(mn===mx){mn-=1;mx+=1;}
+  const rng=mx-mn;mn-=rng*0.08;mx+=rng*0.08;
+  const n=dates.length;
+  const X=i=>padL+(n===1?(W-padL-padR)/2:(i/(n-1))*(W-padL-padR));
+  const Y=v=>H-padB-((v-mn)/(mx-mn))*(H-padT-padB);
+  let g='';
+  // rejilla horizontal + etiquetas Y
+  for(let t=0;t<=2;t++){const v=mn+(mx-mn)*(t/2);const y=Y(v);
+    g+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--border)" stroke-width="1"/>`;
+    g+=`<text x="${padL-4}" y="${y+3}" text-anchor="end" font-size="8" fill="var(--faint)" font-family="Space Grotesk">${Math.round(v)}</text>`;}
+  if(opts.zero&&mn<0&&mx>0){const y=Y(0);g+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--border-strong)" stroke-width="1.4" stroke-dasharray="3 3"/>`;}
+  live.forEach(s=>{
+    const pts=s.data.filter(p=>p.v!=null).map(p=>`${X(xi(p.d))},${Y(p.v)}`).join(' ');
+    if(s.area){const first=s.data[0],last=s.data[s.data.length-1];
+      g+=`<polygon points="${X(xi(first.d))},${H-padB} ${pts} ${X(xi(last.d))},${H-padB}" fill="${s.color}" opacity=".12"/>`;}
+    g+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="${s.w||2.2}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const lastP=s.data.filter(p=>p.v!=null).slice(-1)[0];
+    if(lastP)g+=`<circle cx="${X(xi(lastP.d))}" cy="${Y(lastP.v)}" r="3.2" fill="${s.color}"/>`;
+  });
+  // etiquetas X (primera y última)
+  const lbl=d=>{try{return parse(d).toLocaleDateString('es',{day:'numeric',month:'short'});}catch(e){return d;}};
+  g+=`<text x="${padL}" y="${H-5}" font-size="8" fill="var(--faint)" font-family="Space Grotesk">${lbl(dates[0])}</text>`;
+  if(n>1)g+=`<text x="${W-padR}" y="${H-5}" text-anchor="end" font-size="8" fill="var(--faint)" font-family="Space Grotesk">${lbl(dates[n-1])}</text>`;
+  const legend=live.filter(s=>s.name).map(s=>`<span class="lgi"><span class="lgd" style="background:${s.color}"></span>${s.name}</span>`).join('');
+  el.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="height:${H}px">${g}</svg>${legend?`<div class="legend">${legend}</div>`:''}`;
 }
 
 function spark(id,data,opts={}){
@@ -593,17 +766,17 @@ async function renderProgress(){
   set('vNow',lastVol);set('msVol',lastVol);set('msSleep',hm(sAvgDec));
 }
 document.getElementById('saveLog').onclick=async()=>{
-  const k=today().toISOString().slice(0,10);const logs=await Store.get('logs')||{};
+  const k=fmtLocal(today());const logs=await Store.get('logs')||{};const manual=await Store.get('logs_manual')||{};
   const gv=id=>parseFloat(document.getElementById(id).value);
   const w=gv('inWeight'),sh=gv('inSleepH'),sm=gv('inSleepM'),hrv=gv('inHRV'),bb=gv('inBB');
-  logs[k]=logs[k]||{};
-  if(!isNaN(w))logs[k].weight=w;
-  if(!isNaN(sh)||!isNaN(sm))logs[k].sleep=+(((isNaN(sh)?0:sh))+((isNaN(sm)?0:sm)/60)).toFixed(2);
-  if(!isNaN(hrv))logs[k].hrv=hrv;
-  if(!isNaN(bb))logs[k].bb=bb;
-  await Store.set('logs',logs);
+  logs[k]=logs[k]||{};manual[k]=manual[k]||{};
+  if(!isNaN(w)){logs[k].weight=w;manual[k].weight=true;}
+  if(!isNaN(sh)||!isNaN(sm)){logs[k].sleep=+(((isNaN(sh)?0:sh))+((isNaN(sm)?0:sm)/60)).toFixed(2);manual[k].sleep=true;}
+  if(!isNaN(hrv)){logs[k].hrv=hrv;manual[k].hrv=true;}
+  if(!isNaN(bb)){logs[k].bb=bb;manual[k].bb=true;}
+  await Store.set('logs',logs);await Store.set('logs_manual',manual);
   ['inWeight','inSleepH','inSleepM','inHRV','inBB'].forEach(id=>document.getElementById(id).value='');
-  renderProgress();renderStatBar();toast('Registro guardado ✓');
+  renderProgress();renderStatBar();renderReadiness();toast('Registro guardado ✓');
 };
 
 function setLiveStatus(t){const e=document.getElementById('liveStatusP');if(e)e.textContent=t;}
@@ -613,7 +786,8 @@ async function renderSessions(){
   if(sy)sy.textContent=synced?'Última sincronización: '+new Date(synced).toLocaleString('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
   if(!acts.length){box.innerHTML='<div class="empty">Toca <b>Live</b> para traer tus sesiones reales desde Strava.</div>';return;}
   const ic={swim:'🏊',bike:'🚴',run:'🏃',other:'🏋️'};
-  box.innerHTML=acts.slice(0,20).map(a=>`<div class="sess-row"><span class="si">${ic[a.sport]||'🏋️'}</span><div class="smain"><div class="sn">${a.name||a.sport||'Sesión'}</div><div class="sd">${fmtNice(a.date)}</div></div><div class="sv">${a.km?a.km+' km':''}${(a.km&&a.min)?' · ':''}${a.min?a.min+' min':''}</div></div>`).join('');
+  const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};const wt=await latestWeight();
+  box.innerHTML=acts.slice(0,20).map(a=>`<details class="sessdet"><summary class="sess-row"><span class="si">${ic[a.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${a.name||a.sport||'Sesi\u00f3n'}</div><div class="sd">${fmtNice(a.date)}</div></div><div class="sv">${distStr(a)||''}${(a.km&&a.min)?' \u00b7 ':''}${hhmm(a.min)||''}</div></summary>${sessionDetailHtml(a,{longest:L[a.sport+'_km'],weight:wt})}</details>`).join('');
 }
 
 function computeCalibration(sm){
@@ -704,7 +878,160 @@ async function renderReviewBanner(){
   document.getElementById('rvDismiss').onclick=async()=>{await Store.set('last_review',new Date().toISOString());renderReviewBanner();toast('Listo, te aviso en 15 días');};
 }
 
+
+// ================== MOTOR DE ESTADO DE FORMA (Garmin/Intervals) ==================
+// Guardamos la serie completa de wellness para gráficas y decisiones.
+async function getWell(){const w=await Store.get('garmin_wellness');return Array.isArray(w)?w:[];}
+function wellAsc(w){return w.slice().sort((a,b)=>a.date<b.date?-1:1);}
+function lastVal(w,k){for(let i=w.length-1;i>=0;i--){if(w[i][k]!=null)return w[i][k];}return null;}
+function baseline(w,k,n){const v=[];for(let i=w.length-1;i>=0&&v.length<n;i--){if(w[i][k]!=null)v.push(w[i][k]);}if(v.length<3)return null;return v.reduce((a,b)=>a+b,0)/v.length;}
+
+// Interpretación de la forma (TSB = CTL - ATL)
+function formState(f){
+  if(f==null)return null;
+  if(f<=-30)return {k:'warn',label:'Muy cargado',t:'Estás en déficit profundo de frescura. Es zona de riesgo si se sostiene más de unos días.'};
+  if(f<=-10)return {k:'mid',label:'Construyendo',t:'Zona normal de un bloque de construcción. Se entrena cansado, pero controlado.'};
+  if(f<5)return {k:'ok',label:'Neutro',t:'Equilibrio entre carga y frescura. Buen punto para asimilar.'};
+  if(f<20)return {k:'ok',label:'Fresco',t:'Frescura de taper. Ideal para competir o rendir en una sesión clave.'};
+  return {k:'mid',label:'Destensionado',t:'Muy fresco: cuidado, si se prolonga puedes estar perdiendo condición.'};
+}
+function rampState(r){
+  if(r==null)return null;
+  if(r>8)return {k:'warn',label:'Subida agresiva',t:`Tu carga sube ${r.toFixed(1)} CTL/sem. Por encima de ~8 el riesgo de lesión crece — y tus rodillas y tobillos ya están en la lista de vigilancia.`};
+  if(r>5)return {k:'mid',label:'Subida rápida',t:`Subes ${r.toFixed(1)} CTL/sem. Ritmo alto pero manejable si duermes y comes bien.`};
+  if(r>=0)return {k:'ok',label:'Progresión sana',t:`Subes ${r.toFixed(1)} CTL/sem. Dentro del rango seguro (~+10%/semana).`};
+  return {k:'ok',label:'Descargando',t:`Carga bajando (${r.toFixed(1)} CTL/sem). Normal en taper o semana de recuperación.`};
+}
+
+// Semáforo diario: combina forma, HRV, Body Battery y sueño.
+async function computeReadiness(){
+  const w=wellAsc(await getWell());
+  const logs=await Store.get('logs')||{};
+  const ds=Object.keys(logs).sort();
+  const lg=k=>{for(let i=ds.length-1;i>=0;i--){if(logs[ds[i]][k]!=null)return logs[ds[i]][k];}return null;};
+  const hrv=lastVal(w,'hrv')??lg('hrv');
+  const bb=lastVal(w,'bb')??lg('bb');
+  const sleep=lastVal(w,'sleep')??lg('sleep');
+  const form=lastVal(w,'form');
+  const ramp=lastVal(w,'rampRate');
+  const ctl=lastVal(w,'ctl'),atl=lastVal(w,'atl');
+  const vo2=lastVal(w,'vo2max');
+  const hrvBase=baseline(w,'hrv',14);
+  const flags=[];let score=100;
+  if(hrv!=null&&hrvBase){
+    const pct=hrv/hrvBase;
+    if(pct<0.85){score-=35;flags.push({k:'warn',t:`<b>HRV ${hrv} ms</b>, un ${Math.round((1-pct)*100)}% bajo tu media de 14 días (${Math.round(hrvBase)} ms). Señal clara de fatiga o estrés.`});}
+    else if(pct<0.93){score-=15;flags.push({k:'mid',t:`<b>HRV ${hrv} ms</b>, algo por debajo de tu media (${Math.round(hrvBase)} ms). Ojo hoy.`});}
+    else flags.push({k:'ok',t:`<b>HRV ${hrv} ms</b>, en línea con tu media de 14 días. Sistema nervioso recuperado.`});
+  }
+  if(bb!=null){
+    if(bb<25){score-=25;flags.push({k:'warn',t:`<b>Body Battery ${bb}</b>: llegas al día con el tanque casi vacío.`});}
+    else if(bb<45){score-=12;flags.push({k:'mid',t:`<b>Body Battery ${bb}</b>: recarga parcial.`});}
+    else flags.push({k:'ok',t:`<b>Body Battery ${bb}</b>: buena recarga.`});
+  }
+  if(sleep!=null){
+    if(sleep<6){score-=25;flags.push({k:'warn',t:`<b>${hm(sleep)} de sueño</b>. Tu prioridad nº1 sigue sin cumplirse — y es tu mayor riesgo de abandono.`});}
+    else if(sleep<7){score-=10;flags.push({k:'mid',t:`<b>${hm(sleep)} de sueño</b>. Cerca, pero aún bajo tu meta de 7.5–8 h.`});}
+    else flags.push({k:'ok',t:`<b>${hm(sleep)} de sueño</b>. Meta cumplida. Así se absorbe el entrenamiento.`});
+  }
+  // Deuda crónica de sueño: tu riesgo nº1 declarado. No castiga el día, pero avisa siempre.
+  const sl7=[];for(let i=w.length-1;i>=0&&sl7.length<7;i--){if(w[i].sleep!=null)sl7.push(w[i].sleep);}
+  if(sl7.length>=4){const avg=sl7.reduce((a,b)=>a+b,0)/sl7.length;
+    if(avg<6.5){score-=10;flags.push({k:'warn',t:`<b>Deuda de sueño acumulada</b>: promedias ${hm(avg)} en 7 días frente a tu meta de 7.5–8 h. Es tu palanca más rentable y tu escudo contra el abandono.`});}
+    else if(avg<7.2)flags.push({k:'mid',t:`<b>Sueño medio de 7 días: ${hm(avg)}</b>. Vas acercándote a la meta de 7.5–8 h.`});
+    else flags.push({k:'ok',t:`<b>Sueño medio de 7 días: ${hm(avg)}</b>. Meta sostenida — esto es lo que hará la diferencia en el 70.3.`});}
+  if(form!=null&&form<=-30){score-=20;flags.push({k:'warn',t:`<b>Forma ${form}</b>: fatiga acumulada profunda.`});}
+  if(ramp!=null&&ramp>8){score-=10;flags.push({k:'warn',t:`<b>Ramp rate ${ramp.toFixed(1)}</b>: estás subiendo carga más rápido de lo aconsejable.`});}
+  score=Math.max(0,Math.min(100,score));
+  const level=score>=75?'verde':(score>=50?'amarillo':'rojo');
+  return {score,level,flags,hrv,hrvBase,bb,sleep,form,ramp,ctl,atl,vo2,hasData:w.length>0||hrv!=null||bb!=null};
+}
+
+// Ajuste automático de la sesión según el semáforo.
+function adjustSession(day,level){
+  const sport=sportFromTag(day.tag);
+  const isRest=!sport;
+  if(level==='verde'||isRest)return null;
+  const hard=/pista|umbral|tempo|calidad|intervalos|pico|fondo|largo|strides|ritmo/i.test(day.t+' '+day.tag);
+  if(level==='amarillo'){
+    if(hard)return {t:'Versión suave de: '+day.t,detail:'Mantén la sesión pero baja la exigencia: si era calidad, haz la mitad de las series; si era fondo, recorta ~20% y todo en Z2.',why:'Tus señales de recuperación vienen por debajo de lo normal. Bajar hoy protege la sesión clave de la semana.'};
+    return {t:day.t+' · en Z2 estricta',detail:'Haz la sesión completa pero sin subir de zona 2. Si el pulso sube solo, camina o frena.',why:'Recuperación parcial: mantenemos el hábito y el volumen, quitamos la intensidad.'};
+  }
+  // rojo
+  if(hard)return {t:'Descanso o 20–30\u2032 muy suave',detail:'Cambia la sesión de calidad por reposo o movilidad. Si necesitas moverte, trote/spin muy suave sin pasar de Z1.',why:'Con estas señales, entrenar duro hoy suma fatiga y resta adaptación. Aflojar a tiempo ES ejecutar el plan.'};
+  return {t:'Descanso',detail:'Reposo real. Duerme, come e hidrátate.',why:'Tu cuerpo está pidiendo recuperación. Hoy el entrenamiento es dormir.'};
+}
+
+
+// ---- Render: semáforo, ajuste y tablero de forma ----
+function gaugeSvg(score,level){
+  const col=level==='verde'?'var(--done)':(level==='amarillo'?'var(--accent-2)':'var(--run)');
+  const R=32,C=2*Math.PI*R,off=C*(1-score/100);
+  return `<div class="gring"><svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" fill="none" stroke="var(--border)" stroke-width="7"/><circle cx="38" cy="38" r="${R}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="gnum"><div class="gv">${score}</div><div class="gl">LISTO</div></div></div>`;
+}
+async function renderReadiness(){
+  const box=document.getElementById('readyBox'),adj=document.getElementById('adjustBox');
+  if(!box)return;
+  const r=await computeReadiness();
+  if(!r.hasData){box.innerHTML='<div class="empty">Sin datos de recuperación todavía. Pulsa <b>Sincronizar Garmin</b> en Progreso (o registra HRV y Body Battery a mano) y aquí verás tu semáforo diario.</div>';if(adj)adj.innerHTML='';return;}
+  const txt=r.level==='verde'?{s:'Luz verde',d:'Tus señales están en orden. Ejecuta la sesión de hoy como está planeada.'}
+    :r.level==='amarillo'?{s:'Luz amarilla',d:'Recuperación parcial. Podemos entrenar, pero bajando una marcha.'}
+    :{s:'Luz roja',d:'Tu cuerpo pide recuperación. Hoy, aflojar es ejecutar el plan.'};
+  const flags=r.flags.map(f=>`<div class="flag"><span class="fi ${f.k}"></span><span>${f.t}</span></div>`).join('');
+  box.innerHTML=`<div class="gauge">${gaugeSvg(r.score,r.level)}<div class="gtxt"><div class="gstate ${r.level}">${txt.s}</div><div class="gsub">${txt.d}</div></div></div><div style="margin-top:12px">${flags}</div>`;
+  // Ajuste automático de la sesión de hoy
+  if(adj){
+    const day=PLAN_WEEKS[currentWeekIdx()].days[dowIdx];
+    const override=await Store.get('adjust_override_'+fmtLocal(today()));
+    const a=adjustSession(day,r.level);
+    if(a&&!override){
+      adj.innerHTML=`<div class="adjust"><div class="adjust-h">⚙️ Plan ajustado a tu estado de hoy</div><div class="adjust-b"><div class="an">${a.t}</div><div>${a.detail}</div><div class="aw">${a.why}</div><div class="orig">Original: ${day.t} — ${day.detail}</div><div class="btnrow" style="margin-top:10px"><button class="btn" id="keepOrig" style="padding:7px 12px;font-size:12px">Seguir el plan original</button></div></div></div>`;
+      document.getElementById('keepOrig').onclick=async()=>{await Store.set('adjust_override_'+fmtLocal(today()),true);renderReadiness();toast('Plan original restaurado');};
+    } else if(a&&override){
+      adj.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-top:10px;border-left:2px solid var(--border-strong);padding-left:9px">Estás siguiendo el plan original pese al semáforo ${r.level}. <button class="btn" id="useAdj" style="padding:4px 9px;font-size:11px;margin-left:4px">Ver ajuste sugerido</button></div>`;
+      document.getElementById('useAdj').onclick=async()=>{await Store.set('adjust_override_'+fmtLocal(today()),false);renderReadiness();};
+    } else adj.innerHTML='';
+  }
+}
+async function renderFormBoard(){
+  const box=document.getElementById('formBox');if(!box)return;
+  const w=wellAsc(await getWell());
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  if(!w.length){box.innerHTML='<div class="empty">Pulsa <b>Sincronizar Garmin</b> para traer tu modelo de carga (condición, fatiga, forma y ramp rate) desde Intervals.icu.</div>';
+    ['ctlChart','tsbChart','hrvChart','vo2Chart'].forEach(id=>chartLines(id,[]));return;}
+  const ctl=lastVal(w,'ctl'),atl=lastVal(w,'atl'),form=lastVal(w,'form'),ramp=lastVal(w,'rampRate'),vo2=lastVal(w,'vo2max');
+  const hrvB=baseline(w,'hrv',14);
+  const fs=formState(form),rs=rampState(ramp);
+  const cells=[];
+  if(ctl!=null)cells.push({v:ctl,l:'condición (CTL)'});
+  if(atl!=null)cells.push({v:atl,l:'fatiga (ATL)'});
+  if(form!=null)cells.push({v:(form>0?'+':'')+form,l:'forma (TSB)'});
+  if(ramp!=null)cells.push({v:(ramp>0?'+':'')+ramp.toFixed(1),l:'ramp rate'});
+  if(vo2!=null)cells.push({v:vo2,l:'VO2max'});
+  const rhr=lastVal(w,'restingHR');if(rhr!=null)cells.push({v:rhr,l:'FC reposo'});
+  let html=`<div class="fmetrics">${cells.map(c=>`<div class="fm"><div class="fv">${c.v}</div><div class="fl">${c.l}</div></div>`).join('')}</div>`;
+  if(fs)html+=`<div class="vd ${fs.k}" style="margin-top:11px"><b>${fs.label}.</b> ${fs.t}</div>`;
+  if(rs)html+=`<div class="vd ${rs.k}"><b>${rs.label}.</b> ${rs.t}</div>`;
+  if(ctl==null)html+=`<div class="vd mid">Intervals.icu aún no calcula tu condición (CTL/ATL). Necesita tus actividades sincronizadas desde Garmin — dale unos minutos tras conectar, o revisa que la sincronización de actividades esté activa.</div>`;
+  box.innerHTML=html;
+  const S=d=>w.filter(x=>x[d]!=null).slice(-90).map(x=>({d:x.date,v:x[d]}));
+  chartLines('ctlChart',[{name:'Condición (CTL)',color:'#34D399',data:S('ctl'),area:true},{name:'Fatiga (ATL)',color:'#FF6B6B',data:S('atl')}]);
+  chartLines('tsbChart',[{name:'Forma (TSB)',color:'#FFB23E',data:S('form'),area:true}],{zero:true});
+  const hrvS=S('hrv');
+  const baseS=hrvB?hrvS.map(p=>({d:p.d,v:+hrvB.toFixed(1)})):[];
+  chartLines('hrvChart',[{name:'HRV',color:'#2DD4BF',data:hrvS},{name:'Base 14d',color:'#7E889E',data:baseS,w:1.3}]);
+  chartLines('vo2Chart',[{name:'VO2max',color:'#A78BFA',data:S('vo2max')}]);
+  set('fNow',form!=null?((form>0?'+':'')+form):'—');
+  set('tsbNow',form!=null?((form>0?'+':'')+form):'—');
+  set('hrvBaseNow',hrvB?Math.round(hrvB)+' ms':'—');
+  set('vo2Now',vo2!=null?vo2:'—');
+}
+
 // --- Barra de cifras del header (semana actual lun–dom) ---
+// kcal: usa el valor real de Strava si viene; si no, estima con MET × peso × horas.
+const KCAL_MET={run:9.8,bike:7.5,swim:8,strength:5,other:5};
+function kcalForSession(s,wt){if(+s.kcal>0)return +s.kcal;const met=KCAL_MET[s.sport]||5;return Math.round(met*(wt||94)*((+s.min||0)/60));}
+async function latestWeight(){const logs=await Store.get('logs')||{};const ds=Object.keys(logs).sort();for(let i=ds.length-1;i>=0;i--){if(logs[ds[i]].weight!=null)return logs[ds[i]].weight;}return 94;}
 function fmtLocal(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function weekRange(){const t=today();const day=(t.getDay()+6)%7;const mon=new Date(t);mon.setDate(t.getDate()-day);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return {start:fmtLocal(mon),end:fmtLocal(sun)};}
 async function renderStatBar(){
@@ -714,7 +1041,8 @@ async function renderStatBar(){
   const {start,end}=weekRange();
   const wkS=sessions.filter(s=>s.date>=start&&s.date<=end);
   const kmBy={swim:0,bike:0,run:0};let kcal=0,minTot=0;
-  wkS.forEach(s=>{if(kmBy[s.sport]!=null)kmBy[s.sport]+=(+s.km||0);kcal+=(+s.kcal||0);minTot+=(+s.min||0);});
+  const wt=await latestWeight();
+  wkS.forEach(s=>{if(kmBy[s.sport]!=null)kmBy[s.sport]+=(+s.km||0);kcal+=kcalForSession(s,wt);minTot+=(+s.min||0);});
   const logs=await Store.get('logs')||{};const ds=Object.keys(logs).sort();
   let hrv=null,bb=null;
   for(let i=ds.length-1;i>=0;i--){if(hrv==null&&logs[ds[i]].hrv!=null)hrv=logs[ds[i]].hrv;if(bb==null&&logs[ds[i]].bb!=null)bb=logs[ds[i]].bb;if(hrv!=null&&bb!=null)break;}
@@ -733,6 +1061,43 @@ async function renderStatBar(){
 let _hdrScrolled=false;
 window.addEventListener('scroll',()=>{const s=window.scrollY>14;if(s!==_hdrScrolled){_hdrScrolled=s;const h=document.getElementById('appHeader');if(h)h.classList.toggle('scrolled',s);}},{passive:true});
 
+// --- Garmin (vía Intervals.icu): trae sueño, HRV, Body Battery y peso ---
+let garminBusy=false;
+function setGarminStatus(t){const e=document.getElementById('garminStatus');if(e)e.innerHTML=t;}
+async function runGarminSync(){
+  if(garminBusy)return;garminBusy=true;
+  const btn=document.getElementById('garminSync');if(btn)btn.disabled=true;
+  setGarminStatus('Conectando con Intervals.icu…');
+  try{
+    const r=await fetch('/api/wellness',{headers:{'Accept':'application/json'}});
+    const j=await r.json().catch(()=>null);
+    if(!r.ok||!j||j.error){throw new Error((j&&j.error)||('HTTP '+r.status));}
+    const rows=Array.isArray(j.wellness)?j.wellness:[];
+    if(!rows.length){setGarminStatus('Conectado, pero Intervals.icu aún no tiene datos de bienestar. Revisa en intervals.icu → Settings → Garmin Connect que estén activados los permisos de <b>Wellness</b> y <b>Sleep</b>.');toast('Sin datos de recuperación');return;}
+    // Fusionar: los datos de Garmin no pisan lo que registraste a mano ese día.
+    const logs=await Store.get('logs')||{};const manual=await Store.get('logs_manual')||{};
+    let n=0;
+    rows.forEach(w=>{
+      if(!w.date)return;const cur=logs[w.date]||{};const m=manual[w.date]||{};let touched=false;
+      if(w.sleep!=null&&!m.sleep){cur.sleep=w.sleep;touched=true;}
+      if(w.hrv!=null&&!m.hrv){cur.hrv=w.hrv;touched=true;}
+      if(w.bb!=null&&!m.bb){cur.bb=w.bb;touched=true;}
+      if(w.weight!=null&&!m.weight){cur.weight=w.weight;touched=true;}
+      if(touched){logs[w.date]=cur;n++;}
+    });
+    await Store.set('logs',logs);await Store.set('garmin_wellness',rows);await Store.set('garmin_synced',new Date().toISOString());
+    await renderProgress();await renderBench();await renderStatBar();await renderFormBoard();await renderReadiness();await renderTodaySession();
+    const miss=[];const mp=j.mapped||{};
+    if(!mp.bodyBattery)miss.push('Body Battery');
+    if(!mp.hrv)miss.push('HRV');
+    const warn=miss.length?` <br><span style="color:var(--accent-2)">Ojo: Intervals.icu no está enviando ${miss.join(' ni ')}. Actívalo en sus ajustes de Garmin Connect (permisos de Wellness).</span>`:'';
+    setGarminStatus(`Sincronizado · ${n} día(s) actualizados desde Garmin.${warn}`);toast('Garmin sincronizado ✓');
+  }catch(err){
+    setGarminStatus('No se pudo conectar: '+String(err.message||err)+'<br>Esto solo funciona en tu web de Vercel (no en el artifact de Claude) y requiere configurar <b>INTERVALS_API_KEY</b>.');toast('Error al sincronizar Garmin');
+  }finally{garminBusy=false;if(btn)btn.disabled=false;}
+}
+document.addEventListener('click',e=>{if(e.target.closest('#garminSync'))runGarminSync();});
+
 let liveBusy=false;
 function parseJsonLoose(text){let s=text.indexOf('{'),e=text.lastIndexOf('}');if(s>=0&&e>s){try{return JSON.parse(text.slice(s,e+1));}catch(_){}}s=text.indexOf('[');e=text.lastIndexOf(']');if(s>=0&&e>s){try{return {sessions:JSON.parse(text.slice(s,e+1))};}catch(_){}}return null;}
 function aggregateFromSessions(sessions){
@@ -746,12 +1111,15 @@ async function tryBackend(){try{const r=await fetch('/api/strava',{method:'GET',
 async function tryAnthropic(){
   const msg='Usa la herramienta de Strava para obtener mis actividades de los últimos 6 meses (180 días). '+
     'Devuelve ÚNICAMENTE un objeto JSON válido, sin texto antes ni después y sin backticks, con esta forma exacta: '+
-    '{"sessions":[{"date":"YYYY-MM-DD","sport":"swim|bike|run|other","name":"nombre corto","km":number,"min":number,"kcal":number}],'+
+    '{"sessions":[{"date":"YYYY-MM-DD","sport":"swim|bike|run|other","name":"nombre corto","km":number,"min":number,"kcal":number,"elev":number,"avgHr":number,"maxHr":number,"watts":number,"cadence":number,"effort":number,"prs":number,"achv":number}],'+
     '"summary":{"weeks":number,"avgWeeklyHours":number,"sessPerWeek":number,"longest":{"run_km":number,"bike_km":number,"swim_km":number},"byWeek":[{"week":"YYYY-Www","hours":number,"sessions":number}]}}. '+
     'En "sessions" incluye solo las 25 MÁS RECIENTES. En "summary" agrega TODO el periodo de 6 meses por semana ISO. '+
     'Mapea Run y TrailRun a "run"; Ride, VirtualRide y MountainBikeRide a "bike"; Swim y OpenWaterSwim a "swim"; el resto a "other". '+
-    'km = distancia/1000 (1 decimal); min = tiempo en movimiento en minutos (entero); kcal = calorías de la actividad si Strava las trae, si no 0. Si no hay datos: sessions vacío y summary en ceros.';
-  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3500,messages:[{role:"user",content:msg}],mcp_servers:[{type:"url",url:"https://mcp.strava.com/mcp",name:"strava"}]})});
+    'km = distancia/1000 (1 decimal); min = tiempo en movimiento en minutos (entero); kcal = calorías si Strava las trae, si no 0. '+
+    'elev = desnivel positivo en metros; avgHr/maxHr = frecuencia cardíaca media y máxima (null si no hay); watts = potencia media; cadence = cadencia media; '+
+    'effort = suffer_score/esfuerzo relativo; prs = pr_count (récords personales); achv = achievement_count (logros). Usa null o 0 si el dato no existe. '+
+    'En "sessions" incluye las 60 más recientes. Si no hay datos: sessions vacío y summary en ceros.';
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:8000,messages:[{role:"user",content:msg}],mcp_servers:[{type:"url",url:"https://mcp.strava.com/mcp",name:"strava"}]})});
   if(!res.ok)throw new Error('HTTP '+res.status);
   const data=await res.json();const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
   const obj=parseJsonLoose(text);if(!obj)throw new Error('sin datos');return obj;
@@ -767,7 +1135,7 @@ async function runLive(){
     sessions.sort((a,b)=>a.date<b.date?1:-1);
     let summary=(payload.summary&&payload.summary.byWeek)?payload.summary:aggregateFromSessions(sessions);
     await Store.set('strava_sessions',sessions);await Store.set('strava_summary',summary);await Store.set('strava_synced',new Date().toISOString());
-    await renderSessions();await renderProgress();await renderCalibration();await renderBench();await renderWeek();await renderTodayButtons();await renderStatBar();
+    await renderSessions();await renderProgress();await renderCalibration();await renderBench();await renderWeek();await renderTodaySession();await renderTodayButtons();await renderStatBar();await renderReadiness();
     setLiveStatus('Sincronizado · '+(summary.weeks||0)+' semanas de datos (6 meses).');toast('Strava sincronizado ✓');
   }catch(err){
     setLiveStatus('No se pudo conectar con Strava. En Claude, verifica que el conector de Strava esté activo. En tu web de Vercel, revisa la configuración del backend (/api/strava).');toast('Error al sincronizar');
@@ -786,9 +1154,10 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
 
 (async function(){
   await loadCustomRaces();
-  renderRoad();renderTodaySession();await renderTodayButtons();renderMiniStats();renderReminders();
+  renderRoad();await renderTodaySession();await renderTodayButtons();renderMiniStats();renderReminders();
   renderPhases();renderWeekNav();await renderWeek();await renderProgress();await renderSessions();await renderCalibration();await renderChecks();
   await renderBench();renderCustomRaces();wireRaceForm();await renderReviewBanner();await renderStatBar();
+  await renderFormBoard();await renderReadiness();
 })();
 </script>
 </body>
