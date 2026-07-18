@@ -49,11 +49,13 @@ header#appHeader{position:sticky;top:0;z-index:40;margin:0 -14px;padding:12px 14
 @media(prefers-reduced-motion:reduce){.livedot{animation:none}}
 .ribbon{display:flex;gap:3px;margin-top:11px;align-items:flex-end}
 .rseg{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0;background:none}
-.rbar{width:100%;height:26px;border-radius:5px;background:var(--raise);border:1px solid var(--line);position:relative;overflow:hidden;transition:.2s}
-.rbar i{position:absolute;left:0;right:0;bottom:0;background:var(--c,var(--rest));border-radius:4px}
+.rbar{width:100%;height:30px;border-radius:5px;background:var(--raise);border:1px solid var(--line);position:relative;overflow:hidden;transition:.2s}
+.rbar i{position:absolute;left:0;right:0;border-radius:3px;transition:.25s}
 .rseg.pending .rbar{border-style:dashed;border-color:var(--line2)}
 .rseg.today .rbar{box-shadow:0 0 0 2px var(--ink)}
 .rseg.rest .rbar{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--line) 3px,var(--line) 4px)}
+.rseg.ok.rest .rbar{background:var(--raise)}
+.rmulti{position:absolute;top:2px;right:3px;font-family:'IBM Plex Mono';font-size:8px;font-weight:600;color:var(--ink);background:rgba(9,12,18,.7);border-radius:3px;padding:0 3px;line-height:1.4}
 .rsl{font-family:'IBM Plex Mono';font-size:8.5px;color:var(--faint);text-transform:uppercase}
 .rseg.today .rsl{color:var(--ink);font-weight:600}
 .ribleg{display:flex;justify-content:space-between;align-items:center;margin-top:7px}
@@ -358,6 +360,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 
   <!-- ===== DATOS ===== -->
   <div class="view" id="v-datos">
+    <section><p class="eyebrow">Lectura del entrenador</p><div class="card pad" id="coachBox"></div></section>
     <section><p class="eyebrow">Estado de forma · modelo de carga</p>
       <div class="card pad" id="formBox"></div>
       <div class="card pad chartcard"><div class="chart-h"><span class="ttl">Condición vs Fatiga</span><span class="now">forma <b id="fNow">—</b></span></div><div id="ctlChart"></div></div>
@@ -375,18 +378,25 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     </section>
     <section><p class="eyebrow">Registro de hoy</p>
       <div class="card pad">
-        <div class="logform">
-          <div class="field"><label>Peso kg</label><input type="number" step="0.1" inputmode="decimal" id="inWeight" placeholder="94.0"></div>
-          <div class="field"><label>Sueño h</label><input type="number" step="1" min="0" max="14" inputmode="numeric" id="inSleepH" placeholder="7"></div>
-          <div class="field"><label>Sueño min</label><input type="number" step="1" min="0" max="59" inputmode="numeric" id="inSleepM" placeholder="30"></div>
+        <div class="field" style="max-width:150px;margin-bottom:14px"><label>Peso (kg)</label><input type="number" step="0.1" inputmode="decimal" id="inWeight" placeholder="93.0"></div>
+        <div class="rpe-wrap">
+          <div class="rpe-q">¿Cómo te sentiste hoy?</div>
+          <div class="feelrow" id="feelRow">
+            <button class="feel" data-v="1">😣</button>
+            <button class="feel" data-v="2">😕</button>
+            <button class="feel" data-v="3">😐</button>
+            <button class="feel" data-v="4">🙂</button>
+            <button class="feel" data-v="5">💪</button>
+          </div>
+          <div class="rpe-lbl"><span>Agotado</span><span>Fuerte</span></div>
         </div>
-        <div class="logform" style="margin-top:7px">
-          <div class="field"><label>HRV ms</label><input type="number" step="1" inputmode="numeric" id="inHRV" placeholder="65"></div>
-          <div class="field"><label>Body Batt.</label><input type="number" step="1" min="0" max="100" inputmode="numeric" id="inBB" placeholder="80"></div>
-          <div class="field"></div>
+        <div class="rpe-wrap" style="margin-top:16px">
+          <div class="rpe-q">Esfuerzo percibido (RPE)</div>
+          <div class="rpe-scale" id="rpeRow"></div>
+          <div class="rpe-lbl"><span>1 · muy suave</span><span>10 · máximo</span></div>
         </div>
-        <div class="btnrow"><button class="btn primary" id="saveLog">Guardar registro</button></div>
-        <div style="font-size:11.5px;color:var(--faint);margin-top:10px;line-height:1.5">Lo que escribas aquí manda: Garmin no lo sobrescribe.</div>
+        <div class="btnrow"><button class="btn primary" id="saveLog">Guardar</button></div>
+        <div style="font-size:11.5px;color:var(--faint);margin-top:11px;line-height:1.5">Sueño, HRV y Body Battery entran solos desde Garmin. Tu sensación y esfuerzo alimentan las decisiones del plan.</div>
       </div>
     </section>
     <section><p class="eyebrow">Sincronización</p>
@@ -412,10 +422,14 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <!-- ===== RUTA ===== -->
   <div class="view" id="v-ruta">
     <div id="reviewBanner"></div>
+    <div id="raceHero"></div>
+    <section><p class="eyebrow">Tu capacidad vs el IRONMAN</p><div class="card pad" id="capBox"></div></section>
+    <section><p class="eyebrow">Índice de eficiencia · ¿el plan está sirviendo?</p><div class="card pad" id="effBox"></div></section>
+    <section><p class="eyebrow">Trabajo depositado</p><div class="card pad" id="bankBox"></div></section>
+    <section><p class="eyebrow">El ascenso · 7 fases hacia la cima</p><div id="trail"></div></section>
     <section><p class="eyebrow">Tu ancla</p>
       <div class="anchor"><div class="q">"Conocer mis límites emocionales, físicos y mentales."</div><div class="a">Cada madrugada a las 4 am ya es una respuesta. La meta es la ceremonia; el viaje ya empezó.</div></div>
     </section>
-    <section><p class="eyebrow">Próximas estaciones</p><div class="card pad"><div class="road" id="roadBox"></div></div></section>
     <section><p class="eyebrow">Tus competencias</p>
       <div class="card pad">
         <div id="customRaceList"></div>
@@ -431,25 +445,13 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
         <div class="btnrow" id="addRaceBtnRow"><button class="btn" id="rcAddBtn">＋ Agregar competencia</button></div>
       </div>
     </section>
-    <section><p class="eyebrow">El mapa completo · jun 2026 → IRONMAN</p><div class="card pad"><div id="phaseList"></div></div></section>
-    <section><p class="eyebrow">Tu mapa de riesgos</p>
-      <div class="risk"><h4>😴 Abandono por fatiga y "falta de tiempo"</h4><div class="shield"><b>Escudo:</b> el plan vive dentro de tus 7–8 h reales. Dormir 7.5–8 h. En semanas difíciles, versión mínima en vez de cero.</div></div>
-      <div class="risk"><h4>🤕 Lesión por acelerar el proceso</h4><div class="shield"><b>Escudo:</b> progresión lenta, sobre todo en carrera. Body Battery y HRV como semáforo: aflojar a tiempo es ejecutar el plan.</div></div>
-    </section>
-    <section><p class="eyebrow">Hitos médicos y de equipo</p><div class="card pad" id="checkList"></div></section>
-    <section><p class="eyebrow">Principios que no se negocian</p>
-      <div class="card pad">
-        <div class="principle"><b>La recuperación es donde ocurre la mejora.</b> Poder entrenar más no significa que debamos.</div>
-        <div class="principle"><b>El sueño es una sesión más.</b> Y hoy, la nº1.</div>
-        <div class="principle"><b>Carbohidratos = combustible.</b> No los recortes alrededor de las sesiones largas.</div>
-        <div class="principle"><b>Recomposición lenta.</b> Bajar grasa a la velocidad que el rendimiento permita.</div>
-        <div class="principle"><b>Fuerza = durabilidad.</b> 2 sesiones cortas/semana te blindan rodillas y tobillos.</div>
-      </div>
+    <section><p class="eyebrow">Riesgos y principios</p>
+      <div class="risk"><h4>😴 Abandono por fatiga</h4><div class="shield"><b>Escudo:</b> el plan vive dentro de tus horas reales. Dormir 7.5–8 h. En semanas difíciles, modo viaje en vez de cero.</div></div>
+      <div class="risk"><h4>🤕 Lesión por acelerar</h4><div class="shield"><b>Escudo:</b> progresión lenta, sobre todo en carrera. El semáforo manda: aflojar a tiempo es ejecutar el plan.</div></div>
+      <div class="card pad" id="checkList" style="margin-top:11px"></div>
     </section>
   </div>
-</div>
-
-<nav><div class="nav-wrap">
+  <nav><div class="nav-wrap">
   <button class="navbtn active" data-v="inicio"><span class="ni">◧</span>Inicio</button>
   <button class="navbtn" data-v="semana"><span class="ni">▦</span>Semana</button>
   <button class="navbtn" data-v="datos"><span class="ni">◱</span>Datos</button>
@@ -693,22 +695,37 @@ async function renderWeek(){
   const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};
   const wt=await latestWeight();
   const {autoDone,extra}=matchStravaWeek(selWeek,sessions);
+  const wellDays=wellAsc(await getWell());
   const todayStr=fmtLocal(today());
   // Orden: del m\u00e1s reciente al m\u00e1s antiguo.
   const order=WD.map((d,i)=>i).sort((a,b)=>dayDateStr(selWeek,b).localeCompare(dayDateStr(selWeek,a)));
   document.getElementById('weekDays').innerHTML=order.map(i=>{
     const d=WD[i];
-    const key=selWeek+'-'+i,manual=done[key],auto=autoDone[i],ck=manual||!!auto;
+    const key=selWeek+'-'+i,manual=done[key],auto=autoDone[i];
     const ds=dayDateStr(selWeek,i);const isT=ds===todayStr;const future=ds>todayStr;
+    const isRest=!sportFromTag(d.tag);
+    const wr=wellDays.find(x=>x.date===ds);
+    const restOk=isRest&&!future&&!!(wr&&(wr.sleep!=null||wr.hrv!=null||wr.bb!=null||wr.readiness!=null));
+    const ck=manual||!!auto||restOk;
     const dLabel=parse(ds).toLocaleDateString('es',{day:'numeric',month:'short'});
     const ctx={longest:auto?L[auto.sport+'_km']:null,weight:wt};
     const stravaBadge=auto?`<span class="stravatag">\u2713 Strava \u00b7 ${auto.name||''}</span>`:'';
     const detail=auto?sessionDetailHtml(auto,ctx):'';
     const objHtml=d.obj?`<div class="dobj">\ud83c\udfaf <b>Objetivo:</b> ${d.obj}</div>`:'';
+    let restHtml='';
+    if(isRest&&restOk){
+      const pills=[];
+      if(wr.sleep!=null)pills.push(`\ud83d\udecf\ufe0f ${hm(wr.sleep)}`);
+      if(wr.hrv!=null)pills.push(`HRV ${wr.hrv}`);
+      if(wr.bb!=null)pills.push(`BB ${wr.bb}`);
+      else if(wr.readiness!=null)pills.push(`Ready ${wr.readiness}`);
+      if(wr.restingHR!=null)pills.push(`FCrep ${wr.restingHR}`);
+      restHtml=`<div class="restrecov"><span class="rrh">\u2713 Descanso registrado</span>${pills.map(p=>`<span class="rrp">${p}</span>`).join('')}</div>`;
+    }
     // Sesiones no planeadas registradas ESE d\u00eda \u2192 integradas aqu\u00ed mismo.
     const dayExtras=extra.filter(s=>s.date===ds);
     const extraHtml=dayExtras.map(s=>`<div class="inlineextra"><div class="iehead"><span class="si">${SPORT_IC[s.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">\u26a1 Adicional \u00b7 no estaba en el plan</div></div><div class="sv">${distStr(s)||''}${(s.km&&s.min)?' \u00b7 ':''}${hhmm(s.min)||''}</div></div>${sessionDetailHtml(s,{longest:L[s.sport+'_km'],weight:wt})}</div>`).join('');
-    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''} ${future?'is-future':''}" data-key="${key}" style="--c:${SPORT_COLOR[sportFromTag(d.tag)]||'var(--rest)'}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}${extraHtml}</div>`;
+    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''} ${future?'is-future':''}" data-key="${key}" style="--c:${SPORT_COLOR[sportFromTag(d.tag)]||'var(--rest)'}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${restHtml}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}${extraHtml}</div>`;
   }).join('');
   document.getElementById('weekExtra').innerHTML='';
   document.querySelectorAll('#weekDays .check').forEach(btn=>btn.onclick=async(ev)=>{ev.stopPropagation();const key=btn.closest('.day').dataset.key;const dn=await Store.get('week_done')||{};dn[key]=!dn[key];await Store.set('week_done',dn);renderWeek();renderTodayButtons();});
@@ -792,19 +809,26 @@ async function renderProgress(){
   const lastVol=volSeries.length?volSeries[volSeries.length-1].v:'—';
   set('vNow',lastVol);set('msVol',lastVol);set('msSleep',hm(sAvgDec));
 }
-document.getElementById('saveLog').onclick=async()=>{
+let selFeel=null,selRpe=null;
+function wireLogInputs(){
+  const fr=document.getElementById('feelRow'),rr=document.getElementById('rpeRow');
+  if(rr&&!rr.children.length){for(let n=1;n<=10;n++){const b=document.createElement('button');b.className='rpe';b.dataset.v=n;b.textContent=n;rr.appendChild(b);}}
+  if(fr)fr.querySelectorAll('.feel').forEach(b=>b.onclick=()=>{selFeel=+b.dataset.v;fr.querySelectorAll('.feel').forEach(x=>x.classList.toggle('on',x===b));});
+  if(rr)rr.querySelectorAll('.rpe').forEach(b=>b.onclick=()=>{selRpe=+b.dataset.v;rr.querySelectorAll('.rpe').forEach(x=>x.classList.toggle('on',+x.dataset.v<=selRpe));});
+}
+async function doSaveLog(){
   const k=fmtLocal(today());const logs=await Store.get('logs')||{};const manual=await Store.get('logs_manual')||{};
-  const gv=id=>parseFloat(document.getElementById(id).value);
-  const w=gv('inWeight'),sh=gv('inSleepH'),sm=gv('inSleepM'),hrv=gv('inHRV'),bb=gv('inBB');
+  const w=parseFloat(document.getElementById('inWeight').value);
   logs[k]=logs[k]||{};manual[k]=manual[k]||{};
   if(!isNaN(w)){logs[k].weight=w;manual[k].weight=true;}
-  if(!isNaN(sh)||!isNaN(sm)){logs[k].sleep=+(((isNaN(sh)?0:sh))+((isNaN(sm)?0:sm)/60)).toFixed(2);manual[k].sleep=true;}
-  if(!isNaN(hrv)){logs[k].hrv=hrv;manual[k].hrv=true;}
-  if(!isNaN(bb)){logs[k].bb=bb;manual[k].bb=true;}
+  if(selFeel!=null){logs[k].feel=selFeel;manual[k].feel=true;}
+  if(selRpe!=null){logs[k].rpe=selRpe;manual[k].rpe=true;}
   await Store.set('logs',logs);await Store.set('logs_manual',manual);
-  ['inWeight','inSleepH','inSleepM','inHRV','inBB'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inWeight').value='';selFeel=null;selRpe=null;
+  document.querySelectorAll('.feel,.rpe').forEach(x=>x.classList.remove('on'));
   renderProgress();renderFeed();renderFormBoard();toast('Registro guardado');
-};
+}
+document.getElementById('saveLog').onclick=doSaveLog;
 
 function setLiveStatus(t){const e=document.getElementById('liveStatusP');if(e)e.textContent=t;}
 async function renderSessions(){
@@ -872,7 +896,7 @@ function renderCustomRaces(){
   if(!CUSTOM_RACES.length){box.innerHTML='<div class="customrace-empty">Aún no has agregado competencias propias. Las que agregues aquí aparecen en tu mapa de ruta de arriba.</div>';return;}
   const sorted=CUSTOM_RACES.slice().sort((a,b)=>a.date<b.date?-1:1);
   box.innerHTML=sorted.map(r=>{const n=daysTo(r.date);return `<div class="customrace"><div><div class="crname">${r.name} ${r.dist?`<span class="tag t-run">${r.dist}</span>`:''}</div><div class="crmeta">${fmtDate(r.date)} · ${countLabel(n)}${r.meta?' · '+r.meta:''}</div></div><button class="crdel" data-id="${r.id}" title="Eliminar">✕</button></div>`;}).join('');
-  box.querySelectorAll('.crdel').forEach(b=>b.onclick=async()=>{CUSTOM_RACES=CUSTOM_RACES.filter(x=>x.id!==b.dataset.id);await saveCustomRaces();renderCustomRaces();renderRoad();renderProgress();renderFeed();toast('Competencia eliminada');});
+  box.querySelectorAll('.crdel').forEach(b=>b.onclick=async()=>{CUSTOM_RACES=CUSTOM_RACES.filter(x=>x.id!==b.dataset.id);await saveCustomRaces();renderCustomRaces();renderRuta();renderFeed();toast('Competencia eliminada');});
 }
 function wireRaceForm(){
   const form=document.getElementById('addRaceForm'),btnRow=document.getElementById('addRaceBtnRow');
@@ -886,7 +910,7 @@ function wireRaceForm(){
     await saveCustomRaces();
     ['rcName','rcDate','rcDist','rcMeta'].forEach(id=>document.getElementById(id).value='');
     form.style.display='none';btnRow.style.display='flex';
-    renderCustomRaces();renderRoad();renderProgress();renderFeed();
+    renderCustomRaces();renderRuta();renderFeed();
     // cada competencia nueva cuenta como "plan revisado"
     await Store.set('last_review',new Date().toISOString());renderReviewBanner();
     toast('Competencia agregada ✓');
@@ -1324,6 +1348,131 @@ async function renderFormBoard(){
 
 
 
+
+// ================== RENDER · SECCIÓN RUTA ==================
+const IM_TARGETS={swim:3.8,bike:180,run:42.2}; // exigencia del IRONMAN completo
+const HALF_TARGETS={swim:1.9,bike:90,run:21.1};
+
+// --- Bloque de carrera que crece al acercarse ---
+async function renderRaceHero(){
+  const box=document.getElementById('raceHero');if(!box)return;
+  const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
+  if(!next){box.innerHTML='';return;}
+  const d=daysTo(next.date);
+  const big=d<=21; // dentro de 3 semanas → protagonista
+  const dist=next.tag&&next.tag.includes('t-tri')?'tri':(next.dist||'');
+  if(big){
+    const wk=next.date<=fmtLocal(new Date(today().getTime()+7*MS));
+    box.innerHTML=`<section><div class="hero">
+      <div class="hero-top"><span class="hero-lbl">PRÓXIMA CARRERA</span>${wk?'<span class="hero-week">esta semana</span>':''}</div>
+      <div class="hero-name">${next.name}</div>
+      <div class="hero-count"><span class="hcn">${d}</span><span class="hcl">${d===0?'¡es hoy!':d===1?'día':'días'}</span></div>
+      <div class="hero-date">${parse(next.date).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})}${next.meta?' · '+next.meta:''}</div>
+      <div class="hero-cta"><button class="btn primary" onclick="go('semana')">Ver estrategia y plan de la semana →</button></div>
+    </div></section>`;
+  } else {
+    box.innerHTML=`<section><div class="racecard" style="--c:${d<45?'var(--caution)':'var(--swim)'}">
+      <div class="rc-l"><div class="rc-lbl">Próxima carrera</div><div class="rc-name">${next.name}</div><div class="rc-meta">${parse(next.date).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'})}${dist&&dist!=='tri'?' · '+dist:''}</div></div>
+      <div class="rc-r"><div class="rc-n">${d}</div><div class="rc-u">días</div></div>
+    </div></section>`;
+  }
+}
+
+// --- Capacidad vs objetivos (nado/bici/carrera) ---
+async function renderCapacity(){
+  const box=document.getElementById('capBox');if(!box)return;
+  const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};
+  const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
+  const tri=next&&next.tag&&next.tag.includes('t-tri');
+  // objetivo de referencia: el 70.3 si aún no llega el IM, salvo que la próxima sea IM
+  const T=HALF_TARGETS, label='70.3';
+  const rows=[
+    {s:'swim',ic:'🏊',name:'Natación',cur:(L.swim_km||0),tgt:T.swim,u:'km',col:'var(--swim)'},
+    {s:'bike',ic:'🚴',name:'Bici',cur:(L.bike_km||0),tgt:T.bike,u:'km',col:'var(--bike)'},
+    {s:'run',ic:'🏃',name:'Carrera',cur:(L.run_km||0),tgt:T.run,u:'km',col:'var(--run)'}
+  ];
+  box.innerHTML=`<div style="font-size:11.5px;color:var(--mut);margin-bottom:12px;line-height:1.5">Tu distancia máxima actual frente a lo que exige el <b style="color:var(--ink)">IRONMAN 70.3</b>. Es tu mapa de qué disciplina ya domina y cuál falta construir.</div>`+
+  rows.map(r=>{
+    const pct=Math.min(100,Math.round(r.cur/r.tgt*100));
+    const listo=pct>=100;
+    return `<div class="cap">
+      <div class="cap-h"><span class="cap-n">${r.ic} ${r.name}</span><span class="cap-v">${r.cur||'—'} / ${r.tgt} ${r.u}${listo?' ✓':''}</span></div>
+      <div class="cap-bar"><i style="width:${pct}%;background:${r.col}"></i></div>
+      <div class="cap-pct" style="color:${listo?'var(--go)':'var(--faint)'}">${listo?'Listo para la distancia':pct+'% de la distancia'}</div>
+    </div>`;
+  }).join('');
+}
+
+// --- Índice de eficiencia ---
+async function renderEfficiency(){
+  const box=document.getElementById('effBox');if(!box)return;
+  const e=await computeEfficiencyIndex();
+  if(!e.hasData||!e.quad){box.innerHTML='<div class="empty">Necesito unas semanas más de datos para cruzar tu cumplimiento con tu mejora. Sigue sincronizando y aquí verás si el plan te está sirviendo.</div>';return;}
+  const capTxt=e.capChange==null?'—':(e.capChange>0?'+':'')+Math.round(e.capChange*100)+'%';
+  const compTxt=e.compliance==null?'—':Math.round(e.compliance*100)+'%';
+  const col=e.quad.k==='ok'?'var(--go)':(e.quad.k==='warn'?'var(--stop)':'var(--caution)');
+  box.innerHTML=`
+    <div class="eff-top">
+      <div class="eff-idx" style="border-color:${col}"><div class="eff-n" style="color:${col}">${e.idx??'—'}</div><div class="eff-l">índice</div></div>
+      <div class="eff-quad"><div class="eff-code" style="color:${col}">${e.quad.code}</div><div class="eff-t">${e.quad.t}</div></div>
+    </div>
+    <div class="eff-2"><div class="eff-cell"><div class="eff-cv">${compTxt}</div><div class="eff-cl">cumplimiento 8 sem</div></div><div class="eff-cell"><div class="eff-cv">${capTxt}</div><div class="eff-cl">cambio de capacidad</div></div></div>
+    ${e.comps.length?`<div class="eff-comp">Capacidad = ${e.comps.map(c=>`${c.k} ${c.d>0?'+':''}${Math.round(c.d*100)}%`).join(' · ')}</div>`:''}`;
+}
+
+// --- Banco de trabajo acumulado ---
+async function renderBank(){
+  const box=document.getElementById('bankBox');if(!box)return;
+  const sm=await Store.get('strava_summary');
+  const sessions=(await Store.get('strava_sessions'))||[];
+  // total del periodo disponible
+  let hrs=0,km=0,byS={swim:0,bike:0,run:0};
+  sessions.forEach(s=>{hrs+=(+s.min||0)/60;km+=(+s.km||0);if(byS[s.sport]!=null)byS[s.sport]+=(+s.km||0);});
+  const weeks=(sm&&sm.weeks)||0;
+  box.innerHTML=`
+    <div class="bank-row">
+      <div class="bank-big"><div class="bank-v">${Math.round(hrs)}</div><div class="bank-l">horas registradas</div></div>
+      <div class="bank-big"><div class="bank-v">${Math.round(km)}</div><div class="bank-l">km totales</div></div>
+      <div class="bank-big"><div class="bank-v">${weeks}</div><div class="bank-l">semanas de datos</div></div>
+    </div>
+    <div class="bank-split">
+      <span class="bsp"><span class="bsd" style="background:var(--swim)"></span>${Math.round(byS.swim)} km nado</span>
+      <span class="bsp"><span class="bsd" style="background:var(--bike)"></span>${Math.round(byS.bike)} km bici</span>
+      <span class="bsp"><span class="bsd" style="background:var(--run)"></span>${Math.round(byS.run)} km carrera</span>
+    </div>
+    <div style="font-size:11px;color:var(--faint);margin-top:10px;line-height:1.5">Cada hora suma al banco. La meta está lejos, pero el trabajo ya depositado no se borra.</div>`;
+}
+
+// --- El ascenso: sendero de 7 fases ---
+async function renderTrail(){
+  const box=document.getElementById('trail');if(!box)return;
+  const sessions=(await Store.get('strava_sessions'))||[];
+  const todayStr=fmtLocal(today());
+  // fechas aproximadas de cada fase (de PHASES.when no parseable → uso índice actual)
+  const curPhase=0; // Fase 1 activa (según plan actual)
+  box.innerHTML=`<div class="trail">`+PHASES.map((p,i)=>{
+    const done=i<curPhase, cur=i===curPhase, future=i>curPhase;
+    // progreso de la fase actual por tiempo transcurrido (simple y honesto)
+    let pct=done?100:(cur?38:0);
+    const cls=done?'done':(cur?'cur':'future');
+    const summit=i===PHASES.length-1;
+    return `<div class="tstation ${cls} ${summit?'summit':''}">
+      <div class="tpin">${done?'✓':(summit?'★':(cur?'●':(i+1)))}</div>
+      <div class="tbody">
+        <div class="tn">${p.n}</div>
+        <div class="tt">${p.title}</div>
+        <div class="tw">${p.when}</div>
+        <div class="tbar"><i style="width:${pct}%"></i></div>
+        ${cur?`<div class="tdesc">${p.body}</div><div class="tfocus">${p.focus.join('')}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')+`</div>`;
+}
+
+async function renderRuta(){
+  await renderRaceHero();await renderCapacity();await renderEfficiency();await renderBank();await renderTrail();
+}
+
 // ================== INFORME EXPORTABLE + CORTE DIARIO 9 PM ==================
 // Última frontera de corte (hoy 21:00 si ya pasó; si no, ayer 21:00)
 function lastCutoff(){
@@ -1441,30 +1590,177 @@ async function exportReport(download){
   }
 }
 
+
+
+// ================== ÍNDICE DE EFICIENCIA DEL ENTRENAMIENTO ==================
+// Cruza CUMPLIMIENTO (¿hago las sesiones clave?) con CAPACIDAD (¿mejoro?).
+// Capacidad = mezcla de: ritmo de carrera a pulso fijo + distancia máx + CTL.
+// Ventana: 8 semanas (reciente vs previa).
+const IDX_WINDOW=56; // días
+
+// Eficiencia aeróbica de carrera: km/h por latido (velocidad / FC media). Sube = mejora.
+function runEfficiency(sessions,fromISO,toISO){
+  const r=sessions.filter(s=>s.sport==='run'&&s.km>0&&s.min>0&&s.avgHr&&s.date>=fromISO&&s.date<toISO);
+  if(r.length<2)return null;
+  const effs=r.map(s=>((s.km/(s.min/60))/s.avgHr));
+  return effs.reduce((a,b)=>a+b,0)/effs.length;
+}
+function maxDist(sessions,sport,fromISO,toISO){
+  const r=sessions.filter(s=>s.sport===sport&&s.km>0&&s.date>=fromISO&&s.date<toISO);
+  return r.length?Math.max(...r.map(s=>s.km)):0;
+}
+function ctlAt(well,iso){
+  const w=well.filter(x=>x.ctl!=null&&x.date<=iso);
+  return w.length?w[w.length-1].ctl:null;
+}
+// Devuelve el índice completo con diagnóstico de cuadrante.
+async function computeEfficiencyIndex(){
+  const sessions=(await Store.get('strava_sessions'))||[];
+  const well=wellAsc(await getWell());
+  const now=today();
+  const recentFrom=fmtLocal(new Date(now-IDX_WINDOW*MS));
+  const prevFrom=fmtLocal(new Date(now-2*IDX_WINDOW*MS));
+  const nowISO=fmtLocal(now);
+
+  // --- CAPACIDAD: 3 componentes, cada uno como % de cambio reciente vs previo ---
+  const comps=[];
+  const effR=runEfficiency(sessions,recentFrom,nowISO),effP=runEfficiency(sessions,prevFrom,recentFrom);
+  if(effR!=null&&effP!=null&&effP>0)comps.push({k:'ritmo',d:(effR/effP-1)});
+  const mdR=maxDist(sessions,'run',recentFrom,nowISO),mdP=maxDist(sessions,'run',prevFrom,recentFrom);
+  if(mdR>0&&mdP>0)comps.push({k:'distancia',d:(mdR/mdP-1)});
+  const ctlR=ctlAt(well,nowISO),ctlP=ctlAt(well,recentFrom);
+  if(ctlR!=null&&ctlP!=null&&ctlP>0)comps.push({k:'condición',d:(ctlR/ctlP-1)});
+
+  // Acotar cada componente a ±25%: un salto extremo (p.ej. volver de un viaje) es ruido, no mejora real.
+  comps.forEach(c=>{c.raw=c.d;c.d=Math.max(-0.25,Math.min(0.25,c.d));});
+  const capChange=comps.length?comps.reduce((a,c)=>a+c.d,0)/comps.length:null;
+
+  // --- CUMPLIMIENTO: sesiones clave de las últimas 8 semanas ---
+  let done=0,tot=0;
+  PLAN_WEEKS.forEach((wk,i)=>{
+    if(wk.end<recentFrom)return;
+    const {autoDone}=matchStravaWeek(i,sessions);
+    daysFor(i).forEach((d,j)=>{if(sportFromTag(d.tag)){const ds=dayDateStr(i,j);if(ds>=recentFrom&&ds<=nowISO){tot++;if(autoDone[j])done++;}}});
+  });
+  const compliance=tot?done/tot:null;
+
+  // --- Cuadrante ---
+  let quad=null,idx=null;
+  if(capChange!=null&&compliance!=null){
+    const capUp=capChange>0.01, capDown=capChange<-0.03;
+    const compHi=compliance>=0.6;
+    // índice 0–100: pondera capacidad (60%) y cumplimiento (40%)
+    idx=Math.round(Math.max(0,Math.min(100, 50 + capChange*250 + (compliance-0.5)*40 )));
+    if(compHi&&capUp)quad={k:'ok',code:'FUNCIONA',t:'El plan funciona: cumples las sesiones clave y tu capacidad sube. Mantén el rumbo.'};
+    else if(compHi&&capDown)quad={k:'warn',code:'SOBRECARGA',t:'Cumples mucho pero la capacidad no sube. Puede ser fatiga o recuperación insuficiente: quizá convenga bajar una marcha, no subir.'};
+    else if(!compHi&&capUp)quad={k:'ok',code:'MARGEN',t:'Con pocas sesiones tu capacidad ya sube: tu cuerpo responde bien. Hay margen para exigir un poco más cuando la vida lo permita.'};
+    else if(!compHi&&capDown)quad={k:'mid',code:'REAJUSTE',t:'Ni cumplimiento ni mejora: el plan puede no estar encajando en tu semana real. Vale la pena reajustarlo a tus horas verdaderas.'};
+    else quad={k:'mid',code:'ESTABLE',t:'Capacidad estable. Ni retrocedes ni avanzas fuerte: normal en fases de mantenimiento o afinamiento.'};
+  }
+  return {idx,capChange,compliance,comps,quad,done,tot,
+    hasData:capChange!=null||compliance!=null};
+}
+
+// ---- Lectura del entrenador: análisis breve + 2 recomendaciones ----
+async function renderCoach(){
+  const box=document.getElementById('coachBox');if(!box)return;
+  const sessions=(await Store.get('strava_sessions'))||[];
+  const w=wellAsc(await getWell());
+  const r=await computeReadiness();
+  const wt=await latestWeight();
+  const analisis=[],recos=[];
+
+  // 1) Cumplimiento reciente vs plan
+  const wi=currentWeekIdx();
+  let cumpl=0,total=0;
+  for(let k=Math.max(0,wi-1);k<=wi;k++){const {autoDone}=matchStravaWeek(k,sessions);const WD=daysFor(k);WD.forEach((d,i)=>{if(sportFromTag(d.tag)){total++;if(autoDone[i])cumpl++;}});}
+  const tasa=total?cumpl/total:0;
+
+  // 2) Carga últimas 2 semanas
+  const wkAgo=fmtLocal(new Date(Date.now()-7*MS)),wk2=fmtLocal(new Date(Date.now()-14*MS));
+  const h1=sessions.filter(s=>s.date>wkAgo).reduce((a,s)=>a+(+s.min||0),0)/60;
+  const h2=sessions.filter(s=>s.date>wk2&&s.date<=wkAgo).reduce((a,s)=>a+(+s.min||0),0)/60;
+
+  // 3) Próxima carrera
+  const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
+  const dLeft=next?daysTo(next.date):null;
+
+  // 4) Sensación/RPE recientes
+  const logs=(await Store.get('logs'))||{};const ds=Object.keys(logs).sort().slice(-7);
+  const feels=ds.map(d=>logs[d].feel).filter(v=>v!=null);
+  const rpes=ds.map(d=>logs[d].rpe).filter(v=>v!=null);
+  const feelAvg=feels.length?feels.reduce((a,b)=>a+b,0)/feels.length:null;
+
+  // --- Análisis ---
+  if(next)analisis.push(`Faltan <b>${dLeft} días</b> para ${next.name}. ${dLeft<=10?'Semana de afinamiento: menos volumen, misma intensidad, dormir como prioridad.':'Aún hay margen para construir con cabeza.'}`);
+  if(r.form!=null)analisis.push(`Forma <b>${r.form>0?'+':''}${r.form}</b> (condición ${r.ctl??'—'}, fatiga ${r.atl??'—'}). ${r.form<-15?'Vienes cargado: útil si estás construyendo, riesgoso si se sostiene.':r.form>10?'Fresco, buen punto para rendir.':'Equilibrio entre carga y frescura.'}`);
+  if(total)analisis.push(`Cumpliste <b>${cumpl}/${total}</b> sesiones clave de las últimas 2 semanas (${Math.round(tasa*100)}%). ${tasa>=0.75?'Constancia sólida.':tasa>=0.5?'Aceptable, con margen.':'Por debajo de lo ideal — el plan puede estar pidiendo más de lo que tu semana real permite.'}`);
+  if(feelAvg!=null)analisis.push(`Tu sensación media reciente es <b>${feelAvg.toFixed(1)}/5</b>${rpes.length?` con RPE alrededor de ${Math.round(rpes.reduce((a,b)=>a+b,0)/rpes.length)}`:''}. ${feelAvg<=2.5?'Cuerpo pidiendo pista: prioriza recuperación.':feelAvg>=4?'Buenas sensaciones: puedes sostener la carga.':'Sensaciones neutras.'}`);
+
+  // --- Recomendaciones (máx 2, las más accionables) ---
+  const sl7=[];for(let i=w.length-1;i>=0&&sl7.length<7;i--){if(w[i].sleep!=null)sl7.push(w[i].sleep);}
+  const slAvg=sl7.length?sl7.reduce((a,b)=>a+b,0)/sl7.length:null;
+  if(slAvg!=null&&slAvg<7)recos.push({k:'warn',t:`<b>Sueño a ${hm(slAvg)} de media.</b> Adelanta 30–45 min la hora de acostarte esta semana. Es tu palanca nº1 y hoy la que más rinde.`});
+  if(h2>0&&h1>h2*1.35)recos.push({k:'warn',t:`<b>Tu carga saltó de ${h2.toFixed(1)} a ${h1.toFixed(1)} h/sem.</b> Es más del +30%. Mantén esta semana plana para dejar que el cuerpo absorba, sobre todo por rodillas y tobillos.`});
+  if(dLeft!=null&&dLeft<=10&&next)recos.push({k:'mid',t:`<b>${next.name} en ${dLeft} días.</b> Nada nuevo: sin estrenar comida, zapatillas ni intensidades. La forma ya está hecha; ahora se protege.`});
+  const runs=sessions.filter(s=>s.sport==='run'&&s.km>0);const longest=runs.length?Math.max(...runs.map(s=>s.km)):0;
+  if(next&&/21|media|half/i.test(next.name)&&longest<18&&longest>0)recos.push({k:'warn',t:`<b>Tu fondo más largo son ${longest.toFixed(0)} km.</b> Para 21.1 km, sal a ritmo conservador y planea caminar en los avituallamientos desde el km 10. Cruzar entero > cruzar rápido.`});
+  if(feelAvg!=null&&feelAvg<=2.5)recos.push({k:'warn',t:`<b>Tus sensaciones vienen bajas.</b> Cambia la próxima sesión de calidad por una suave. Escuchar al cuerpo ahora evita parar dos semanas después.`});
+  if(!recos.length)recos.push({k:'ok',t:`<b>Vas coherente con el plan.</b> Mantén el rumbo: constancia, sueño y progresión suave. No hay nada que corregir hoy.`});
+
+  const semColor=r.level==='verde'?'var(--go)':(r.level==='amarillo'?'var(--caution)':'var(--stop)');
+  box.innerHTML=`
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"><span style="width:9px;height:9px;border-radius:50%;background:${semColor}"></span><span style="font-weight:700;font-size:14px">Estado: ${r.level.charAt(0).toUpperCase()+r.level.slice(1)} · ${r.score}/100</span></div>
+    ${analisis.map(a=>`<div class="coach-a">${a}</div>`).join('')}
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:13px 0 8px">Recomendaciones</div>
+    ${recos.slice(0,2).map(x=>`<div class="vd ${x.k}">${x.t}</div>`).join('')}`;
+}
+
 // ---- Cinta de disciplinas (elemento firma) ----
 async function renderRibbon(){
   const box=document.getElementById('ribbon');if(!box)return;
-  const wi=currentWeekIdx(),wk=PLAN_WEEKS[wi];
+  const wi=currentWeekIdx();const WD=daysFor(wi);
   const sessions=await Store.get('strava_sessions')||[];
-  const {autoDone,extra}=matchStravaWeek(wi,sessions);
+  const {autoDone}=matchStravaWeek(wi,sessions);
   const done=await Store.get('week_done')||{};
+  const well=wellAsc(await getWell());
   const todayStr=fmtLocal(today());
   const D=['L','M','X','J','V','S','D'];
   let hechas=0,min=0;
-  box.innerHTML=wk.days.map((d,i)=>{
+  box.innerHTML=WD.map((d,i)=>{
     const ds=dayDateStr(wi,i),isT=ds===todayStr,future=ds>todayStr;
     const planned=sportFromTag(d.tag);
     const dayS=sessions.filter(s=>s.date===ds);
-    const real=dayS.length?dayS[0].sport:null;
-    const ok=!!autoDone[i]||!!done[wi+'-'+i]||dayS.length>0;
-    if(ok){hechas++;dayS.forEach(s=>min+=(+s.min||0));}
-    const sport=real||planned;
-    const col=SPORT_COLOR[sport]||'var(--rest)';
-    // altura = proporción de la sesión del día (min), mínimo visible
-    const dm=dayS.reduce((a,s)=>a+(+s.min||0),0);
-    const h=ok?Math.max(30,Math.min(100,(dm/90)*100)):0;
-    const cls=[isT?'today':'',!planned&&!dayS.length?'rest':'',(!ok&&future)?'pending':''].filter(Boolean).join(' ');
-    return `<button class="rseg ${cls}" data-i="${i}" style="--c:${col}"><span class="rbar"><i style="height:${h}%"></i></span><span class="rsl">${D[i]}</span></button>`;
+    const manualDone=!!done[wi+'-'+i]||!!autoDone[i];
+    const isRest=!planned;
+    // ¿hay dato de recuperación de Garmin ese día? (para puntear descansos)
+    const wr=well.find(x=>x.date===ds);
+    const hasRecov=!!(wr&&(wr.sleep!=null||wr.hrv!=null||wr.bb!=null||wr.readiness!=null));
+    const ok=dayS.length>0||manualDone||(isRest&&(hasRecov||manualDone));
+    if(ok&&!future){hechas++;dayS.forEach(s=>min+=(+s.min||0));}
+    // Barra segmentada: un tramo por deporte del día, altura por minutos
+    const totalMin=dayS.reduce((a,s)=>a+(+s.min||0),0);
+    let fill='';
+    if(dayS.length){
+      // ordenar por duración desc para que el dominante quede abajo
+      const sorted=dayS.slice().sort((a,b)=>(+b.min||0)-(+a.min||0));
+      const barH=Math.max(34,Math.min(100,(totalMin/90)*100));
+      let acc=0;
+      fill=sorted.map(s=>{
+        const frac=totalMin?((+s.min||0)/totalMin):1;
+        const segH=frac*barH;
+        const seg=`<i style="bottom:${acc}%;height:${segH}%;background:${SPORT_COLOR[s.sport]||'var(--rest)'}"></i>`;
+        acc+=segH;return seg;
+      }).join('');
+    } else if(isRest&&ok){
+      // descanso cumplido con datos: barra baja en color de reposo
+      fill=`<i style="bottom:0;height:30%;background:var(--rest)"></i>`;
+    } else if(manualDone){
+      fill=`<i style="bottom:0;height:45%;background:${SPORT_COLOR[planned]||'var(--rest)'}"></i>`;
+    }
+    const cls=[isT?'today':'',(isRest&&!dayS.length)?'rest':'',(!ok&&future)?'pending':'',ok?'ok':''].filter(Boolean).join(' ');
+    const multi=dayS.length>1?`<b class="rmulti">${dayS.length}</b>`:'';
+    return `<button class="rseg ${cls}" data-i="${i}"><span class="rbar">${fill}${multi}</span><span class="rsl">${D[i]}</span></button>`;
   }).join('');
   const st=document.getElementById('ribStat');
   if(st)st.textContent=`${hechas}/7 · ${(min/60).toFixed(1)} h`;
@@ -1651,7 +1947,7 @@ async function runLive(){
     sessions.sort((a,b)=>a.date<b.date?1:-1);
     let summary=(payload.summary&&payload.summary.byWeek)?payload.summary:aggregateFromSessions(sessions);
     await Store.set('strava_sessions',sessions);await Store.set('strava_summary',summary);await Store.set('strava_synced',new Date().toISOString());
-    await renderSessions();await renderProgress();await renderCalibration();await renderBench();await renderWeek();await renderRibbon();await renderFeed();
+    await renderSessions();await renderProgress();await renderCalibration();await renderBench();await renderWeek();await renderRibbon();await renderFeed();await renderCoach();
     setLiveStatus('Sincronizado · '+(summary.weeks||0)+' semanas de datos (6 meses).');toast('Strava sincronizado ✓');
   }catch(err){
     setLiveStatus('No se pudo conectar con Strava. En Claude, verifica que el conector de Strava esté activo. En tu web de Vercel, revisa la configuración del backend (/api/strava).');toast('Error al sincronizar');
@@ -1677,8 +1973,7 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
   await step('carreras',loadCustomRaces);
   await step('viaje',loadTravel);
   await step('fecha',()=>{const c=document.getElementById('todayChip');if(c)c.textContent=today().toLocaleDateString('es',{day:'numeric',month:'short'}).toUpperCase();});
-  await step('ruta',renderRoad);
-  await step('fases',renderPhases);
+  await step('ruta',renderRuta);
   await step('weekNav',renderWeekNav);
   await step('barraViaje',renderTravelBar);
   await step('semana',renderWeek);
@@ -1693,6 +1988,8 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
   await step('formulario',wireRaceForm);
   await step('revision',renderReviewBanner);
   await step('forma',renderFormBoard);
+  await step('coach',renderCoach);
+  await step('logInputs',wireLogInputs);
   await step('export',()=>{
     const b=document.getElementById('btnExport');if(b)b.onclick=()=>exportReport(true);
     const c=document.getElementById('btnCopy');if(c)c.onclick=()=>exportReport(false);
