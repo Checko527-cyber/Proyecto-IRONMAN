@@ -347,6 +347,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     <section>
       <p class="eyebrow">Plan semanal · Fase 1 — Afinar la 21K</p>
       <div id="travelBar"></div>
+      <div id="importedPlan"></div>
       <div class="weeknav" id="weekNav"></div>
       <div class="weeknote" id="weekNote"></div>
       <div id="weekDays"></div>
@@ -696,6 +697,7 @@ async function renderWeek(){
   const wt=await latestWeight();
   const {autoDone,extra}=matchStravaWeek(selWeek,sessions);
   const wellDays=wellAsc(await getWell());
+  const importedAll=await getPlan();
   const todayStr=fmtLocal(today());
   // Orden: del m\u00e1s reciente al m\u00e1s antiguo.
   const order=WD.map((d,i)=>i).sort((a,b)=>dayDateStr(selWeek,b).localeCompare(dayDateStr(selWeek,a)));
@@ -712,6 +714,8 @@ async function renderWeek(){
     const stravaBadge=auto?`<span class="stravatag">\u2713 Strava \u00b7 ${auto.name||''}</span>`:'';
     const detail=auto?sessionDetailHtml(auto,ctx):'';
     const objHtml=d.obj?`<div class="dobj">\ud83c\udfaf <b>Objetivo:</b> ${d.obj}</div>`:'';
+    const impDay=importedAll.filter(w=>w.date===ds);
+    const impHtml=impDay.length?`<div class="impday"><span class="planbadge">TP</span> ${impDay.map(w=>`<b>${w.name}</b>${w.duration_min?' \u00b7 '+w.duration_min+' min':''}`).join(' + ')}${impDay.some(w=>w.steps&&w.steps.length)?`<div class="wsteps" style="margin-top:6px">${impDay.flatMap(w=>w.steps||[]).slice(0,6).map(s=>`<span class="wstep">${s}</span>`).join('')}</div>`:''}</div>`:'';
     let restHtml='';
     if(isRest&&restOk){
       const pills=[];
@@ -725,7 +729,7 @@ async function renderWeek(){
     // Sesiones no planeadas registradas ESE d\u00eda \u2192 integradas aqu\u00ed mismo.
     const dayExtras=extra.filter(s=>s.date===ds);
     const extraHtml=dayExtras.map(s=>`<div class="inlineextra"><div class="iehead"><span class="si">${SPORT_IC[s.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">\u26a1 Adicional \u00b7 no estaba en el plan</div></div><div class="sv">${distStr(s)||''}${(s.km&&s.min)?' \u00b7 ':''}${hhmm(s.min)||''}</div></div>${sessionDetailHtml(s,{longest:L[s.sport+'_km'],weight:wt})}</div>`).join('');
-    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''} ${future?'is-future':''}" data-key="${key}" style="--c:${SPORT_COLOR[sportFromTag(d.tag)]||'var(--rest)'}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${restHtml}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}${extraHtml}</div>`;
+    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''} ${future?'is-future':''}" data-key="${key}" style="--c:${SPORT_COLOR[sportFromTag(d.tag)]||'var(--rest)'}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${impHtml}${restHtml}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}${extraHtml}</div>`;
   }).join('');
   document.getElementById('weekExtra').innerHTML='';
   document.querySelectorAll('#weekDays .check').forEach(btn=>btn.onclick=async(ev)=>{ev.stopPropagation();const key=btn.closest('.day').dataset.key;const dn=await Store.get('week_done')||{};dn[key]=!dn[key];await Store.set('week_done',dn);renderWeek();renderTodayButtons();});
@@ -1469,6 +1473,21 @@ async function renderTrail(){
   }).join('')+`</div>`;
 }
 
+
+async function renderImportedPlan(){
+  const box=document.getElementById('importedPlan');if(!box)return;
+  const plan=await getPlan();
+  const synced=await Store.get('plan_synced');
+  if(!plan.length){
+    box.innerHTML=`<div class="planstatus"><span class="planbadge">TrainingPeaks</span> <span style="font-size:11.5px;color:var(--faint)">Sin entrenos importados. Progrmámalos en TrainingPeaks → Intervals.icu y pulsa Sync.</span></div>`;
+    return;
+  }
+  const wk=PLAN_WEEKS[selWeek];
+  const wkWorkouts=plan.filter(w=>w.date>=wk.start&&w.date<=wk.end);
+  if(!wkWorkouts.length){box.innerHTML='';return;}
+  box.innerHTML=`<div class="planstatus"><span class="planbadge">✓ TrainingPeaks</span> <span style="font-size:11.5px;color:var(--mut)">${wkWorkouts.length} entreno(s) programado(s) esta semana. Estos mandan sobre el plan base.</span></div>`;
+}
+
 async function renderRuta(){
   await renderRaceHero();await renderCapacity();await renderEfficiency();await renderBank();await renderTrail();
 }
@@ -1591,6 +1610,109 @@ async function exportReport(download){
 }
 
 
+
+
+// ================== PLAN IMPORTADO (Intervals.icu / TrainingPeaks) ==================
+async function getPlan(){const p=await Store.get('planned_workouts');return Array.isArray(p)?p:[];}
+async function planForDate(ds){return (await getPlan()).filter(w=>w.date===ds);}
+async function hasPlan(){return (await getPlan()).length>0;}
+
+// Huella de un entreno para detectar cambios reales (no solo de fecha de sync).
+function planFingerprint(w){
+  return [w.date,w.sport,w.name,w.duration_min||'',w.load||'',(w.steps||[]).join('|')].join('~');
+}
+async function fetchPlan(detectChanges){
+  try{
+    const r=await fetch('/api/plan',{headers:{'Accept':'application/json'}});
+    const j=await r.json().catch(()=>null);
+    if(!r.ok||!j||j.error)throw new Error((j&&j.error)||('HTTP '+r.status));
+    const nuevo=Array.isArray(j.workouts)?j.workouts:[];
+    const previo=(await Store.get('planned_workouts'))||[];
+    const todayStr=fmtLocal(today());
+
+    // Comparar por id (Intervals da id único a cada evento). Solo contamos cambios de hoy en adelante.
+    const prevById={},newById={};
+    previo.forEach(w=>{if(w.id!=null)prevById[w.id]=w;});
+    nuevo.forEach(w=>{if(w.id!=null)newById[w.id]=w;});
+    const cambios={added:[],changed:[],removed:[]};
+    nuevo.forEach(w=>{
+      if(w.date<todayStr)return;
+      const old=prevById[w.id];
+      if(!old){cambios.added.push(w);}
+      else if(planFingerprint(old)!==planFingerprint(w)){cambios.changed.push({from:old,to:w});}
+    });
+    previo.forEach(w=>{
+      if(w.date<todayStr)return;
+      if(w.id!=null&&!newById[w.id])cambios.removed.push(w);
+    });
+
+    await Store.set('planned_workouts',nuevo);
+    await Store.set('plan_synced',new Date().toISOString());
+    // Solo recalcular el aviso de cambios cuando es un Sync manual y ya había plan previo.
+    if(detectChanges&&previo.length){
+      const total=cambios.added.length+cambios.changed.length+cambios.removed.length;
+      await Store.set('plan_changes',total?{...cambios,at:new Date().toISOString()}:null);
+    }
+    return nuevo;
+  }catch(e){return null;}
+}
+// Texto legible de un cambio de entreno
+function describeChange(c){
+  const w=c.to,o=c.from;const bits=[];
+  if(o.name!==w.name)bits.push(`nombre: "${o.name}" → "${w.name}"`);
+  if((o.duration_min||0)!==(w.duration_min||0))bits.push(`duración: ${o.duration_min||'?'} → ${w.duration_min||'?'} min`);
+  if((o.load||0)!==(w.load||0))bits.push(`carga: ${o.load||'?'} → ${w.load||'?'}`);
+  if((o.steps||[]).join('|')!==(w.steps||[]).join('|'))bits.push('estructura de la sesión');
+  return bits.length?bits.join(' · '):'detalles actualizados';
+}
+async function renderPlanChanges(){
+  const box=document.getElementById('planChanges');if(!box)return;
+  const ch=await Store.get('plan_changes');
+  if(!ch){box.innerHTML='';return;}
+  const item=(ic,col,label,w,extra)=>`<div class="pchg" style="--c:${col}"><span class="pci">${ic}</span><div class="pcx"><div class="pct"><b>${label}</b> · ${SPORT_IC[w.sport]||''} ${w.name}</div><div class="pcm">${parse(w.date).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'})}${extra?' · '+extra:''}</div></div></div>`;
+  let html=`<div class="pchg-head"><span>🔄 Cambios en tu plan desde la última sincronización</span><button class="pchg-x" id="pchgClose">✕</button></div>`;
+  ch.added.forEach(w=>html+=item('＋','var(--go)','Nuevo',w,w.duration_min?w.duration_min+' min':''));
+  ch.changed.forEach(c=>html+=item('✎','var(--caution)','Modificado',c.to,describeChange(c)));
+  ch.removed.forEach(w=>html+=item('✕','var(--stop)','Eliminado',w,''));
+  box.innerHTML=`<div class="pchg-card">${html}</div>`;
+  const x=document.getElementById('pchgClose');
+  if(x)x.onclick=async()=>{await Store.set('plan_changes',null);box.innerHTML='';};
+}
+
+// Sugerencia de coach para un entreno importado: cruza el entreno con tus datos.
+async function coachSuggestion(w){
+  const r=await computeReadiness();
+  const sessions=(await Store.get('strava_sessions'))||[];
+  const tips=[];
+  // 1) Objetivo en lenguaje de coach según el tipo
+  let obj='';
+  const isHard=/interv|tempo|umbral|threshold|vo2|series|pista|hard|fast/i.test(w.name+' '+w.description);
+  const isLong=/long|fondo|endurance|z2|base/i.test(w.name+' '+w.description)||(w.duration_min&&w.duration_min>=90);
+  if(w.sport==='run'&&isHard)obj='Calidad de carrera: sube tu velocidad aeróbica y umbral. La sesión que más rinde para tus metas de ritmo.';
+  else if(w.sport==='run'&&isLong)obj='Fondo: construye resistencia y enseña al cuerpo a usar grasa. Ensaya aquí tu nutrición de carrera.';
+  else if(w.sport==='bike'&&isLong)obj='Fondo de bici: base aeróbica y resistencia específica. Tu mayor margen de mejora para el triatlón.';
+  else if(w.sport==='bike')obj='Trabajo de bici: potencia y economía de pedaleo.';
+  else if(w.sport==='swim')obj='Nado: mantiene tu fortaleza con bajo coste de fatiga. Cuida la técnica y el hombro izquierdo.';
+  else if(w.sport==='strength')obj='Fuerza: blinda rodillas y tobillos. Tu seguro antilesión, sobre todo por el peso.';
+  else obj='Sesión de mantenimiento.';
+
+  // 2) Sugerencias según semáforo y contexto
+  const dw=daysTo(w.date);
+  if(r.hasData&&dw<=1){
+    if(r.level==='rojo'&&(isHard||isLong))tips.push({k:'warn',t:`Tu semáforo está en <b>rojo</b> (${r.score}/100). Este entreno es exigente: considera moverlo un día o cambiarlo por algo suave. Entrenar duro hoy resta más de lo que suma.`});
+    else if(r.level==='amarillo'&&isHard)tips.push({k:'mid',t:`Semáforo <b>amarillo</b>. Si las piernas no responden en el calentamiento, recorta a la mitad de las series. La forma ya está; hoy se protege.`});
+    else if(r.level==='verde'&&isHard)tips.push({k:'ok',t:`Semáforo <b>verde</b> (${r.score}/100): buen día para exigir. Aprovecha esta sesión de calidad.`});
+  }
+  // 3) Carga de la semana
+  const wkAgo=fmtLocal(new Date(Date.now()-7*MS));
+  const h1=sessions.filter(s=>s.date>wkAgo).reduce((a,s)=>a+(+s.min||0),0)/60;
+  if(isLong&&w.duration_min&&(h1+w.duration_min/60)>10)tips.push({k:'mid',t:`Con este fondo cerrarías la semana sobre 10 h. Si vienes de una semana cargada, vigila la progresión (+10%/sem máx).`});
+  // 4) Próxima carrera
+  const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
+  if(next&&daysTo(next.date)<=10&&isHard&&daysTo(w.date)<=daysTo(next.date))tips.push({k:'mid',t:`${next.name} en ${daysTo(next.date)} días. En taper, la intensidad se mantiene pero el volumen baja: haz las series pero no las alargues.`});
+
+  return {obj,tips};
+}
 
 // ================== ÍNDICE DE EFICIENCIA DEL ENTRENAMIENTO ==================
 // Cruza CUMPLIMIENTO (¿hago las sesiones clave?) con CAPACIDAD (¿mejoro?).
@@ -1778,6 +1900,9 @@ async function renderFeed(){
   const todayStr=fmtLocal(today());
   let html='';
 
+  // -1) Cambios en el plan tras sincronizar (banner arriba de todo)
+  html+=`<div id="planChanges"></div>`;
+
   // 0) Modo viaje / regreso
   const rpF=returnPlan();
   if(TRAVEL.active){
@@ -1794,7 +1919,30 @@ async function renderFeed(){
   // 2) Cierre del día (a partir de las 9pm)
   if(afterCutoff())html+=await closeCard();
 
-  // 3) Sesión en foco (hoy, o mañana si ya pasó el corte) recalibrada con tus datos
+  // 3) Sesión en foco: si hay entreno importado de TrainingPeaks, ese manda
+  const focusDs=afterCutoff()?fmtLocal(new Date(today().getTime()+MS)):todayStr;
+  const importedFocus=await planForDate(focusDs);
+  if(importedFocus.length){
+    for(const w of importedFocus){
+      const col=SPORT_COLOR[w.sport]||'var(--rest)';const ic=SPORT_IC[w.sport]||'🏋️';
+      const cs=await coachSuggestion(w);
+      const esManana=focusDs!==todayStr;
+      const doneW=sessions.find(s=>s.date===focusDs&&sportMatch(w.sport,s.sport));
+      const steps=w.steps&&w.steps.length?`<div class="wsteps">${w.steps.slice(0,8).map(s=>`<span class="wstep">${s}</span>`).join('')}</div>`:'';
+      const tips=cs.tips.map(t=>`<div class="vsub"><span class="fi ${t.k}" style="display:inline-block;margin-right:5px"></span>${t.t}</div>`).join('');
+      html+=`<article class="fcard" style="--c:${col}">
+        <div class="fhead"><span class="fic">${ic}</span><div class="fhx"><div class="ftitle">${w.name}</div><div class="fmeta">${esManana?'Mañana':'Hoy'} · ${parse(focusDs).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'})}${w.duration_min?' · '+w.duration_min+' min':''}${w.load?' · carga '+w.load:''}</div></div><span class="fchip chip-tp">TrainingPeaks</span></div>
+        ${w.description?`<p class="verdict">${w.description}</p>`:''}
+        ${steps}
+        <div class="vsub"><b>🎯 Objetivo:</b> ${cs.obj}</div>
+        ${tips}
+        <div id="adjustBox"></div>
+        <div class="btnrow" id="todayBtns"></div>
+      </article>`;
+    }
+    html+='';
+  } else {
+  // Sin entreno importado: cae al plan escrito recalibrado
   const rc=await dailyRecalc();
   const f=rc||dayInfoFor(todayStr);
   if(f){
@@ -1821,6 +1969,7 @@ async function renderFeed(){
     }
   } else {
     html+=`<div id="adjustBox"></div><div class="btnrow" id="todayBtns" style="margin-bottom:12px"></div>`;
+  }
   }
 
   // 4) Corriente de sesiones, agrupada por día
@@ -1849,6 +1998,7 @@ async function renderFeed(){
   box.innerHTML=html;
   await renderReadiness();
   await renderTodayButtons();
+  await renderPlanChanges();
 }
 
 // --- Barra de cifras del header (semana actual lun–dom) ---
@@ -1956,6 +2106,10 @@ async function runLive(){
 async function syncAll(){
   await runLive();
   await runGarminSync();
+  await fetchPlan(true);
+  await renderImportedPlan();
+  const ch=await Store.get('plan_changes');
+  if(ch){const n=ch.added.length+ch.changed.length+ch.removed.length;toast(n+' cambio(s) en tu plan');}
 }
 document.addEventListener('click',e=>{if(e.target.closest('.js-live'))syncAll();});
 
@@ -1976,6 +2130,7 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
   await step('ruta',renderRuta);
   await step('weekNav',renderWeekNav);
   await step('barraViaje',renderTravelBar);
+  await step('planImportado',renderImportedPlan);
   await step('semana',renderWeek);
   await step('cinta',renderRibbon);
   await step('feed',renderFeed);
