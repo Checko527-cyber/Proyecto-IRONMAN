@@ -319,7 +319,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 <div class="wrap">
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v0725-1828">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0725-1828</span></div>
+      <div class="brand" data-version="v0727-ruta">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0727-ruta</span></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -1354,65 +1354,91 @@ async function renderFormBoard(){
 
 
 
-// ================== GRÁFICAS RUTA (fundadas en ui-ux-pro-max) ==================
-// Radar de capacidad: 3 ejes (nado/bici/carrera), datos actuales vs objetivo IRONMAN 70.3.
-function radarChart(data){ // data: [{label,cur,tgt,color}]
-  const S=200,C=S/2,R=72,n=data.length;
-  const ang=i=>(-90+i*360/n)*Math.PI/180;
-  const pt=(i,r)=>[C+Math.cos(ang(i))*r, C+Math.sin(ang(i))*r];
-  let g='';
-  // anillos de rejilla
-  [0.25,0.5,0.75,1].forEach(f=>{
-    const pts=data.map((_,i)=>pt(i,R*f).join(',')).join(' ');
-    g+=`<polygon points="${pts}" fill="none" stroke="var(--line)" stroke-width="1"/>`;
-  });
-  // ejes
-  data.forEach((_,i)=>{const[x,y]=pt(i,R);g+=`<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;});
-  // polígono objetivo (100% = borde exterior)
-  const tgtPts=data.map((_,i)=>pt(i,R).join(',')).join(' ');
-  g+=`<polygon points="${tgtPts}" fill="none" stroke="var(--line2)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
-  // polígono actual
-  const curPts=data.map((d,i)=>pt(i,R*Math.min(1,d.cur/d.tgt)).join(',')).join(' ');
-  g+=`<polygon points="${curPts}" fill="url(#radgrad)" fill-opacity="0.28" stroke="var(--run)" stroke-width="2"/>`;
-  // vértices con color de disciplina
-  data.forEach((d,i)=>{const[x,y]=pt(i,R*Math.min(1,d.cur/d.tgt));g+=`<circle cx="${x}" cy="${y}" r="3.5" fill="${d.color}"/>`;});
-  // etiquetas
-  data.forEach((d,i)=>{const[x,y]=pt(i,R+18);const anchor=Math.abs(x-C)<10?'middle':(x<C?'end':'start');
-    const pct=Math.round(d.cur/d.tgt*100);
-    g+=`<text x="${x}" y="${y-2}" text-anchor="${anchor}" font-size="10" font-weight="700" fill="${d.color}" font-family="Archivo">${d.ic} ${pct}%</text>`;
-    g+=`<text x="${x}" y="${y+9}" text-anchor="${anchor}" font-size="7.5" fill="var(--faint)" font-family="IBM Plex Mono">${d.cur}/${d.tgt}</text>`;});
-  return `<svg viewBox="0 0 ${S} ${S}" style="width:100%;max-width:280px;margin:0 auto;display:block"><defs><radialGradient id="radgrad"><stop offset="0%" stop-color="var(--run)"/><stop offset="100%" stop-color="var(--bike)"/></radialGradient></defs>${g}</svg>`;
+// ================== GRÁFICAS RUTA (reconstruidas y verificadas) ==================
+// Anillo de progreso: un donut limpio con el % al centro. Para capacidad por disciplina.
+function ringChart(pct,color,cx,cy,r,sw){
+  pct=Math.max(0,Math.min(100,pct));
+  const C=2*Math.PI*r, off=C*(1-pct/100);
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--raise)" stroke-width="${sw}"/>`+
+         `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 ${cx} ${cy})"/>`;
 }
-
-// Gauge de arco con gradiente rojo→amarillo→verde (Chart 8 del skill).
+// Tres anillos de capacidad, uno por disciplina — claro y legible.
+function capacityRings(data){
+  const cw=104;
+  return `<div class="rings">`+data.map(d=>{
+    const pct=Math.min(100,Math.round(d.cur/d.tgt*100));
+    const done=d.cur>=d.tgt;
+    return `<div class="ring">
+      <svg viewBox="0 0 100 100" style="width:${cw}px;height:${cw}px">
+        ${ringChart(pct,d.color,50,50,42,9)}
+        <text x="50" y="46" text-anchor="middle" font-size="22" font-family="IBM Plex Mono" font-weight="600" fill="var(--ink)">${done?'✓':pct}</text>
+        <text x="50" y="62" text-anchor="middle" font-size="10" font-family="IBM Plex Mono" fill="var(--faint)">${done?'listo':'%'}</text>
+      </svg>
+      <div class="ring-ic">${d.ic}</div>
+      <div class="ring-n">${d.label}</div>
+      <div class="ring-v">${d.cur} / ${d.tgt} ${d.u}</div>
+    </div>`;
+  }).join('')+`</div>`;
+}
+// Gauge semicircular correcto (semicírculo real, no arco largo).
 function gaugeArc(score,label){
-  const W=180,H=110,cx=W/2,cy=95,r=72;
-  const a0=Math.PI, a1=0; // semicírculo
-  const val=Math.max(0,Math.min(100,score))/100;
-  const polar=(ang)=>[cx+Math.cos(ang)*r, cy+Math.sin(-ang)*r+ (cy-cy)]; // y invertido
-  const arc=(from,to,color,w)=>{
-    const s=[cx+Math.cos(Math.PI-Math.PI*from)*r, cy-Math.sin(Math.PI-Math.PI*from)*r];
-    const e=[cx+Math.cos(Math.PI-Math.PI*to)*r, cy-Math.sin(Math.PI-Math.PI*to)*r];
-    const large=(to-from)>0.5?1:0;
-    return `<path d="M ${s[0]} ${s[1]} A ${r} ${r} 0 ${large} 1 ${e[0]} ${e[1]}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`;
+  score=Math.max(0,Math.min(100,Math.round(score)));
+  const W=200,H=124,cx=W/2,cy=104,r=80,sw=13;
+  // ángulos: 180° (izq) → 0° (der), por arriba
+  const ang=t=>Math.PI*(1-t); // t 0..1 → PI..0
+  const P=t=>[cx+r*Math.cos(ang(t)), cy-r*Math.sin(ang(t))];
+  const arc=(t0,t1,stroke,extra)=>{
+    const [x0,y0]=P(t0),[x1,y1]=P(t1);
+    const large=(t1-t0)>0.5?1:0;
+    return `<path d="M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${stroke}" stroke-width="${sw}" stroke-linecap="round" ${extra||''}/>`;
   };
-  let g=arc(0,1,'var(--line)',10); // fondo
-  // gradiente por zonas
-  g+=`<defs><linearGradient id="gaugeg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="var(--stop)"/><stop offset="50%" stop-color="var(--caution)"/><stop offset="100%" stop-color="var(--go)"/></linearGradient></defs>`;
-  g+=arc(0,val,'url(#gaugeg)',10);
-  // aguja
-  const na=Math.PI-Math.PI*val;
-  const nx=cx+Math.cos(na)*(r-14), ny=cy-Math.sin(na)*(r-14);
-  g+=`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="4" fill="var(--ink)"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:150px;display:block">${g}<text x="${cx}" y="${cy-18}" text-anchor="middle" font-size="26" font-weight="700" fill="var(--ink)" font-family="IBM Plex Mono">${score}</text><text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="8" fill="var(--faint)" font-family="IBM Plex Mono" letter-spacing="1">${label||'ÍNDICE'}</text></svg>`;
+  const frac=score/100;
+  const [nx,ny]=P(frac);
+  const col=score>=67?'var(--go)':score>=40?'var(--caution)':'var(--stop)';
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:220px;display:block;margin:0 auto">
+    <defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="var(--stop)"/><stop offset="50%" stop-color="var(--caution)"/><stop offset="100%" stop-color="var(--go)"/></linearGradient></defs>
+    ${arc(0,1,'var(--raise)')}
+    ${arc(0,Math.max(0.001,frac),'url(#gg)')}
+    <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="7" fill="${col}" stroke="var(--bg)" stroke-width="3"/>
+    <text x="${cx}" y="${cy-14}" text-anchor="middle" font-size="38" font-weight="700" font-family="IBM Plex Mono" fill="var(--ink)">${score}</text>
+    <text x="${cx}" y="${cy+2}" text-anchor="middle" font-size="10" font-family="IBM Plex Mono" fill="var(--faint)" letter-spacing="1.5">${label||'ÍNDICE'}</text>
+  </svg>`;
 }
-// Contador animado (count-up) respetando reduced-motion
+// Perfil de montaña con área bajo la curva — el ascenso hacia el IRONMAN.
+function mountainProfile(phases,curIdx){
+  const W=340,H=130,padX=8,padB=22,padT=14;
+  const n=phases.length;
+  const x=i=>padX+(i/(n-1))*(W-2*padX);
+  // altura asciende hacia la cima
+  const y=i=>H-padB-((i/(n-1))*(H-padB-padT));
+  const linePts=phases.map((_,i)=>`${x(i).toFixed(1)},${y(i).toFixed(1)}`).join(' ');
+  const areaPts=`${padX},${H-padB} `+linePts+` ${W-padX},${H-padB}`;
+  const doneLine=phases.slice(0,curIdx+1).map((_,i)=>`${x(i).toFixed(1)},${y(i).toFixed(1)}`).join(' ');
+  let dots='';
+  phases.forEach((p,i)=>{
+    const done=i<curIdx,cur=i===curIdx,summit=i===n-1;
+    const col=done?'var(--go)':cur?'var(--run)':summit?'var(--bike)':'var(--line2)';
+    const rr=cur||summit?6:4;
+    dots+=`<circle cx="${x(i).toFixed(1)}" cy="${y(i).toFixed(1)}" r="${rr}" fill="${col}" stroke="var(--bg)" stroke-width="2"/>`;
+    if(summit)dots+=`<text x="${x(i).toFixed(1)}" y="${(y(i)-11).toFixed(1)}" text-anchor="middle" font-size="14">🏔️</text>`;
+    if(cur)dots+=`<text x="${x(i).toFixed(1)}" y="${(y(i)-11).toFixed(1)}" text-anchor="middle" font-size="12">📍</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">
+    <defs><linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--bike)" stop-opacity="0.22"/><stop offset="100%" stop-color="var(--run)" stop-opacity="0.02"/></linearGradient></defs>
+    <polygon points="${areaPts}" fill="url(#mt)"/>
+    <polyline points="${linePts}" fill="none" stroke="var(--line2)" stroke-width="2"/>
+    <polyline points="${doneLine}" fill="none" stroke="var(--run)" stroke-width="3"/>
+    ${dots}
+    <text x="${padX}" y="${H-6}" font-size="8" font-family="IBM Plex Mono" fill="var(--faint)">HOY</text>
+    <text x="${W-padX}" y="${H-6}" text-anchor="end" font-size="8" font-family="IBM Plex Mono" fill="var(--bike)">IRONMAN 2028</text>
+  </svg>`;
+}
 function countUp(el,to,dur,suffix){
   if(!el)return;
   const rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   if(rm||!dur){el.textContent=to+(suffix||'');return;}
-  const start=performance.now(),from=0;
-  const tick=(t)=>{const p=Math.min(1,(t-start)/dur);const v=Math.round(from+(to-from)*(1-Math.pow(1-p,3)));el.textContent=v+(suffix||'');if(p<1)requestAnimationFrame(tick);};
+  const start=performance.now();
+  const tick=(t)=>{const p=Math.min(1,(t-start)/dur);const v=Math.round(to*(1-Math.pow(1-p,3)));el.textContent=v+(suffix||'');if(p<1)requestAnimationFrame(tick);};
   requestAnimationFrame(tick);
 }
 
@@ -1451,15 +1477,14 @@ async function renderCapacity(){
   const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};
   const T=HALF_TARGETS;
   const data=[
-    {label:'Nado',ic:'🏊',cur:+(L.swim_km||0).toFixed(1),tgt:T.swim,color:'var(--swim)'},
-    {label:'Bici',ic:'🚴',cur:+(L.bike_km||0).toFixed(1),tgt:T.bike,color:'var(--bike)'},
-    {label:'Carrera',ic:'🏃',cur:+(L.run_km||0).toFixed(1),tgt:T.run,color:'var(--run)'}
+    {label:'Nado',ic:'🏊',cur:+(L.swim_km||0).toFixed(1),tgt:T.swim,u:'km',color:'var(--swim)'},
+    {label:'Bici',ic:'🚴',cur:+(L.bike_km||0).toFixed(1),tgt:T.bike,u:'km',color:'var(--bike)'},
+    {label:'Carrera',ic:'🏃',cur:+(L.run_km||0).toFixed(1),tgt:T.run,u:'km',color:'var(--run)'}
   ];
   const ready=data.filter(d=>d.cur>=d.tgt).length;
-  box.innerHTML=`<div style="font-size:11.5px;color:var(--mut);margin-bottom:6px;line-height:1.5">Tu distancia máxima frente a lo que exige el <b style="color:var(--ink)">IRONMAN 70.3</b>. El borde punteado es la meta.</div>
-    ${radarChart(data)}
-    <div class="cap-legend">${data.map(d=>{const pct=Math.round(d.cur/d.tgt*100);const done=d.cur>=d.tgt;return `<div class="capl"><span class="capl-d" style="background:${d.color}"></span><span class="capl-n">${d.label}</span><span class="capl-v ${done?'done':''}">${done?'listo ✓':pct+'%'}</span></div>`;}).join('')}</div>
-    ${ready>0?`<div class="vd ok" style="margin-top:10px"><b>${ready} de 3 disciplinas</b> ya alcanzan la distancia del 70.3. ${data[2].cur<data[2].tgt?'La carrera es tu frontera: ahí está el trabajo.':''}</div>`:''}`;
+  box.innerHTML=`<div style="font-size:11.5px;color:var(--mut);margin-bottom:12px;line-height:1.5">Tu distancia máxima frente a lo que exige el <b style="color:var(--ink)">IRONMAN 70.3</b>.</div>
+    ${capacityRings(data)}
+    ${ready>0?`<div class="vd ok" style="margin-top:12px"><b>${ready} de 3 disciplinas</b> ya alcanzan la distancia del 70.3.${data[2].cur<data[2].tgt?' La carrera es tu frontera: ahí está el trabajo por hacer.':''}</div>`:''}`;
 }
 
 // --- Índice de eficiencia ---
@@ -1507,28 +1532,10 @@ async function renderBank(){
 // --- El ascenso: sendero de 7 fases ---
 async function renderTrail(){
   const box=document.getElementById('trail');if(!box)return;
-  const curPhase=0; // Fase 1 activa
-  const n=PHASES.length;
-  // Perfil de montaña SVG: la altura sube hacia la cima (IRONMAN)
-  const W=340,H=120,pad=10;
-  const px=i=>pad+(i/(n-1))*(W-2*pad);
-  const py=i=>H-pad-((i/(n-1))*(H-2*pad)); // asciende
-  let path=`M ${px(0)} ${H-pad}`;
-  for(let i=0;i<n;i++)path+=` L ${px(i)} ${py(i)}`;
-  path+=` L ${px(n-1)} ${H-pad} Z`;
-  const line=PHASES.map((_,i)=>`${px(i)},${py(i)}`).join(' ');
-  const progressX=px(curPhase+0.4);
-  let dots='';
-  PHASES.forEach((p,i)=>{
-    const done=i<curPhase,cur=i===curPhase,summit=i===n-1;
-    const col=done?'var(--go)':cur?'var(--run)':summit?'var(--bike)':'var(--line2)';
-    dots+=`<circle cx="${px(i)}" cy="${py(i)}" r="${cur?5:summit?5:3.5}" fill="${col}"${cur?' class="pulse-dot"':''}/>`;
-    if(summit)dots+=`<text x="${px(i)}" y="${py(i)-9}" text-anchor="middle" font-size="11">🏔️</text>`;
-  });
-  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block" preserveAspectRatio="none"><defs><linearGradient id="mtn" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="var(--run)" stop-opacity="0.03"/><stop offset="100%" stop-color="var(--bike)" stop-opacity="0.16"/></linearGradient></defs><path d="${path}" fill="url(#mtn)"/><polyline points="${line}" fill="none" stroke="var(--line2)" stroke-width="2"/><polyline points="${PHASES.slice(0,curPhase+1).map((_,i)=>px(i)+','+py(i)).join(' ')}" fill="none" stroke="var(--run)" stroke-width="2.5"/>${dots}</svg>`;
-
+  const curPhase=0;
+  const svg=mountainProfile(PHASES,curPhase);
   const cards=PHASES.map((p,i)=>{
-    const done=i<curPhase,cur=i===curPhase,future=i>curPhase,summit=i===n-1;
+    const done=i<curPhase,cur=i===curPhase,summit=i===PHASES.length-1;
     const pct=done?100:(cur?38:0);
     const cls=done?'done':(cur?'cur':'future');
     return `<div class="tstation ${cls} ${summit?'summit':''}">
@@ -1542,7 +1549,7 @@ async function renderTrail(){
       </div>
     </div>`;
   }).join('');
-  box.innerHTML=`<div class="card pad" style="margin-bottom:12px"><div class="mtn-head"><span>Nivel del mar</span><span>La cima · IRONMAN 2028</span></div>${svg}</div><div class="trail">${cards}</div>`;
+  box.innerHTML=`<div class="card pad" style="margin-bottom:12px">${svg}</div><div class="trail">${cards}</div>`;
 }
 
 
@@ -1550,6 +1557,8 @@ async function renderImportedPlan(){
   const box=document.getElementById('importedPlan');if(!box)return;
   const plan=await getPlan();
   const synced=await Store.get('plan_synced');
+  const err=await Store.get('plan_error');
+  if(err){box.innerHTML=`<div class="planstatus" style="border-color:var(--stop)"><span class="planbadge" style="color:var(--stop);border-color:var(--stop);background:rgba(255,59,78,.12)">TrainingPeaks</span> <span style="font-size:11.5px;color:var(--mut)">No pude traer tu plan: ${err}. Revisa que INTERVALS_API_KEY e INTERVALS_ATHLETE_ID estén en Vercel y que TrainingPeaks esté sincronizando al calendario de Intervals.icu.</span></div>`;return;}
   if(!plan.length){
     box.innerHTML=`<div class="planstatus"><span class="planbadge">TrainingPeaks</span> <span style="font-size:11.5px;color:var(--faint)">Sin entrenos importados. Progrmámalos en TrainingPeaks → Intervals.icu y pulsa Sync.</span></div>`;
     return;
@@ -1725,8 +1734,9 @@ async function fetchPlan(detectChanges){
       const total=cambios.added.length+cambios.changed.length+cambios.removed.length;
       await Store.set('plan_changes',total?{...cambios,at:new Date().toISOString()}:null);
     }
+    await Store.set('plan_error',null);
     return nuevo;
-  }catch(e){return null;}
+  }catch(e){await Store.set('plan_error',String(e.message||e));return null;}
 }
 // Texto legible de un cambio de entreno
 function describeChange(c){
@@ -1896,8 +1906,17 @@ async function renderCoach(){
   const rpes=ds.map(d=>logs[d].rpe).filter(v=>v!=null);
   const feelAvg=feels.length?feels.reduce((a,b)=>a+b,0)/feels.length:null;
 
+  // --- Carrera recién completada (últimas 72h)? ---
+  const hoyStr=fmtLocal(today());const hace4=fmtLocal(new Date(today().getTime()-4*MS));
+  const recientes=sessions.filter(s=>(+s.km)>=18&&s.sport==='run'&&s.date>=hace4&&s.date<=hoyStr).sort((a,b)=>b.date.localeCompare(a.date));
+  if(recientes.length){
+    const c=recientes[0];
+    analisis.push(`🏁 <b>Completaste ${c.km} km</b> el ${parse(c.date).toLocaleDateString('es',{day:'numeric',month:'short'})}. La carrera más larga de tu registro. Un hito real del proyecto.`);
+    recos.push({k:'ok',t:`<b>Recuperación primero.</b> Tras un esfuerzo así, 2–3 días de descanso activo: caminar, nadar suave, dormir. No entrenes fuerte con el subidón — el cuerpo necesita reconstruir.`});
+  }
+
   // --- Análisis ---
-  if(next)analisis.push(`Faltan <b>${dLeft} días</b> para ${next.name}. ${dLeft<=10?'Semana de afinamiento: menos volumen, misma intensidad, dormir como prioridad.':'Aún hay margen para construir con cabeza.'}`);
+  if(next&&dLeft>0)analisis.push(`Faltan <b>${dLeft} días</b> para ${next.name}. ${dLeft<=10?'Semana de afinamiento: menos volumen, misma intensidad, dormir como prioridad.':'Aún hay margen para construir con cabeza.'}`);
   if(r.form!=null)analisis.push(`Forma <b>${r.form>0?'+':''}${r.form}</b> (condición ${r.ctl??'—'}, fatiga ${r.atl??'—'}). ${r.form<-15?'Vienes cargado: útil si estás construyendo, riesgoso si se sostiene.':r.form>10?'Fresco, buen punto para rendir.':'Equilibrio entre carga y frescura.'}`);
   if(total)analisis.push(`Cumpliste <b>${cumpl}/${total}</b> sesiones clave de las últimas 2 semanas (${Math.round(tasa*100)}%). ${tasa>=0.75?'Constancia sólida.':tasa>=0.5?'Aceptable, con margen.':'Por debajo de lo ideal — el plan puede estar pidiendo más de lo que tu semana real permite.'}`);
   if(feelAvg!=null)analisis.push(`Tu sensación media reciente es <b>${feelAvg.toFixed(1)}/5</b>${rpes.length?` con RPE alrededor de ${Math.round(rpes.reduce((a,b)=>a+b,0)/rpes.length)}`:''}. ${feelAvg<=2.5?'Cuerpo pidiendo pista: prioriza recuperación.':feelAvg>=4?'Buenas sensaciones: puedes sostener la carga.':'Sensaciones neutras.'}`);
