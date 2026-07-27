@@ -319,7 +319,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 <div class="wrap">
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v0727-ruta">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0727-ruta</span></div>
+      <div class="brand" data-version="v0727-plan">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0727-plan</span></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -345,7 +345,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <!-- ===== SEMANA ===== -->
   <div class="view" id="v-semana">
     <section>
-      <p class="eyebrow">Plan semanal · Fase 1 — Afinar la 21K</p>
+      <p class="eyebrow">Plan semanal · Fase 2 — Estreno triatlón 5150</p>
       <div id="travelBar"></div>
       <div id="importedPlan"></div>
       <div class="weeknav" id="weekNav"></div>
@@ -479,10 +479,10 @@ const RACES=[
 ];
 
 const PHASES=[
-  {n:"FASE 1",title:"Afinar la Media Maratón",when:"28 jun → 26 jul 2026 · 4 sem",cur:true,
+  {n:"FASE 1",title:"Afinar la Media Maratón",when:"28 jun → 26 jul 2026 · ✓ hecho",done:true,
    body:"Recta final, no construcción. Mantenemos tu estructura, llevamos el fondo a su pico (~18 km) y bajamos carga los últimos 10 días para llegar fresco al 21K. Entran 2 sesiones cortas de fuerza para blindar rodillas y tobillos.",
    focus:['<span class="tag t-run">Carrera</span>','<span class="tag t-str">Fuerza</span>','<span class="tag t-rest">Taper</span>']},
-  {n:"FASE 2",title:"Estreno en triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",
+  {n:"FASE 2",title:"Estreno en triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",cur:true,
    body:"Recuperar de la 21K y girar el foco hacia la bici (tu mayor margen). Entran bricks, transiciones y ritmo olímpico. Ojo al calor del Caribe: aclimatación e hidratación.",
    focus:['<span class="tag t-bike">+ Bici</span>','<span class="tag t-brick">Bricks</span>','<span class="tag t-swim">Nado</span>']},
   {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",
@@ -512,50 +512,74 @@ const RACE_STRAT='<h5>2 días antes</h5><p>Sube un poco los carbohidratos, hidr�
 '<h5>Hidratación y geles</h5><p>El sol de montaña deshidrata aunque haga fresco. Aprovecha cada punto de hidratación (cada 3–5 km) con sorbos, no tragos. Gel hacia el km 7 y el km 14, como lo ensayaste.</p>'+
 '<h5>La cabeza</h5><p>Divídela en 4 tramos (5+5+5+6 km). El tramo duro será km 16–19: ahí recuerda tu ancla, conocer tus límites. El km 20 ya es celebración. Disfruta: es la graduación del bloque.</p>';
 
+const RACE_STRAT_5150='<h5>2 días antes</h5><p>Sube carbohidratos, hidrátate, prioriza el sueño. No estrenes NADA (comida, gafas, ropa). Revisa la bici: frenos, cambios, presión de llantas. Deja todo el material listo.</p>'+'<h5>La mañana</h5><p>Despierta 3 h antes. Desayuna 2.5–3 h antes: carbohidratos fáciles, poca grasa y fibra. Llega temprano a montar la transición: ordena tu material (casco, gafas, zapatillas) como lo ensayaste.</p>'+'<h5>Nado · 1.5 km</h5><p>Sal CONSERVADOR. La adrenalina y el pelotón te harán arrancar rápido — resiste. Ubícate a un lado o atrás para evitar el caos. Es tu fortaleza, no la quemes en los primeros 300 m. Levanta la vista cada 6-8 brazadas para no desviarte.</p>'+'<h5>Transición 1</h5><p>Sin prisa torpe: sal del agua, baja el wetsuit hasta la cintura mientras corres. Casco ANTES de tocar la bici (regla obligatoria). Respira: las prisas cuestan penalizaciones.</p>'+'<h5>Bici · 40 km</h5><p>Tu mayor margen. Rueda a ritmo Z3 sostenible, el de los bricks. Come e hidrata AQUÍ, que es donde puedes: un gel a la mitad, sorbos constantes. No te vacíes, aún queda correr. Cadencia alta para llegar con piernas.</p>'+'<h5>Transición 2 y carrera · 10 km</h5><p>Los primeros 800 m las piernas serán de gelatina — lo entrenaste, sabes que pasa. Acorta la zancada, sube la cadencia, y el ritmo llega. Sal controlado y aprieta en la segunda mitad si el cuerpo responde. Los últimos 2 km son tuyos.</p>'+'<h5>La cabeza</h5><p>Es tu PRIMER triatlón: la meta es cruzar entero y aprender, no un tiempo. Cada transición es nueva, cada disciplina un logro. Divídelo en las tres partes y celebra cada una. Es el estreno de lo que viniste a construir.</p>';
+
 const PLAN_WEEKS=[
- {label:"Semana 1",sub:"29 jun – 5 jul",focus:"Construcción",vol:"~8 h",start:"2026-06-29",end:"2026-07-05",
-  note:"<b>Foco:</b> recuperar el ritmo del bloque y construir base de fondo. Ensaya tu nutrición en el fondo del sábado: gel cada 35–40 min.",
+ {label:"Sem 1",sub:"27 jul – 2 ago",focus:"Recuperación 21K",vol:"~4 h",start:"2026-07-27",end:"2026-08-02",
+  note:"<b>Foco:</b> recuperar de la Media Maratón. Nada de intensidad — tu cuerpo corrió 21 km y necesita reconstruir. Volumen bajo, todo suave. El nado es tu mejor recuperación activa.",
   days:[
-   {d:"Lun",t:"Bici · rodillo 60'",tag:'<span class="tag t-bike">Bici Z2</span>',detail:"10' progresivo + 45' continuo en Z2 (zona 2, pulso cómodo) a cadencia 90+ rpm + 5' suelta. En MyWhoosh ruta llana.",obj:"Recuperación activa que mueve sangre a las piernas sin generar fatiga. Construye base aeróbica y trabaja la economía de pedaleo de cara al 5150.",tip:"Piernas frescas para la calidad del miércoles. Si vienes cansado, baja a 45'.",str:STR_A},
-   {d:"Mar",t:"Natación 1:15",tag:'<span class="tag t-swim">Nado</span>',detail:"400 calent · 8×50 técnica (rolido y catch) · 1.500 continuo aeróbico · 200 suave. Respiración bilateral cada 3.",obj:"Mantener tu fortaleza y pulir técnica con poco coste físico. Día de descarga para las piernas tras la bici.",tip:"Disfruta tu disciplina fuerte. Cuida el rango del hombro izq. (clavícula 2016)."},
-   {d:"Mié",t:"Pista · intervalos",tag:'<span class="tag t-run">Calidad</span>',detail:"15' calent suave + 4–5 progresiones · 6×800 m a ritmo 10K (esfuerzo 8/10) con 2' trote de recuperación · 10' suelta.",obj:"Subir tu velocidad aeróbica máxima y la eficiencia de zancada. Es el estímulo de calidad que sube tu techo para la 21K.",tip:"Los últimos 800 deben ser los más rápidos, no los más lentos. Empieza conservador."},
-   {d:"Jue",t:"Natación 50'",tag:'<span class="tag t-swim">Nado</span>',detail:"Nado suave continuo + 10' movilidad de hombros (banda elástica) antes de entrar al agua.",obj:"Recuperación activa tras la pista. El agua descarga el impacto de la carrera y mantiene la sensación de nado.",tip:"Rango sin dolor en el hombro izq. Nada por sensación, no por reloj."},
-   {d:"Vie",t:"Fuerza + trote opcional",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza B (core e hips). Si las sensaciones son buenas, suma 20' de trote muy suave después.",obj:"Blindar rodillas y tobillos —tu punto a vigilar por el peso— activando glúteos y core. El trote suma volumen aeróbico sin fatiga.",tip:"Si las piernas vienen pesadas del miércoles, solo fuerza. No fuerces.",str:STR_B},
-   {d:"Sáb",t:"Fondo 14–15 km",tag:'<span class="tag t-run">Long run</span>',detail:"Todo a ritmo conversado (Z2, podrías hablar en frases completas). Gel cada 35–40', sorbos de electrolitos cada 15–20'.",obj:"Construir resistencia y enseñar al cuerpo a usar grasa como combustible. Aquí también ENSAYAS tu estrategia de nutrición de carrera.",tip:"Termina sintiendo que podías 2 km más. Si el ritmo sube solo, frénalo."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo total o caminata ligera 20–30'. Estira suave e hidrata bien.",obj:"Aquí ocurre la mejora: el cuerpo repara y se adapta a la carga de la semana. El descanso ES entrenamiento.",tip:"Duerme largo, sin culpa. Es tu sesión nº1."}
+   {d:"Lun",t:"Descanso total",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo completo o caminata ligera 20 min. Estira suave, hidrata, come proteína.",obj:"Dar al cuerpo el descanso que exige tras 21 km. La recuperación es donde ocurre la mejora.",tip:"Sin culpa. Hoy descansar ES entrenar."},
+   {d:"Mar",t:"Natación suave 45 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Nado continuo y relajado, técnica. Sin series. Foco en rolido y respiración bilateral.",obj:"Recuperación activa: el agua descarga las piernas sin impacto. Tu fortaleza mantiene ritmo sin coste.",tip:"Disfruta el agua. Nada por sensación, no por reloj."},
+   {d:"Mié",t:"Bici rodillo 40 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Suave en Z2, cadencia alta (90+), sin fuerza. Regenerativo.",obj:"Mover sangre a las piernas para acelerar la recuperación muscular. Cero fatiga añadida.",tip:"Si las piernas pesan, para en 30 min."},
+   {d:"Jue",t:"Descanso o caminata",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Si te sientes bien, caminata 30 min sin más.",obj:"Seguir absorbiendo la carga de la carrera.",tip:"Escucha al cuerpo — aún estás recuperando."},
+   {d:"Vie",t:"Natación 50 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Aeróbico continuo suave + algo de técnica. Sin esfuerzos duros.",obj:"Mantener el contacto con el agua de cara a los bricks del 5150.",tip:"Relaja hombros y cuello."},
+   {d:"Sáb",t:"Trote MUY suave 20-30 min",tag:'<span class="tag t-run">Run</span>',detail:"Primer trote post-21K. MUY suave, solo para probar sensaciones. Si algo molesta en rodilla o tobillo, para y camina.",obj:"Test de recuperación: ver cómo responden las piernas. No es entrenamiento, es diagnóstico.",tip:"Si duele, caminar. No hay premio por forzar hoy."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo real. Duerme largo.",obj:"Cerrar la semana de recuperación listo para construir.",tip:"El sueño de esta semana define cómo arrancas el bloque de Cartagena."}
   ]},
- {label:"Semana 2",sub:"6 – 12 jul",focus:"Pico de volumen",vol:"~8.5 h",start:"2026-07-06",end:"2026-07-12",
-  note:"<b>Foco:</b> tu fondo más largo del bloque (pico) y la sesión de umbral. La semana más exigente — cuida el sueño y la comida post-entreno como nunca.",
+ {label:"Sem 2",sub:"3 – 9 ago",focus:"Vuelta a la carga",vol:"~5.5 h",start:"2026-08-03",end:"2026-08-09",
+  note:"<b>Foco:</b> retomar el ritmo con las tres disciplinas y girar hacia la bici, tu mayor margen para el 5150. Reaparece algo de intensidad, con cabeza.",
   days:[
-   {d:"Lun",t:"Bici · rodillo 60'",tag:'<span class="tag t-bike">Bici Z2</span>',detail:"50' continuo en Z2 + 4×30\" a cadencia alta (100+ rpm, sin subir potencia) al final + 5' suelta.",obj:"Mantener base aeróbica y agilidad de piernas. Los toques de cadencia mejoran la eficiencia neuromuscular sin fatiga.",tip:"Moviliza tobillos antes de empezar. Cadencia alta = piernas sueltas.",str:STR_A},
-   {d:"Mar",t:"Natación 1:15",tag:'<span class="tag t-swim">Nado</span>',detail:"400 calent · 2.000 continuo a ritmo aeróbico estable · 200 suave. Sin series duras.",obj:"Volumen de nado en recuperación activa. Descarga las piernas antes del bloque duro de mitad de semana.",tip:"Relaja cuello y hombros. Que el agua te recupere."},
-   {d:"Mié",t:"Pista · umbral",tag:'<span class="tag t-run">Tempo</span>',detail:"15' calent + 3×10' a ritmo tempo (umbral, esfuerzo 7–8/10) con 3' trote entre bloques + 10' suelta.",obj:"Subir tu umbral de lactato: el motor que te permite sostener ritmo sin acumular fatiga. La sesión que más rinde para la 21K.",tip:"'Cómodamente difícil': solo podrías decir frases cortas. No es sprint."},
-   {d:"Jue",t:"Natación 60'",tag:'<span class="tag t-swim">Nado</span>',detail:"Nado suave + movilidad de hombros y cadera. Algunos largos de patada con tabla.",obj:"Recuperación tras el umbral. La flotación descarga el impacto acumulado y mantiene el hombro sano.",tip:"Descarga las piernas del miércoles. Ritmo fácil."},
-   {d:"Vie",t:"Fuerza B",tag:'<span class="tag t-str">Fuerza</span>',detail:"Core e hips completo. Baja una serie de cada ejercicio si vienes cargado del tempo.",obj:"Mantener la durabilidad articular en la semana pico. Glúteos fuertes = rodillas y tobillos protegidos en el fondo largo.",tip:"Mañana es el fondo rey: llega con piernas. No busques records de fuerza hoy.",str:STR_B},
-   {d:"Sáb",t:"Fondo LARGO 17–18 km",tag:'<span class="tag t-run">Pico</span>',detail:"El más largo del bloque, todo en Z2. Nutrición de carrera COMPLETA ensayada: desayuno, geles cada 35–40', electrolitos.",obj:"El estímulo de resistencia más importante del bloque y tu ENSAYO GENERAL de energía, estómago e hidratación para el día de carrera.",tip:"Si algo del estómago falla, lo descubres hoy, no en la 21K. Anota qué funcionó."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo real o caminata muy ligera. Proteína repartida e hidratación generosa todo el día.",obj:"Absorber la semana más dura del bloque. Sin este descanso, el fondo del sábado no se convierte en adaptación.",tip:"Si el Body Battery está bajo, duerme hasta tarde sin culpa."}
+   {d:"Lun",t:"Bici rodillo 50 min",tag:'<span class="tag t-bike">Bici</span>',detail:"10 min calent + 35 min Z2 + 4 aceleraciones de 20 s a cadencia alta + 5 min suelta.",obj:"Reconstruir base de bici. Priorizamos tu disciplina de mayor margen.",tip:"Cadencia fluida, sin machacar.",str:STR_A},
+   {d:"Mar",t:"Natación 1h",tag:'<span class="tag t-swim">Nado</span>',detail:"Calent + 6×100 a ritmo cómodo con 20 s descanso + suelta. Empieza técnica de aguas abiertas.",obj:"Volver al trabajo estructurado en tu fortaleza. El 5150 nada 1.5 km, muy dentro de tu rango.",tip:"Practica levantar la vista (sightear) para aguas abiertas."},
+   {d:"Mié",t:"Trote 35 min Z2",tag:'<span class="tag t-run">Run</span>',detail:"Trote continuo aeróbico, ritmo conversado. Sin series todavía.",obj:"Reintroducir la carrera con suavidad tras la 21K. Cuidamos rodillas y tobillos.",tip:"Si las piernas responden bien, la recuperación funcionó."},
+   {d:"Jue",t:"Natación 50 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave + movilidad de hombros. Descarga.",obj:"Recuperación activa entre días de carga.",tip:"Rango sin dolor en hombro izquierdo."},
+   {d:"Vie",t:"Fuerza + core 30 min",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza B: core, glúteos, estabilidad. Tu seguro antilesión.",obj:"Blindar articulaciones de cara al aumento de carga en bici y carrera.",tip:"Activa glúteos: protegen rodillas.",str:STR_B},
+   {d:"Sáb",t:"Bici 1h30 fondo",tag:'<span class="tag t-bike">Bici</span>',detail:"Salida en Z2 de 1h30, terreno mixto. Practica nutrición e hidratación de bici.",obj:"Primer fondo de bici del bloque. Construye la resistencia para los 40 km del 5150.",tip:"Come e hidrata como en carrera — ensaya el estómago."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo o caminata. Proteína e hidratación.",obj:"Absorber la primera semana de vuelta a la carga.",tip:"Si el Body Battery viene bajo, duerme hasta tarde."}
   ]},
- {label:"Semana 3",sub:"13 – 19 jul",focus:"Inicia el taper",vol:"~6.5 h",start:"2026-07-13",end:"2026-07-19",
-  note:"<b>Foco:</b> empieza el afinamiento. Bajamos volumen pero mantenemos algo de intensidad. Sentirás las piernas con ganas — buena señal, no la desperdicies entrenando de más.",
+ {label:"Sem 3",sub:"10 – 16 ago",focus:"Bricks + ritmo",vol:"~6 h",start:"2026-08-10",end:"2026-08-16",
+  note:"<b>Foco:</b> el brick (bici→carrera encadenados), la sesión clave del triatlón. Enseña a las piernas a correr después de pedalear. Aquí empieza lo específico del 5150.",
   days:[
-   {d:"Lun",t:"Bici · rodillo 45'",tag:'<span class="tag t-bike">Bici fácil</span>',detail:"45' suave y regenerativo en Z1–Z2 baja. Sin intervalos.",obj:"Mover las piernas y favorecer la recuperación sin sumar fatiga. Empezamos a recortar carga manteniendo el cuerpo activo.",tip:"Menos volumen, motor encendido. Que se sienta fácil de verdad.",str:STR_MOB},
-   {d:"Mar",t:"Natación 60'",tag:'<span class="tag t-swim">Nado</span>',detail:"Nado continuo suave, técnica relajada. Nada de series exigentes.",obj:"Recuperación activa en tu disciplina fuerte mientras el cuerpo asimila el pico de la semana 2.",tip:"Relájate, no busques marcas. Disfruta el agua."},
-   {d:"Mié",t:"Pista · afinado",tag:'<span class="tag t-run">Calidad corta</span>',detail:"15' calent + 5×600 m a ritmo 10K con 2' trote + 8' suelta. Menos volumen que la semana 1, misma velocidad.",obj:"Mantener la chispa de velocidad mientras bajamos la carga. El cuerpo conserva la forma con poco estímulo de calidad.",tip:"Mantener velocidad, recortar volumen. Termina con ganas de más."},
-   {d:"Jue",t:"Natación 45'",tag:'<span class="tag t-swim">Nado</span>',detail:"Nado fácil, descanso activo. Largos suaves y movilidad.",obj:"Recuperación pura. Mantener el contacto con el agua sin generar fatiga camino al taper.",tip:"Escucha al cuerpo. Si pide parar antes, para."},
-   {d:"Vie",t:"Descanso o trote 20'",tag:'<span class="tag t-rest">Suave</span>',detail:"Descanso completo, o trote muy suave de 20' si las piernas lo piden.",obj:"Acumular frescura. En taper, hacer de menos siempre es mejor que hacer de más.",tip:"Si el HRV viene bajo, descansa sin dudar. No te debe nada el reloj."},
-   {d:"Sáb",t:"Fondo en bajada 12–13 km",tag:'<span class="tag t-run">Pre-carrera</span>',detail:"Cómodo en Z2, con los últimos 2 km a ritmo objetivo de la 21K para recordar las sensaciones.",obj:"Último fondo del bloque, ya reducido. Recuerda al cuerpo el ritmo de carrera con piernas semi-frescas.",tip:"Sensaciones, no números. Si el ritmo objetivo se siente bien, vas perfecto."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Prioriza el sueño y la hidratación esta semana más que nunca.",obj:"Seguir cargando frescura para la semana de carrera. El cuerpo se está poniendo a punto.",tip:"El cuerpo se recarga para el gran día. Acuéstate temprano."}
+   {d:"Lun",t:"Bici rodillo 55 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Calent + 3×6 min en Z3 (ritmo olímpico) con 3 min suave + suelta.",obj:"Trabajar la intensidad a la que rodarás en Cartagena. Ritmo sostenible pero exigente.",tip:"Z3 es cómodamente duro: hablas en frases cortas.",str:STR_A},
+   {d:"Mar",t:"Natación 1h",tag:'<span class="tag t-swim">Nado</span>',detail:"Calent + 8×100 progresivos + 200 continuo simulando salida. Técnica aguas abiertas.",obj:"Resistencia y ritmo de nado. Simula el arranque del 5150.",tip:"Practica arrancar fuerte y estabilizar, como en carrera."},
+   {d:"Mié",t:"🔗 BRICK bici+trote",tag:'<span class="tag t-brick">Brick</span>',detail:"45 min bici Z2-Z3 + INMEDIATO 15 min trote. La transición sin pausa es la clave.",obj:"La sesión estrella del triatlón: enseña a correr con piernas de bici. Esas piernas de gelatina se entrenan.",tip:"Los primeros 5 min de trote se sienten raros — es normal, sigue."},
+   {d:"Jue",t:"Natación 45 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave, recuperación. Movilidad.",obj:"Descargar del brick.",tip:"Nada relajado."},
+   {d:"Vie",t:"Fuerza 30 min",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza A: tren inferior + estabilidad.",obj:"Mantener durabilidad mientras sube la carga específica.",tip:"Carga moderada, técnica primero.",str:STR_A},
+   {d:"Sáb",t:"Bici 1h45 fondo",tag:'<span class="tag t-bike">Bici</span>',detail:"Z2 con 3×8 min en Z3 intercalados. Nutrición completa de carrera.",obj:"Fondo con toques de ritmo. Acostumbra al cuerpo a los 40 km con calidad.",tip:"Bebe cada 15-20 min, come cada 45 min."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Duerme largo.",obj:"Recuperar del pico de carga semanal.",tip:"Semana exigente hecha — descansa sin culpa."}
   ]},
- {label:"Semana 4",sub:"20 – 26 jul",focus:"Semana de carrera 🏁",vol:"~3.5 h",start:"2026-07-20",end:"2026-07-26",
-  note:"<b>Foco:</b> llegar fresco y confiado. Volumen mínimo, toques de velocidad. Regla de oro: <b>nada nuevo</b> esta semana. La forma ya está hecha.",
+ {label:"Sem 4",sub:"17 – 23 ago",focus:"Pico de volumen",vol:"~6.5 h",start:"2026-08-17",end:"2026-08-23",
+  note:"<b>Foco:</b> la semana más exigente del bloque. Brick largo y simulacro de las distancias del 5150. Cuida sueño y comida post-entreno como nunca.",
   days:[
-   {d:"Lun",t:"Descanso o bici 30'",tag:'<span class="tag t-rest">Suave</span>',detail:"Reposo total, o 30' de spin muy fácil en el rodillo si necesitas mover las piernas.",obj:"Maximizar la frescura. La forma física ya está construida; ahora solo se conserva.",tip:"Piernas frescas es la única meta de la semana."},
-   {d:"Mar",t:"Activación 30'",tag:'<span class="tag t-run">Strides</span>',detail:"15' trote muy suave + 4×100 m progresivos (subir velocidad gradual, sin esprintar) + soltura.",obj:"Despertar el sistema neuromuscular y recordar la velocidad sin generar nada de fatiga.",tip:"Que se sienta juguetón y fácil. Si dudas, haz menos."},
-   {d:"Mié",t:"Natación 40'",tag:'<span class="tag t-swim">Nado</span>',detail:"Nado muy suave y relajante, sin estructura. Soltar cuerpo y mente.",obj:"Recuperación activa de bajo impacto. El agua relaja la tensión previa a la carrera.",tip:"Afloja cuerpo y mente. Es casi meditación."},
-   {d:"Jue",t:"Trote 25' + ritmo",tag:'<span class="tag t-run">Toque</span>',detail:"25' suave + 3×100 m a ritmo exacto de carrera para fijar las sensaciones.",obj:"Último recordatorio de velocidad y de tu ritmo objetivo, con el cuerpo ya descansado.",tip:"Memoriza esa sensación de ritmo: la repetirás el domingo."},
-   {d:"Vie",t:"Descanso total",tag:'<span class="tag t-rest">Off</span>',detail:"Hidrata bien todo el día y sube los carbohidratos. Prepara dorsal, chip, ropa y kit de geles.",obj:"Llenar depósitos de glucógeno y eliminar todo estrés logístico. Llegar sin nada pendiente el sábado.",tip:"Deja TODO listo hoy. La cabeza tranquila también descansa."},
-   {d:"Sáb",t:"Soltar 15' + ensayo",tag:'<span class="tag t-rest">Pre</span>',detail:"Caminata o trote muy suave 15'. Desayuna exactamente como lo harás mañana, a la misma hora.",obj:"Activar sin fatigar y validar por última vez tu desayuno de carrera. Cierre logístico y mental.",tip:"Acuéstate temprano. Visualiza la carrera tramo a tramo."},
-   {d:"Dom",t:"🏁 MEDIA MARATÓN BOGOTÁ",tag:'<span class="tag t-race">21K</span>',detail:"Sal CONSERVADOR: la altitud de 2.600 m engaña y castiga al que arranca fuerte. Hidrata cada 3–5 km, geles según tu ensayo (km 7 y 14).",obj:"Tu primera meta del proyecto. Ejecutar la estrategia ensayada y cruzar la meta sintiéndote fuerte, no fundido.",tip:"Disfruta cada tramo. Es la graduación de este bloque.",strat:RACE_STRAT}
+   {d:"Lun",t:"Bici rodillo 55 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Calent + 4×5 min Z3 con 3 min suave + suelta.",obj:"Mantener la potencia en ritmo olímpico.",tip:"Cadencia alta en los intervalos.",str:STR_A},
+   {d:"Mar",t:"Natación 1h10",tag:'<span class="tag t-swim">Nado</span>',detail:"Simulacro: 1.500 m continuos (la distancia del 5150) a ritmo de carrera + técnica.",obj:"Confirmar que la distancia de nado del 5150 la tienes dominada. Confianza para el día.",tip:"Cronométrate: sabrás tu tiempo real de nado en Cartagena."},
+   {d:"Mié",t:"🔗 BRICK largo",tag:'<span class="tag t-brick">Brick</span>',detail:"1h bici Z2-Z3 + 20 min trote a ritmo objetivo. El ensayo grande.",obj:"Simular la fatiga acumulada del 5150. La transición larga es el examen.",tip:"El trote debe ser a ritmo de carrera, no de paseo."},
+   {d:"Jue",t:"Natación 50 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave + movilidad. Recuperación.",obj:"Descargar del brick largo.",tip:"Relaja."},
+   {d:"Vie",t:"Fuerza 25 min",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza B ligera: core e hips. Baja una serie si vienes cargado.",obj:"Mantener sin fatigar antes del fondo.",tip:"Mañana es día grande de bici.",str:STR_B},
+   {d:"Sáb",t:"Bici 2h + trote 15 min",tag:'<span class="tag t-brick">Brick</span>',detail:"2h de bici en Z2 (pico del bloque) + 15 min trote de transición. Nutrición completa.",obj:"El fondo más largo del bloque. Prepara el cuerpo para el esfuerzo total del 5150.",tip:"Este es tu ensayo general de energía y estómago."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo real. Proteína, hidratación, sueño.",obj:"Absorber el pico de carga.",tip:"Body Battery bajo = duerme hasta tarde."}
+  ]},
+ {label:"Sem 5",sub:"24 – 30 ago",focus:"Afinamiento",vol:"~5 h",start:"2026-08-24",end:"2026-08-30",
+  note:"<b>Foco:</b> empieza el taper. Bajamos volumen pero mantenemos intensidad. Sentirás las piernas con ganas — buena señal, no la desperdicies entrenando de más.",
+  days:[
+   {d:"Lun",t:"Bici rodillo 45 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Suave + 3×1 min Z3 para mantener el motor. Regenerativo.",obj:"Menos volumen, motor encendido.",tip:"No busques fatiga."},
+   {d:"Mar",t:"Natación 55 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Calent + 5×100 a ritmo carrera + suelta. Mantén sensaciones.",obj:"Afinar el nado sin cargar.",tip:"Velocidad sí, volumen no."},
+   {d:"Mié",t:"🔗 Brick corto",tag:'<span class="tag t-brick">Brick</span>',detail:"30 min bici + 10 min trote, ambos con 5 min a ritmo objetivo. Recordatorio de la transición.",obj:"Mantener la mecánica del brick fresca sin fatigar.",tip:"Corto y de calidad."},
+   {d:"Jue",t:"Natación 40 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave, descanso activo.",obj:"Recuperación.",tip:"Escucha al cuerpo."},
+   {d:"Vie",t:"Descanso o trote 20 min",tag:'<span class="tag t-rest">Off</span>',detail:"Descanso, o trote muy suave si lo necesitas.",obj:"Frescura.",tip:"Si el HRV está bajo, descansa sin dudar."},
+   {d:"Sáb",t:"Bici 1h + trote 10 min",tag:'<span class="tag t-brick">Brick</span>',detail:"1h bici cómoda + 10 min trote, con los últimos minutos a ritmo objetivo.",obj:"Último brick antes de Cartagena. Sensaciones, no números.",tip:"Termina con ganas de más."},
+   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Prioriza sueño.",obj:"Cargar para la semana de carrera.",tip:"El cuerpo se recarga para el gran día."}
+  ]},
+ {label:"Sem 6",sub:"31 ago – 6 sep",focus:"Semana 5150 🏁",vol:"~3 h",start:"2026-08-31",end:"2026-09-06",
+  note:"<b>Foco:</b> llegar fresco y confiado a tu primer triatlón. Volumen mínimo, toques de las tres disciplinas. Regla de oro: <b>nada nuevo</b>. La forma ya está hecha.",
+  days:[
+   {d:"Lun",t:"Natación 30 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave, relajante. Siente el agua.",obj:"Afloja cuerpo y mente.",tip:"Sin esfuerzo."},
+   {d:"Mar",t:"Bici 40 min + trote 10 min",tag:'<span class="tag t-brick">Brick</span>',detail:"Bici suave + 4 aceleraciones de 30 s a ritmo carrera + 10 min trote con 3 toques de 20 s a ritmo objetivo.",obj:"Despertar las piernas sin fatigarlas. Recordar las tres velocidades.",tip:"Toques cortos, nada largo."},
+   {d:"Mié",t:"Natación 25 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Muy suave. Repasa técnica de aguas abiertas.",obj:"Contacto final con el agua.",tip:"Relaja."},
+   {d:"Jue",t:"Trote 25 min + ritmo",tag:'<span class="tag t-run">Run</span>',detail:"20 min suave + 3×100 m a ritmo de carrera.",obj:"Último recordatorio de velocidad.",tip:"Piernas frescas."},
+   {d:"Vie",t:"Descanso + prep",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Revisa material: bici, wetsuit, gafas, gorro, dorsal, nutrición. Deja TODO listo.",obj:"Llegar sin estrés logístico. La cabeza tranquila rinde mejor.",tip:"Checklist completo hoy, no mañana."},
+   {d:"Sáb",t:"Activación 20 min",tag:'<span class="tag t-rest">Off</span>',detail:"Nado o bici muy suave 15-20 min para soltar. Desayuna como lo harás el domingo.",obj:"Soltar el cuerpo y ensayar el desayuno de carrera.",tip:"Acuéstate temprano. Visualiza las transiciones."},
+   {d:"Dom",t:"🏁 5150 CARTAGENA",tag:'<span class="tag t-race">Tri Olímpico</span>',detail:"1.5 km nado · 40 km bici · 10 km carrera. Tu primer triatlón. Nado controlado, bici a tu ritmo, corre lo que las piernas den.",obj:"Encadenar las tres disciplinas por primera vez en competencia. Cruzar entero y disfrutar el estreno.",tip:"Sal conservador en el nado (no te embales con la adrenalina). Come en la bici. Disfruta: es historia.",strat:RACE_STRAT_5150}
   ]}
 ];
 
@@ -819,6 +843,7 @@ function wireLogInputs(){
   if(rr&&!rr.children.length){for(let n=1;n<=10;n++){const b=document.createElement('button');b.className='rpe';b.dataset.v=n;b.textContent=n;rr.appendChild(b);}}
   if(fr)fr.querySelectorAll('.feel').forEach(b=>b.onclick=()=>{selFeel=+b.dataset.v;fr.querySelectorAll('.feel').forEach(x=>x.classList.toggle('on',x===b));});
   if(rr)rr.querySelectorAll('.rpe').forEach(b=>b.onclick=()=>{selRpe=+b.dataset.v;rr.querySelectorAll('.rpe').forEach(x=>x.classList.toggle('on',+x.dataset.v<=selRpe));});
+  const sb=document.getElementById('saveLog');if(sb)sb.onclick=doSaveLog;
 }
 async function doSaveLog(){
   const k=fmtLocal(today());const logs=await Store.get('logs')||{};const manual=await Store.get('logs_manual')||{};
@@ -830,9 +855,12 @@ async function doSaveLog(){
   await Store.set('logs',logs);await Store.set('logs_manual',manual);
   document.getElementById('inWeight').value='';selFeel=null;selRpe=null;
   document.querySelectorAll('.feel,.rpe').forEach(x=>x.classList.remove('on'));
-  renderProgress();renderFeed();renderFormBoard();toast('Registro guardado');
+  try{await renderProgress();}catch(e){}
+  try{await renderFeed();}catch(e){}
+  try{await renderFormBoard();}catch(e){}
+  try{await renderCoach();}catch(e){}
+  toast('Registro guardado ✓');
 }
-document.getElementById('saveLog').onclick=doSaveLog;
 
 function setLiveStatus(t){const e=document.getElementById('liveStatusP');if(e)e.textContent=t;}
 async function renderSessions(){
@@ -1406,10 +1434,9 @@ function gaugeArc(score,label){
 }
 // Perfil de montaña con área bajo la curva — el ascenso hacia el IRONMAN.
 function mountainProfile(phases,curIdx){
-  const W=340,H=130,padX=8,padB=22,padT=14;
+  const W=340,H=150,padX=14,padB=34,padT=20;
   const n=phases.length;
   const x=i=>padX+(i/(n-1))*(W-2*padX);
-  // altura asciende hacia la cima
   const y=i=>H-padB-((i/(n-1))*(H-padB-padT));
   const linePts=phases.map((_,i)=>`${x(i).toFixed(1)},${y(i).toFixed(1)}`).join(' ');
   const areaPts=`${padX},${H-padB} `+linePts+` ${W-padX},${H-padB}`;
@@ -1420,8 +1447,10 @@ function mountainProfile(phases,curIdx){
     const col=done?'var(--go)':cur?'var(--run)':summit?'var(--bike)':'var(--line2)';
     const rr=cur||summit?6:4;
     dots+=`<circle cx="${x(i).toFixed(1)}" cy="${y(i).toFixed(1)}" r="${rr}" fill="${col}" stroke="var(--bg)" stroke-width="2"/>`;
+    // número de fase debajo del punto, enlazando con las tarjetas
+    dots+=`<text x="${x(i).toFixed(1)}" y="${(H-padB+14).toFixed(1)}" text-anchor="middle" font-size="9" font-family="IBM Plex Mono" fill="${cur?'var(--run)':'var(--faint)'}" font-weight="${cur?'700':'400'}">${i+1}</text>`;
     if(summit)dots+=`<text x="${x(i).toFixed(1)}" y="${(y(i)-11).toFixed(1)}" text-anchor="middle" font-size="14">🏔️</text>`;
-    if(cur)dots+=`<text x="${x(i).toFixed(1)}" y="${(y(i)-11).toFixed(1)}" text-anchor="middle" font-size="12">📍</text>`;
+    if(cur)dots+=`<text x="${x(i).toFixed(1)}" y="${(y(i)-11).toFixed(1)}" text-anchor="middle" font-size="13">📍</text>`;
   });
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">
     <defs><linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--bike)" stop-opacity="0.22"/><stop offset="100%" stop-color="var(--run)" stop-opacity="0.02"/></linearGradient></defs>
@@ -1429,7 +1458,8 @@ function mountainProfile(phases,curIdx){
     <polyline points="${linePts}" fill="none" stroke="var(--line2)" stroke-width="2"/>
     <polyline points="${doneLine}" fill="none" stroke="var(--run)" stroke-width="3"/>
     ${dots}
-    <text x="${padX}" y="${H-6}" font-size="8" font-family="IBM Plex Mono" fill="var(--faint)">HOY</text>
+    <line x1="${padX}" y1="${H-padB}" x2="${W-padX}" y2="${H-padB}" stroke="var(--line)" stroke-width="1"/>
+    <text x="${padX}" y="${H-6}" font-size="8" font-family="IBM Plex Mono" fill="var(--faint)">HOY · FASE ${curIdx+1}</text>
     <text x="${W-padX}" y="${H-6}" text-anchor="end" font-size="8" font-family="IBM Plex Mono" fill="var(--bike)">IRONMAN 2028</text>
   </svg>`;
 }
@@ -1452,23 +1482,41 @@ async function renderRaceHero(){
   const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
   if(!next){box.innerHTML='';return;}
   const d=daysTo(next.date);
-  const big=d<=21; // dentro de 3 semanas → protagonista
-  const dist=next.tag&&next.tag.includes('t-tri')?'tri':(next.dist||'');
-  if(big){
-    const wk=next.date<=fmtLocal(new Date(today().getTime()+7*MS));
-    box.innerHTML=`<section><div class="hero">
-      <div class="hero-top"><span class="hero-lbl">PRÓXIMA CARRERA</span>${wk?'<span class="hero-week">esta semana</span>':''}</div>
-      <div class="hero-name">${next.name}</div>
-      <div class="hero-count"><span class="hcn">${d}</span><span class="hcl">${d===0?'¡es hoy!':d===1?'día':'días'}</span></div>
-      <div class="hero-date">${parse(next.date).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})}${next.meta?' · '+next.meta:''}</div>
-      <div class="hero-cta"><button class="btn primary" onclick="go('semana')">Ver estrategia y plan de la semana →</button></div>
-    </div></section>`;
-  } else {
-    box.innerHTML=`<section><div class="racecard" style="--c:${d<45?'var(--caution)':'var(--swim)'}">
-      <div class="rc-l"><div class="rc-lbl">Próxima carrera</div><div class="rc-name">${next.name}</div><div class="rc-meta">${parse(next.date).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'})}${dist&&dist!=='tri'?' · '+dist:''}</div></div>
-      <div class="rc-r"><div class="rc-n">${d}</div><div class="rc-u">días</div></div>
-    </div></section>`;
-  }
+  const esTri=next.tag&&(next.tag.includes('t-tri')||next.tag.includes('t-race')||/5150|ironman|tri/i.test(next.name));
+  // detectar distancias del evento
+  const is703=/70\.3|half/i.test(next.name);
+  const isIM=/ironman/i.test(next.name)&&!is703;
+  const is5150=/5150|olímpic|olimpic/i.test(next.name);
+  let discs=null;
+  if(is5150)discs=[{ic:'🏊',v:'1.5',u:'km',c:'var(--swim)'},{ic:'🚴',v:'40',u:'km',c:'var(--bike)'},{ic:'🏃',v:'10',u:'km',c:'var(--run)'}];
+  else if(is703)discs=[{ic:'🏊',v:'1.9',u:'km',c:'var(--swim)'},{ic:'🚴',v:'90',u:'km',c:'var(--bike)'},{ic:'🏃',v:'21.1',u:'km',c:'var(--run)'}];
+  else if(isIM)discs=[{ic:'🏊',v:'3.8',u:'km',c:'var(--swim)'},{ic:'🚴',v:'180',u:'km',c:'var(--bike)'},{ic:'🏃',v:'42.2',u:'km',c:'var(--run)'}];
+
+  // progreso del bloque: cuántos días del bloque han pasado
+  const wi=currentWeekIdx();
+  const blockStart=PLAN_WEEKS[0]?parse(PLAN_WEEKS[0].start):today();
+  const totalDays=Math.max(1,Math.round((parse(next.date)-blockStart)/MS));
+  const goneDays=Math.max(0,Math.round((today()-blockStart)/MS));
+  const prog=Math.min(100,Math.round(goneDays/totalDays*100));
+
+  const urgent=d<=14;
+  const accent=urgent?'var(--run)':esTri?'var(--swim)':'var(--bike)';
+  const discHtml=discs?`<div class="hero-discs">${discs.map(x=>`<div class="hd"><span class="hd-ic">${x.ic}</span><span class="hd-v">${x.v}<small>${x.u}</small></span></div>`).join('<span class="hd-sep">+</span>')}</div>`:'';
+
+  box.innerHTML=`<section><div class="hero2" style="--acc:${accent}">
+    <div class="hero2-top">
+      <span class="hero2-lbl">🏁 PRÓXIMA CARRERA</span>
+      ${d<=7?'<span class="hero2-badge">esta semana</span>':urgent?'<span class="hero2-badge">recta final</span>':''}
+    </div>
+    <div class="hero2-main">
+      <div class="hero2-name">${next.name}</div>
+      <div class="hero2-count"><span class="h2n">${d}</span><span class="h2u">${d===0?'¡HOY!':d===1?'día':'días'}</span></div>
+    </div>
+    <div class="hero2-date">${parse(next.date).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+    ${discHtml}
+    <div class="hero2-prog"><div class="h2p-bar"><i style="width:${prog}%"></i></div><div class="h2p-lbl">${prog}% del bloque de preparación · faltan ${Math.max(0,totalDays-goneDays)} días de entreno</div></div>
+    <button class="btn primary" style="width:100%;margin-top:12px" onclick="go('semana')">Ver plan y estrategia de la semana →</button>
+  </div></section>`;
 }
 
 // --- Capacidad vs objetivos (nado/bici/carrera) ---
@@ -1532,7 +1580,7 @@ async function renderBank(){
 // --- El ascenso: sendero de 7 fases ---
 async function renderTrail(){
   const box=document.getElementById('trail');if(!box)return;
-  const curPhase=0;
+  const curPhase=Math.max(0,PHASES.findIndex(p=>p.cur));
   const svg=mountainProfile(PHASES,curPhase);
   const cards=PHASES.map((p,i)=>{
     const done=i<curPhase,cur=i===curPhase,summit=i===PHASES.length-1;
