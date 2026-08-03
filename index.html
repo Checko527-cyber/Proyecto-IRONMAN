@@ -319,7 +319,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 <div class="wrap">
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v0803b">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0803b</span></div>
+      <div class="brand" data-version="v0803c">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0803c</span></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -1647,36 +1647,78 @@ async function renderMission(){
 async function renderImportedPlan(){
   const box=document.getElementById('importedPlan');if(!box)return;
   const plan=await getPlan();
-  const synced=await Store.get('plan_synced');
   const err=await Store.get('plan_error');
-  if(err){box.innerHTML=`<div class="planstatus" style="border-color:var(--stop)"><span class="planbadge" style="color:var(--stop);border-color:var(--stop);background:rgba(255,59,78,.12)">TrainingPeaks</span> <span style="font-size:11.5px;color:var(--mut)">No pude traer tu plan: ${err}. Revisa que INTERVALS_API_KEY e INTERVALS_ATHLETE_ID estén en Vercel y que TrainingPeaks esté sincronizando al calendario de Intervals.icu.</span></div>`;return;}
-  if(!plan.length){
-    box.innerHTML=`<div class="planstatus"><span class="planbadge">TrainingPeaks</span> <span style="font-size:11.5px;color:var(--faint)">Sin entrenos importados. Progrmámalos en TrainingPeaks → Intervals.icu y pulsa Sync.</span></div>`;
-    return;
-  }
+  if(err){box.innerHTML=`<div class="planstatus" style="border-color:var(--stop)"><span class="planbadge" style="color:var(--stop);border-color:var(--stop);background:rgba(255,59,78,.12)">TrainingPeaks</span> <span style="font-size:11px;color:var(--mut)">No pude traer tu plan: ${err}</span></div>`;return;}
   const wk=PLAN_WEEKS[selWeek];
   const wkWorkouts=plan.filter(w=>w.date>=wk.start&&w.date<=wk.end);
-  if(!wkWorkouts.length){box.innerHTML=`<div class="planstatus"><span class="planbadge">TrainingPeaks</span> <span style="font-size:11.5px;color:var(--faint)">No hay entrenos de TrainingPeaks en esta semana. Se muestra el plan base.</span></div>`;return;}
+  if(!wkWorkouts.length){box.innerHTML='';return;}
+
   const SPI={swim:'🏊',bike:'🚴',run:'🏃',strength:'💪',brick:'🔗',rest:'😴',other:'▸'};
-  const DOW=['dom','lun','mar','mié','jue','vie','sáb'];
-  // agrupar por fecha
-  const byDate={};
-  wkWorkouts.forEach(w=>{(byDate[w.date]=byDate[w.date]||[]).push(w);});
-  const days=Object.keys(byDate).sort().map(d=>{
-    const dt=parse(d);const dow=DOW[dt.getDay()];
-    const items=byDate[d].map(w=>{
-      const steps=(w.steps&&w.steps.length)?`<div class="tpw-steps">${w.steps.map(s=>`<span class="tpw-step">${s}</span>`).join('')}</div>`:'';
-      const meta=[w.duration_min?w.duration_min+' min':'',w.distance_km?w.distance_km+' km':'',w.load?'TSS '+Math.round(w.load):''].filter(Boolean).join(' · ');
-      return `<div class="tpw" data-sport="${w.sport}">
-        <div class="tpw-head"><span class="tpw-ic">${SPI[w.sport]||'▸'}</span><span class="tpw-name">${w.name}</span></div>
-        ${meta?`<div class="tpw-meta">${meta}</div>`:''}
-        ${w.description?`<div class="tpw-desc">${w.description}</div>`:''}
-        ${steps}
+  const SPC={swim:'var(--swim)',bike:'var(--bike)',run:'var(--run)',strength:'var(--str)',brick:'var(--brick,#34D399)',rest:'var(--rest)',other:'var(--mut)'};
+  const DOW=['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
+  // construir 7 días de la semana desde wk.start
+  const start=parse(wk.start);
+  const todayStr=fmtLocal(today());
+  let totalLoad=0,totalSessions=0;
+  const cols=[];
+  for(let k=0;k<7;k++){
+    const d=new Date(start.getTime()+k*MS);
+    const ds=fmtLocal(d);
+    const ws=wkWorkouts.filter(w=>w.date===ds);
+    const isToday=ds===todayStr;
+    const dayLoad=ws.reduce((a,w)=>a+(+w.load||0),0);
+    totalLoad+=dayLoad;totalSessions+=ws.length;
+    // barra de carga del día (para el mini-heatmap)
+    const chips=ws.length?ws.map(w=>{
+      const dur=w.duration_min?w.duration_min+"'":(w.distance_km?w.distance_km+'k':'');
+      return `<div class="wd-sess" style="--sc:${SPC[w.sport]||'var(--mut)'}" data-i="${plan.indexOf(w)}">
+        <span class="wd-ic">${SPI[w.sport]||'▸'}</span>
+        <span class="wd-nm">${w.name.replace(/·.*$/,'').trim().slice(0,22)}</span>
+        ${dur?`<span class="wd-dur">${dur}</span>`:''}
       </div>`;
-    }).join('');
-    return `<div class="tpw-day"><div class="tpw-dow">${dow} ${dt.getDate()}</div>${items}</div>`;
-  }).join('');
-  box.innerHTML=`<div class="planstatus"><span class="planbadge">✓ TrainingPeaks</span> <span style="font-size:11.5px;color:var(--mut)">Tu plan real · ${wkWorkouts.length} sesiones. Manda sobre el plan base.</span></div><div class="tpw-list">${days}</div>`;
+    }).join(''):`<div class="wd-empty">—</div>`;
+    cols.push(`<div class="wd-col ${isToday?'is-today':''}">
+      <div class="wd-head"><span class="wd-dow">${DOW[k]}</span><span class="wd-date">${d.getDate()}</span></div>
+      <div class="wd-load"><i style="height:${Math.min(100,dayLoad/1.2)}%;background:${dayLoad>80?'var(--run)':dayLoad>40?'var(--bike)':'var(--go)'}"></i></div>
+      <div class="wd-sessions">${chips}</div>
+    </div>`);
+  }
+  box.innerHTML=`<div class="tpweek glass">
+    <div class="tpweek-top">
+      <div><span class="planbadge">✓ TrainingPeaks</span></div>
+      <div class="tpweek-sum">${totalSessions} sesiones · ${Math.round(totalLoad)} TSS</div>
+    </div>
+    <div class="wd-scroll">${cols.join('')}</div>
+    <div class="tpweek-hint">Toca un día para ver el detalle de tus sesiones</div>
+    <div id="tpDayDetail"></div>
+  </div>`;
+
+  // interacción: tocar día abre detalle
+  box.querySelectorAll('.wd-col').forEach((col,k)=>{
+    col.onclick=()=>{
+      const d=new Date(start.getTime()+k*MS);const ds=fmtLocal(d);
+      const ws=wkWorkouts.filter(w=>w.date===ds);
+      const det=document.getElementById('tpDayDetail');
+      box.querySelectorAll('.wd-col').forEach(c=>c.classList.remove('sel'));
+      col.classList.add('sel');
+      if(!ws.length){det.innerHTML=`<div class="tpd-empty">Sin entrenos este día · descanso</div>`;return;}
+      det.innerHTML=ws.map(w=>{
+        const steps=(w.steps&&w.steps.length)?`<div class="tpd-steps">${w.steps.map(s=>`<span class="tpd-step">${s}</span>`).join('')}</div>`:'';
+        const meta=[w.duration_min?w.duration_min+' min':'',w.distance_km?w.distance_km+' km':'',w.load?'TSS '+Math.round(w.load):''].filter(Boolean).join(' · ');
+        return `<div class="tpd-card" style="--sc:${SPC[w.sport]||'var(--mut)'}">
+          <div class="tpd-head"><span class="tpd-ic">${SPI[w.sport]||'▸'}</span><span class="tpd-nm">${w.name}</span></div>
+          ${meta?`<div class="tpd-meta">${meta}</div>`:''}
+          ${w.description?`<div class="tpd-desc">${w.description}</div>`:''}
+          ${steps}
+        </div>`;
+      }).join('');
+    };
+  });
+  // abrir hoy por defecto (o el primer día con sesiones)
+  const todayIdx=Math.round((today()-start)/MS);
+  const openIdx=(todayIdx>=0&&todayIdx<7)?todayIdx:0;
+  const colEls=box.querySelectorAll('.wd-col');
+  if(colEls[openIdx])colEls[openIdx].click();
 }
 
 async function renderRuta(){
