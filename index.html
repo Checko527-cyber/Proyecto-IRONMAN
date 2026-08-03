@@ -319,7 +319,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 <div class="wrap">
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v0727-plan">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0727-plan</span></div>
+      <div class="brand" data-version="v0803-ultraman">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0803</span></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -422,12 +422,14 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 
   <!-- ===== RUTA ===== -->
   <div class="view" id="v-ruta">
+    <div class="aurora-bg"></div>
     <div id="reviewBanner"></div>
+    <div id="missionHero"></div>
     <div id="raceHero"></div>
-    <section><p class="eyebrow">Tu capacidad vs el IRONMAN</p><div class="card pad" id="capBox"></div></section>
-    <section><p class="eyebrow">Índice de eficiencia · ¿el plan está sirviendo?</p><div class="card pad" id="effBox"></div></section>
-    <section><p class="eyebrow">Trabajo depositado</p><div class="card pad" id="bankBox"></div></section>
-    <section><p class="eyebrow">El ascenso · 7 fases hacia la cima</p><div id="trail"></div></section>
+    <section><p class="eyebrow">◈ Capacidad · sistema de disciplinas</p><div class="glass pad" id="capBox"></div></section>
+    <section><p class="eyebrow">◈ Índice de eficiencia · ¿el plan sirve?</p><div class="glass pad" id="effBox"></div></section>
+    <section><p class="eyebrow">◈ Trabajo depositado</p><div class="glass pad" id="bankBox"></div></section>
+    <section><p class="eyebrow">◈ La travesía · 9 fases hacia Ultraman</p><div id="trail"></div></section>
     <section><p class="eyebrow">Tu ancla</p>
       <div class="anchor"><div class="q">"Conocer mis límites emocionales, físicos y mentales."</div><div class="a">Cada madrugada a las 4 am ya es una respuesta. La meta es la ceremonia; el viaje ya empezó.</div></div>
     </section>
@@ -479,27 +481,33 @@ const RACES=[
 ];
 
 const PHASES=[
-  {n:"FASE 1",title:"Afinar la Media Maratón",when:"28 jun → 26 jul 2026 · ✓ hecho",done:true,
-   body:"Recta final, no construcción. Mantenemos tu estructura, llevamos el fondo a su pico (~18 km) y bajamos carga los últimos 10 días para llegar fresco al 21K. Entran 2 sesiones cortas de fuerza para blindar rodillas y tobillos.",
-   focus:['<span class="tag t-run">Carrera</span>','<span class="tag t-str">Fuerza</span>','<span class="tag t-rest">Taper</span>']},
-  {n:"FASE 2",title:"Estreno en triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",cur:true,
-   body:"Recuperar de la 21K y girar el foco hacia la bici (tu mayor margen). Entran bricks, transiciones y ritmo olímpico. Ojo al calor del Caribe: aclimatación e hidratación.",
-   focus:['<span class="tag t-bike">+ Bici</span>','<span class="tag t-brick">Bricks</span>','<span class="tag t-swim">Nado</span>']},
-  {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",
-   body:"Recuperar del 5150 y afilar velocidad y umbral para la 15K. Bloque corto y de buenas sensaciones para cerrar 2026.",
-   focus:['<span class="tag t-run">Velocidad</span>']},
-  {n:"FASE 4",title:"Base y recomposición",when:"19 oct → fin ene 2027 · ~14 sem",
-   body:"El cimiento del 70.3. Base aeróbica suave, fuerza de gimnasio en serio, técnica en las tres disciplinas y recomposición corporal con calma.",
-   focus:['<span class="tag t-str">Fuerza</span>','<span class="tag t-bike">Base bici</span>','<span class="tag t-swim">Técnica</span>']},
-  {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → med may 2027 · ~16 sem",
-   body:"Build específico: fondos largos progresivos en bici, bricks largos, nutrición de carrera, potencia en bici y aguas abiertas con wetsuit.",
-   focus:['<span class="tag t-brick">Bricks largos</span>','<span class="tag t-bike">Fondos</span>','<span class="tag t-swim">Aguas abiertas</span>']},
-  {n:"FASE 6",title:"Victoria → base del IRONMAN",when:"jun → sep 2027",
-   body:"Corres tu primer 70.3, recuperas, y con datos reales definimos la fecha exacta del IRONMAN 2028. Empieza la construcción del gran volumen con cabeza.",
-   focus:['<span class="tag t-tri">70.3</span>','<span class="tag" style="background:var(--bike);color:#10141d">→ IRONMAN</span>']},
-  {n:"FASE 7",title:"Camino al IRONMAN · 2028",when:"oct 2027 → carrera 2028",
-   body:"El gran bloque: volumen progresivo hasta jornadas largas, dos o tres fondos clave de bici de 5–6 h, brick largo, y un tapering de 2–3 semanas. Aquí se forja el finisher.",
-   focus:['<span class="tag t-brick">Fondos 5-6h</span>','<span class="tag t-race">IRONMAN</span>']}
+  {n:"FASE 1",title:"Afinar la Media Maratón",when:"jun → 26 jul 2026",done:true,ratio:"—",zone:"Específico",
+   body:"Primer objetivo cumplido: 21.6 km a 6:12/km con 8 PRs. La base de carrera quedó probada.",
+   focus:['<span class="tag t-run">Carrera</span>','<span class="tag t-str">Fuerza</span>']},
+  {n:"FASE 2",title:"Estreno triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",cur:true,ratio:"70/30",zone:"Base + bricks",
+   body:"Recuperar de la 21K y encadenar las tres disciplinas. Foco en bici (tu mayor margen) y en los bricks. Reconstruimos base aeróbica Z2, que tus datos Garmin marcan en déficit. Ojo al calor del Caribe.",
+   focus:['<span class="tag t-bike">+ Bici</span>','<span class="tag t-brick">Bricks</span>','<span class="tag t-swim">Aguas abiertas</span>']},
+  {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",ratio:"65/35",zone:"Umbral",
+   body:"Recuperar del 5150 y afilar velocidad de carrera para la 15K. Mantenemos nado y bici en base. Umbral a 163 ppm (tu dato real Garmin).",
+   focus:['<span class="tag t-run">Velocidad</span>','<span class="tag t-bike">Base</span>']},
+  {n:"FASE 4",title:"Base grande + recomposición",when:"19 oct → ene 2027 · ~14 sem",ratio:"80/20",zone:"Base pura",
+   body:"El cimiento del 70.3 y del futuro Ironman. Base aeróbica lenta en volumen (aquí se construye el motor para las distancias largas), fuerza de gimnasio en serio, técnica en las tres disciplinas.",
+   focus:['<span class="tag t-str">Fuerza gym</span>','<span class="tag t-bike">Base bici</span>','<span class="tag t-swim">Técnica</span>']},
+  {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → may 2027 · ~16 sem",ratio:"70/30",zone:"Específico 70.3",
+   body:"Build específico: fondos progresivos en bici, bricks largos, nutrición de carrera, potencia y aguas abiertas con wetsuit. Sube el volumen hacia 8-9 h en los picos.",
+   focus:['<span class="tag t-brick">Bricks largos</span>','<span class="tag t-bike">Fondos</span>','<span class="tag t-swim">Wetsuit</span>']},
+  {n:"FASE 6",title:"70.3 Victoria → base Ironman",when:"jun → dic 2027 · ~28 sem",ratio:"80/20",zone:"Base + volumen",
+   body:"Corres tu primer 70.3 en Victoria (Canadá). Recuperas, y empieza la construcción del gran volumen del Ironman: rodajes largos en bici, tiradas de 25-30 km, el motor aeróbico que un full exige.",
+   focus:['<span class="tag t-tri">70.3</span>','<span class="tag t-bike">Volumen</span>','<span class="tag t-run">Fondos</span>']},
+  {n:"FASE 7",title:"Construcción IRONMAN",when:"ene → carrera 2028 · ~20 sem",ratio:"75/25",zone:"Específico IM",
+   body:"El build del Ironman completo: 3.8 nado / 180 bici / 42 carrera. Fondos de 5-6 h en bici, bricks de día completo, nutrición milimétrica. El pico de volumen de tu vida deportiva.",
+   focus:['<span class="tag t-brick">Día completo</span>','<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN</span>']},
+  {n:"FASE 8",title:"IRONMAN → puente a Ultraman",when:"2028 → 2029",ratio:"85/15",zone:"Ultra-base",
+   body:"Cruzas tu Ironman. El salto a Ultraman cambia la lógica: ya no es velocidad, es capacidad de horas y horas. Volumen aeróbico masivo, dobles sesiones, entrenar cansado con cabeza.",
+   focus:['<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN ✓</span>','<span class="tag t-bike">Ultra-volumen</span>']},
+  {n:"FASE 9",title:"ULTRAMAN · la cima",when:"2029+ · el objetivo final",summit:true,ratio:"90/10",zone:"Ultra-resistencia",
+   body:"10 km nado · 421 km bici · 84 km carrera en 3 días. La base aeróbica que construiste desde 2026 es todo. Nutrición, sueño y cabeza pesan tanto como las piernas. Conocer tus límites — literalmente.",
+   focus:['<span class="tag t-swim">10K nado</span>','<span class="tag t-bike">421K bici</span>','<span class="tag t-run">84K carrera</span>']}
 ];
 
 const STR_A="Fuerza A · tren inferior (30'): sentadilla goblet, peso muerto a 1 pierna, zancadas, elevación de gemelos, plancha lateral. 2–3 series, carga moderada.";
@@ -1580,24 +1588,59 @@ async function renderBank(){
 // --- El ascenso: sendero de 7 fases ---
 async function renderTrail(){
   const box=document.getElementById('trail');if(!box)return;
-  const curPhase=Math.max(0,PHASES.findIndex(p=>p.cur));
-  const svg=mountainProfile(PHASES,curPhase);
-  const cards=PHASES.map((p,i)=>{
-    const done=i<curPhase,cur=i===curPhase,summit=i===PHASES.length-1;
-    const pct=done?100:(cur?38:0);
-    const cls=done?'done':(cur?'cur':'future');
-    return `<div class="tstation ${cls} ${summit?'summit':''}">
-      <div class="tpin">${done?'✓':(summit?'★':(cur?'●':(i+1)))}</div>
-      <div class="tbody">
-        <div class="tn">${p.n}</div>
-        <div class="tt">${p.title}</div>
-        <div class="tw">${p.when}</div>
-        <div class="tbar"><i style="width:${pct}%"></i></div>
-        ${cur?`<div class="tdesc">${p.body}</div><div class="tfocus">${p.focus.join('')}</div>`:''}
+  const curIdx=Math.max(0,PHASES.findIndex(p=>p.cur));
+  const nodes=PHASES.map((p,i)=>{
+    const done=!!p.done||i<curIdx, cur=i===curIdx, summit=!!p.summit;
+    const cls=done?'done':(cur?'cur':(summit&&!cur?'future summit':(summit?'summit':'future')));
+    const openCls=cur?' open':'';
+    const dotContent=summit?'▲':(done?'✓':(i+1));
+    const prog=done?100:(cur?42:0);
+    const focus=p.focus?p.focus.join(''):'';
+    return `<div class="jnode ${cls}${openCls}" data-i="${i}">
+      <div class="jdot">${dotContent}</div>
+      <div class="jcard glass">
+        <div class="jc-top"><span class="jc-n">${p.n}</span><span class="jc-ratio">${p.ratio&&p.ratio!=='—'?'suave/duro '+p.ratio:'✓'}</span></div>
+        <div class="jc-title">${p.title}</div>
+        <div class="jc-when">${p.when}</div>
+        ${p.zone?`<div class="jc-zone">${p.zone}</div>`:''}
+        <div class="jc-prog"><i style="width:${prog}%"></i></div>
+        <div class="jc-body">${p.body}</div>
+        <div class="jc-focus">${focus}</div>
+        <div class="jc-expand"><span class="cx">▸</span> ${cur?'fase actual':'ver detalle'}</div>
       </div>
     </div>`;
   }).join('');
-  box.innerHTML=`<div class="card pad" style="margin-bottom:12px">${svg}</div><div class="trail">${cards}</div>`;
+  box.innerHTML=`<div class="journey"><div class="jline"></div>${nodes}</div>`;
+  box.querySelectorAll('.jnode').forEach(n=>{
+    const card=n.querySelector('.jcard');
+    if(card)card.onclick=()=>n.classList.toggle('open');
+  });
+}
+
+// Hero de misión: estado del atleta con datos reales
+async function renderMission(){
+  const box=document.getElementById('missionHero');if(!box)return;
+  const cur=PHASES.find(p=>p.cur)||PHASES[0];
+  const sm=await Store.get('strava_summary');
+  const sessions=(await Store.get('strava_sessions'))||[];
+  let totalKm=0,totalH=0;
+  sessions.forEach(s=>{totalKm+=(+s.km||0);totalH+=(+s.min||0)/60;});
+  const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
+  const dNext=next?daysTo(next.date):null;
+  const curNum=PHASES.filter(p=>p.done).length+1;
+  box.innerHTML=`<section><div class="mission glass">
+    <div class="mission-glow"></div>
+    <div class="mission-in">
+      <div class="mission-eyebrow">FASE ${curNum} DE ${PHASES.length} · EN CURSO</div>
+      <div class="mission-title">${cur.title}</div>
+      <div class="mission-sub">${cur.body.slice(0,130)}${cur.body.length>130?'…':''}</div>
+      <div class="mission-stats">
+        <div class="mstat"><div class="mstat-v">${Math.round(totalKm)}</div><div class="mstat-l">km totales</div></div>
+        <div class="mstat"><div class="mstat-v">${Math.round(totalH)}</div><div class="mstat-l">horas</div></div>
+        <div class="mstat"><div class="mstat-v">${dNext!=null?dNext:'—'}</div><div class="mstat-l">días a carrera</div></div>
+      </div>
+    </div>
+  </div></section>`;
 }
 
 
@@ -1618,7 +1661,7 @@ async function renderImportedPlan(){
 }
 
 async function renderRuta(){
-  await renderRaceHero();await renderCapacity();await renderEfficiency();await renderBank();await renderTrail();
+  await renderMission();await renderRaceHero();await renderCapacity();await renderEfficiency();await renderBank();await renderTrail();
 }
 
 // ================== INFORME EXPORTABLE + CORTE DIARIO 9 PM ==================
