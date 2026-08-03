@@ -319,7 +319,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 <div class="wrap">
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v0803-ultraman">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0803</span></div>
+      <div class="brand" data-version="v0803b">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0803b</span></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -482,31 +482,31 @@ const RACES=[
 
 const PHASES=[
   {n:"FASE 1",title:"Afinar la Media Maratón",when:"jun → 26 jul 2026",done:true,ratio:"—",zone:"Específico",
-   body:"Primer objetivo cumplido: 21.6 km a 6:12/km con 8 PRs. La base de carrera quedó probada.",
+   body:"21.6 km a 6:12/km. 8 PRs. Base de carrera probada.",
    focus:['<span class="tag t-run">Carrera</span>','<span class="tag t-str">Fuerza</span>']},
   {n:"FASE 2",title:"Estreno triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",cur:true,ratio:"70/30",zone:"Base + bricks",
-   body:"Recuperar de la 21K y encadenar las tres disciplinas. Foco en bici (tu mayor margen) y en los bricks. Reconstruimos base aeróbica Z2, que tus datos Garmin marcan en déficit. Ojo al calor del Caribe.",
+   body:"Encadenar las tres disciplinas. Foco en bici y bricks. Reconstruir base Z2.",
    focus:['<span class="tag t-bike">+ Bici</span>','<span class="tag t-brick">Bricks</span>','<span class="tag t-swim">Aguas abiertas</span>']},
   {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",ratio:"65/35",zone:"Umbral",
-   body:"Recuperar del 5150 y afilar velocidad de carrera para la 15K. Mantenemos nado y bici en base. Umbral a 163 ppm (tu dato real Garmin).",
+   body:"Afilar velocidad para la 15K. Umbral a 163 ppm.",
    focus:['<span class="tag t-run">Velocidad</span>','<span class="tag t-bike">Base</span>']},
   {n:"FASE 4",title:"Base grande + recomposición",when:"19 oct → ene 2027 · ~14 sem",ratio:"80/20",zone:"Base pura",
-   body:"El cimiento del 70.3 y del futuro Ironman. Base aeróbica lenta en volumen (aquí se construye el motor para las distancias largas), fuerza de gimnasio en serio, técnica en las tres disciplinas.",
+   body:"El cimiento del 70.3. Base aeróbica en volumen + fuerza de gimnasio.",
    focus:['<span class="tag t-str">Fuerza gym</span>','<span class="tag t-bike">Base bici</span>','<span class="tag t-swim">Técnica</span>']},
   {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → may 2027 · ~16 sem",ratio:"70/30",zone:"Específico 70.3",
-   body:"Build específico: fondos progresivos en bici, bricks largos, nutrición de carrera, potencia y aguas abiertas con wetsuit. Sube el volumen hacia 8-9 h en los picos.",
+   body:"Fondos largos, bricks, nutrición de carrera, aguas abiertas. Pico 8-9 h.",
    focus:['<span class="tag t-brick">Bricks largos</span>','<span class="tag t-bike">Fondos</span>','<span class="tag t-swim">Wetsuit</span>']},
   {n:"FASE 6",title:"70.3 Victoria → base Ironman",when:"jun → dic 2027 · ~28 sem",ratio:"80/20",zone:"Base + volumen",
-   body:"Corres tu primer 70.3 en Victoria (Canadá). Recuperas, y empieza la construcción del gran volumen del Ironman: rodajes largos en bici, tiradas de 25-30 km, el motor aeróbico que un full exige.",
+   body:"Primer 70.3 en Victoria. Luego, gran volumen hacia el Ironman.",
    focus:['<span class="tag t-tri">70.3</span>','<span class="tag t-bike">Volumen</span>','<span class="tag t-run">Fondos</span>']},
   {n:"FASE 7",title:"Construcción IRONMAN",when:"ene → carrera 2028 · ~20 sem",ratio:"75/25",zone:"Específico IM",
-   body:"El build del Ironman completo: 3.8 nado / 180 bici / 42 carrera. Fondos de 5-6 h en bici, bricks de día completo, nutrición milimétrica. El pico de volumen de tu vida deportiva.",
+   body:"Build del Ironman: fondos de 5-6 h, bricks de día completo.",
    focus:['<span class="tag t-brick">Día completo</span>','<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN</span>']},
   {n:"FASE 8",title:"IRONMAN → puente a Ultraman",when:"2028 → 2029",ratio:"85/15",zone:"Ultra-base",
-   body:"Cruzas tu Ironman. El salto a Ultraman cambia la lógica: ya no es velocidad, es capacidad de horas y horas. Volumen aeróbico masivo, dobles sesiones, entrenar cansado con cabeza.",
+   body:"Ironman cruzado. Salto a ultra: volumen masivo, dobles sesiones.",
    focus:['<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN ✓</span>','<span class="tag t-bike">Ultra-volumen</span>']},
   {n:"FASE 9",title:"ULTRAMAN · la cima",when:"2029+ · el objetivo final",summit:true,ratio:"90/10",zone:"Ultra-resistencia",
-   body:"10 km nado · 421 km bici · 84 km carrera en 3 días. La base aeróbica que construiste desde 2026 es todo. Nutrición, sueño y cabeza pesan tanto como las piernas. Conocer tus límites — literalmente.",
+   body:"10K nado · 421K bici · 84K carrera en 3 días. Conocer tus límites.",
    focus:['<span class="tag t-swim">10K nado</span>','<span class="tag t-bike">421K bici</span>','<span class="tag t-run">84K carrera</span>']}
 ];
 
@@ -1656,8 +1656,27 @@ async function renderImportedPlan(){
   }
   const wk=PLAN_WEEKS[selWeek];
   const wkWorkouts=plan.filter(w=>w.date>=wk.start&&w.date<=wk.end);
-  if(!wkWorkouts.length){box.innerHTML='';return;}
-  box.innerHTML=`<div class="planstatus"><span class="planbadge">✓ TrainingPeaks</span> <span style="font-size:11.5px;color:var(--mut)">${wkWorkouts.length} entreno(s) programado(s) esta semana. Estos mandan sobre el plan base.</span></div>`;
+  if(!wkWorkouts.length){box.innerHTML=`<div class="planstatus"><span class="planbadge">TrainingPeaks</span> <span style="font-size:11.5px;color:var(--faint)">No hay entrenos de TrainingPeaks en esta semana. Se muestra el plan base.</span></div>`;return;}
+  const SPI={swim:'🏊',bike:'🚴',run:'🏃',strength:'💪',brick:'🔗',rest:'😴',other:'▸'};
+  const DOW=['dom','lun','mar','mié','jue','vie','sáb'];
+  // agrupar por fecha
+  const byDate={};
+  wkWorkouts.forEach(w=>{(byDate[w.date]=byDate[w.date]||[]).push(w);});
+  const days=Object.keys(byDate).sort().map(d=>{
+    const dt=parse(d);const dow=DOW[dt.getDay()];
+    const items=byDate[d].map(w=>{
+      const steps=(w.steps&&w.steps.length)?`<div class="tpw-steps">${w.steps.map(s=>`<span class="tpw-step">${s}</span>`).join('')}</div>`:'';
+      const meta=[w.duration_min?w.duration_min+' min':'',w.distance_km?w.distance_km+' km':'',w.load?'TSS '+Math.round(w.load):''].filter(Boolean).join(' · ');
+      return `<div class="tpw" data-sport="${w.sport}">
+        <div class="tpw-head"><span class="tpw-ic">${SPI[w.sport]||'▸'}</span><span class="tpw-name">${w.name}</span></div>
+        ${meta?`<div class="tpw-meta">${meta}</div>`:''}
+        ${w.description?`<div class="tpw-desc">${w.description}</div>`:''}
+        ${steps}
+      </div>`;
+    }).join('');
+    return `<div class="tpw-day"><div class="tpw-dow">${dow} ${dt.getDate()}</div>${items}</div>`;
+  }).join('');
+  box.innerHTML=`<div class="planstatus"><span class="planbadge">✓ TrainingPeaks</span> <span style="font-size:11.5px;color:var(--mut)">Tu plan real · ${wkWorkouts.length} sesiones. Manda sobre el plan base.</span></div><div class="tpw-list">${days}</div>`;
 }
 
 async function renderRuta(){
@@ -1785,7 +1804,20 @@ async function exportReport(download){
 
 
 // ================== PLAN IMPORTADO (Intervals.icu / TrainingPeaks) ==================
-async function getPlan(){const p=await Store.get('planned_workouts');return Array.isArray(p)?p:[];}
+const TP_SEED=[{"id": "3883316650", "date": "2026-08-03", "sport": "rest", "name": "Dia de Descanso", "description": "", "duration_min": null, "distance_km": null, "load": null, "target": null, "steps": [], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316651", "date": "2026-08-04", "sport": "brick", "name": "Bricks · 20 Bici + 4 carrera", "description": "4 series de 5 km bici + 1 km carrera. Zona 1-2.", "duration_min": null, "distance_km": 24, "load": null, "target": null, "steps": ["4× [ 5 km bici Z1-2 · 1 km carrera Z1-2 · descanso 3' ]"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316653", "date": "2026-08-04", "sport": "swim", "name": "Nado AM · técnica", "description": "R1. Llevar aletas.", "duration_min": 74, "distance_km": 3.2, "load": 49.45, "target": null, "steps": ["800 stroke libre", "800 aletas", "800 libre Z1", "800 patada aletas"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316662", "date": "2026-08-05", "sport": "run", "name": "Pista · calentamiento y técnica", "description": "15' movilidad articular con desplazamientos + 20' técnica de carrera.", "duration_min": 40, "distance_km": null, "load": 26.65, "target": null, "steps": ["40' calentamiento Z1-2 + técnica"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316657", "date": "2026-08-05", "sport": "run", "name": "Pista · día rápido (~9 km)", "description": "7×800 con 1' descanso, al 100% del paso promedio de tus 5 km.", "duration_min": 62, "distance_km": 9, "load": 77.6, "target": null, "steps": ["1600 m calentamiento progresivo", "800 m recta rápida", "7× [ 800 m al 100% del paso de 5K · descanso 1' ]", "10' trote descalzo suelta"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316660", "date": "2026-08-05", "sport": "swim", "name": "Nado AM · técnica", "description": "R1-R2. Llevar remos y aletas.", "duration_min": 68, "distance_km": 3.2, "load": 45.32, "target": null, "steps": ["2×400 libre/aletas", "2×400 libre con remos", "2×400 patada aletas", "2×400 mariposa/libre aletas"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316655", "date": "2026-08-06", "sport": "brick", "name": "Bricks · 24 km Bici + 4.5 km carrera", "description": "3 series de 8 km bici + 1.5 km carrera. Zona 1-2.", "duration_min": null, "distance_km": 28.5, "load": null, "target": null, "steps": ["3× [ 8 km bici Z1-2 · 1.5 km carrera Z1-2 · descanso 3' ]"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316659", "date": "2026-08-06", "sport": "swim", "name": "Nado AM · series Z3-4", "description": "R1-R2. Llevar aletas.", "duration_min": 59, "distance_km": 3.0, "load": 49.76, "target": null, "steps": ["800 stroke libre", "8×75 (25 mariposa/50 libre) Z3-4", "600 patada aletas Z1", "4×100 CI Z3-4", "200 patada aletas Z1", "8×50 Z2"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316656", "date": "2026-08-07", "sport": "brick", "name": "Día festivo · cruzado", "description": "Nadar, montar o yoga. Suave.", "duration_min": 60, "distance_km": null, "load": null, "target": null, "steps": ["60' actividad cruzada Z1-2"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316658", "date": "2026-08-08", "sport": "strength", "name": "Fuerza full body · Simón Bolívar", "description": "Calentamiento 10' + fuerza full body 45' + movilidad pre-carrera 5'.", "duration_min": 60, "distance_km": null, "load": 39.99, "target": null, "steps": ["10' calentamiento", "45' fuerza full body", "5' movilidad"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316661", "date": "2026-08-08", "sport": "run", "name": "Terreno plano · 10 km Simón Bolívar", "description": "~10 km. 6×1000 con 2' descanso (2 al 100%, 2 al 105%, 2 al 110% del paso de 5K).", "duration_min": 90, "distance_km": 10, "load": 95.59, "target": null, "steps": ["10' calentamiento Z1-2", "12' cambios 45\" rápido/45\" suave", "6× [ 1000 m (100-110% paso 5K) · descanso 2' ]", "10' descalzo grama", "15' estiramientos"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316654", "date": "2026-08-09", "sport": "bike", "name": "Bici circuito · 48 km (La Rueda)", "description": "Zona 3. Plato grande 21/19.", "duration_min": null, "distance_km": 48, "load": null, "target": null, "steps": ["12 km calentamiento Z1", "6× [ 5 km Z3 plato grande 21/19 · 1 km Z1 ]"], "external": "trainingpeaks", "source": "TrainingPeaks"}, {"id": "3883316652", "date": "2026-08-09", "sport": "run", "name": "Carrera en transición (brick)", "description": "Trote en transición desde la bici. Zona 2-3.", "duration_min": 30, "distance_km": null, "load": 24.98, "target": null, "steps": ["30' Z2-3 en transición de la bici"], "external": "trainingpeaks", "source": "TrainingPeaks"}];
+async function getPlan(){
+  const p=await Store.get('planned_workouts');
+  if(Array.isArray(p)&&p.length)return p;
+  // Semilla: tu plan real de TrainingPeaks (mientras se configura la sync automática)
+  const seedUsed=await Store.get('tp_seed_loaded');
+  if(!seedUsed&&Array.isArray(TP_SEED)&&TP_SEED.length){
+    await Store.set('planned_workouts',TP_SEED);
+    await Store.set('tp_seed_loaded',true);
+    await Store.set('plan_synced',new Date().toISOString());
+    return TP_SEED;
+  }
+  return Array.isArray(p)?p:[];
+}
 async function planForDate(ds){return (await getPlan()).filter(w=>w.date===ds);}
 async function hasPlan(){return (await getPlan()).length>0;}
 
@@ -1860,14 +1892,17 @@ async function coachSuggestion(w){
   // 1) Objetivo en lenguaje de coach según el tipo
   let obj='';
   const isHard=/interv|tempo|umbral|threshold|vo2|series|pista|hard|fast/i.test(w.name+' '+w.description);
-  const isLong=/long|fondo|endurance|z2|base/i.test(w.name+' '+w.description)||(w.duration_min&&w.duration_min>=90);
+  const isLong=/long|fondo|endurance|z2|base|circuito|km/i.test(w.name+' '+w.description)||(w.duration_min&&w.duration_min>=90);
+  const isBrick=w.sport==='brick'||/brick/i.test(w.name);
   if(w.sport==='run'&&isHard)obj='Calidad de carrera: sube tu velocidad aeróbica y umbral. La sesión que más rinde para tus metas de ritmo.';
   else if(w.sport==='run'&&isLong)obj='Fondo: construye resistencia y enseña al cuerpo a usar grasa. Ensaya aquí tu nutrición de carrera.';
   else if(w.sport==='bike'&&isLong)obj='Fondo de bici: base aeróbica y resistencia específica. Tu mayor margen de mejora para el triatlón.';
   else if(w.sport==='bike')obj='Trabajo de bici: potencia y economía de pedaleo.';
   else if(w.sport==='swim')obj='Nado: mantiene tu fortaleza con bajo coste de fatiga. Cuida la técnica y el hombro izquierdo.';
   else if(w.sport==='strength')obj='Fuerza: blinda rodillas y tobillos. Tu seguro antilesión, sobre todo por el peso.';
-  else obj='Sesión de mantenimiento.';
+  else if(w.sport==='brick')obj='Brick (bici→carrera encadenados): la sesión estrella del triatlón. Enseña a tus piernas a correr con la fatiga de la bici. Los primeros minutos de trote se sienten raros — es normal, es justo lo que se entrena.';
+  else if(w.sport==='rest')obj='Descanso: aquí ocurre la mejora. Tu cuerpo absorbe la carga y se reconstruye. Respetarlo es ejecutar el plan, no saltárselo.';
+  else obj='Sesión de mantenimiento aeróbico.';
 
   // 2) Sugerencias según semáforo y contexto
   const dw=daysTo(w.date);
