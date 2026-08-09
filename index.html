@@ -319,7 +319,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 <div class="wrap">
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v0803c">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0803c</span></div>
+      <div class="brand" data-version="v0808">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0808</span></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -484,28 +484,28 @@ const PHASES=[
   {n:"FASE 1",title:"Afinar la Media Maratón",when:"jun → 26 jul 2026",done:true,ratio:"—",zone:"Específico",
    body:"21.6 km a 6:12/km. 8 PRs. Base de carrera probada.",
    focus:['<span class="tag t-run">Carrera</span>','<span class="tag t-str">Fuerza</span>']},
-  {n:"FASE 2",title:"Estreno triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",cur:true,ratio:"70/30",zone:"Base + bricks",
+  {n:"FASE 2",title:"Estreno triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",cur:true,ratio:"70/30",zone:"Base + bricks",goal:"Vol 6h → 6.5h · Nado 1.5k continuo · Brick 40k+10k · Fondo bici 2h",
    body:"Encadenar las tres disciplinas. Foco en bici y bricks. Reconstruir base Z2.",
    focus:['<span class="tag t-bike">+ Bici</span>','<span class="tag t-brick">Bricks</span>','<span class="tag t-swim">Aguas abiertas</span>']},
-  {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",ratio:"65/35",zone:"Umbral",
+  {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",ratio:"65/35",zone:"Umbral",goal:"Vol 6h · 15K sub-1:35 · mantener base nado/bici 2x/sem",
    body:"Afilar velocidad para la 15K. Umbral a 163 ppm.",
    focus:['<span class="tag t-run">Velocidad</span>','<span class="tag t-bike">Base</span>']},
-  {n:"FASE 4",title:"Base grande + recomposición",when:"19 oct → ene 2027 · ~14 sem",ratio:"80/20",zone:"Base pura",
+  {n:"FASE 4",title:"Base grande + recomposición",when:"19 oct → ene 2027 · ~14 sem",ratio:"80/20",zone:"Base pura",goal:"Vol 7-8h · Fuerza 2x/sem · Nado técnica · Peso 91-92kg · Base Z2 80%",
    body:"El cimiento del 70.3. Base aeróbica en volumen + fuerza de gimnasio.",
    focus:['<span class="tag t-str">Fuerza gym</span>','<span class="tag t-bike">Base bici</span>','<span class="tag t-swim">Técnica</span>']},
-  {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → may 2027 · ~16 sem",ratio:"70/30",zone:"Específico 70.3",
+  {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → may 2027 · ~16 sem",ratio:"70/30",zone:"Específico 70.3",goal:"Vol 8-9h · Bici 90k · Brick 3h · Nado 1.9k aguas abiertas · Carrera 18k post-bici",
    body:"Fondos largos, bricks, nutrición de carrera, aguas abiertas. Pico 8-9 h.",
    focus:['<span class="tag t-brick">Bricks largos</span>','<span class="tag t-bike">Fondos</span>','<span class="tag t-swim">Wetsuit</span>']},
-  {n:"FASE 6",title:"70.3 Victoria → base Ironman",when:"jun → dic 2027 · ~28 sem",ratio:"80/20",zone:"Base + volumen",
+  {n:"FASE 6",title:"70.3 Victoria → base Ironman",when:"jun → dic 2027 · ~28 sem",ratio:"80/20",zone:"Base + volumen",goal:"70.3 finisher · luego Vol 9-10h · Bici 120k · Tirada 25-30k · W/kg objetivo 2.8+",
    body:"Primer 70.3 en Victoria. Luego, gran volumen hacia el Ironman.",
    focus:['<span class="tag t-tri">70.3</span>','<span class="tag t-bike">Volumen</span>','<span class="tag t-run">Fondos</span>']},
-  {n:"FASE 7",title:"Construcción IRONMAN",when:"ene → carrera 2028 · ~20 sem",ratio:"75/25",zone:"Específico IM",
+  {n:"FASE 7",title:"Construcción IRONMAN",when:"ene → carrera 2028 · ~20 sem",ratio:"75/25",zone:"Específico IM",goal:"Vol 10-12h · Bici 5-6h fondo · Brick día completo · Nutrición 60-90g CH/h · Peso 88-90kg",
    body:"Build del Ironman: fondos de 5-6 h, bricks de día completo.",
    focus:['<span class="tag t-brick">Día completo</span>','<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN</span>']},
-  {n:"FASE 8",title:"IRONMAN → puente a Ultraman",when:"2028 → 2029",ratio:"85/15",zone:"Ultra-base",
+  {n:"FASE 8",title:"IRONMAN → puente a Ultraman",when:"2028 → 2029",ratio:"85/15",zone:"Ultra-base",goal:"Vol 12-15h · Dobles sesiones · Bici back-to-back fin de semana · Base 85%",
    body:"Ironman cruzado. Salto a ultra: volumen masivo, dobles sesiones.",
    focus:['<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN ✓</span>','<span class="tag t-bike">Ultra-volumen</span>']},
-  {n:"FASE 9",title:"ULTRAMAN · la cima",when:"2029+ · el objetivo final",summit:true,ratio:"90/10",zone:"Ultra-resistencia",
+  {n:"FASE 9",title:"ULTRAMAN · la cima",when:"2029+ · el objetivo final",summit:true,ratio:"90/10",zone:"Ultra-resistencia",goal:"Vol 15h+ · Bloques de 6-8h · Nutrición sólida practicada · Sueño 8h innegociable",
    body:"10K nado · 421K bici · 84K carrera en 3 días. Conocer tus límites.",
    focus:['<span class="tag t-swim">10K nado</span>','<span class="tag t-bike">421K bici</span>','<span class="tag t-run">84K carrera</span>']}
 ];
@@ -1605,6 +1605,7 @@ async function renderTrail(){
         ${p.zone?`<div class="jc-zone">${p.zone}</div>`:''}
         <div class="jc-prog"><i style="width:${prog}%"></i></div>
         <div class="jc-body">${p.body}</div>
+        ${p.goal?`<div class="jc-goal"><span class="jc-goal-lbl">METAS</span> ${p.goal}</div>`:''}
         <div class="jc-focus">${focus}</div>
         <div class="jc-expand"><span class="cx">▸</span> ${cur?'fase actual':'ver detalle'}</div>
       </div>
