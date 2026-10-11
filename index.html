@@ -319,7 +319,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 <div class="wrap">
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v0808">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v0808</span></div>
+      <div class="brand" data-version="v1011">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v1011</span></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -339,13 +339,14 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 
   <!-- ===== INICIO · feed ===== -->
   <div class="view active" id="v-inicio">
+    <div id="recoBoxHome"></div>
     <div id="feed"></div>
   </div>
 
   <!-- ===== SEMANA ===== -->
   <div class="view" id="v-semana">
     <section>
-      <p class="eyebrow">Plan semanal · Fase 2 — Estreno triatlón 5150</p>
+      <p class="eyebrow">Plan semanal · Fase 3 — Doble de ruta: 15K y 28K</p>
       <div id="travelBar"></div>
       <div id="importedPlan"></div>
       <div class="weeknav" id="weekNav"></div>
@@ -426,7 +427,11 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     <div id="reviewBanner"></div>
     <div id="missionHero"></div>
     <div id="raceHero"></div>
+    <div id="recoBox"></div>
     <section><p class="eyebrow">◈ Capacidad · sistema de disciplinas</p><div class="glass pad" id="capBox"></div></section>
+    <section><p class="eyebrow">◈ Curva de forma</p><div class="glass pad" id="fitChart"></div></section>
+    <section><p class="eyebrow">◈ Volumen de entrenamiento</p><div class="glass pad" id="volChart"></div></section>
+    <section><p class="eyebrow">◈ Tus zonas de entrenamiento</p><div class="glass pad" id="zonasBox"></div></section>
     <section><p class="eyebrow">◈ Índice de eficiencia · ¿el plan sirve?</p><div class="glass pad" id="effBox"></div></section>
     <section><p class="eyebrow">◈ Trabajo depositado</p><div class="glass pad" id="bankBox"></div></section>
     <section><p class="eyebrow">◈ La travesía · 9 fases hacia Ultraman</p><div id="trail"></div></section>
@@ -475,8 +480,9 @@ const toast=(m)=>{const t=document.getElementById('toast');t.textContent=m||'Gua
 const RACES=[
   {name:"Media Maratón de Bogotá",date:"2026-07-26",tag:'<span class="tag t-run">21K</span>',meta:"Tu pico de carrera. A 2.600 m — pacea por esfuerzo, no por ritmo."},
   {name:"5150 Cartagena",date:"2026-09-06",tag:'<span class="tag t-tri">Tri olímpico</span>',meta:"1.5 km nado · 40 km bici · 10 km carrera. Tu estreno encadenando las tres."},
-  {name:"Allianz 15K Bogotá",date:"2026-10-18",tag:'<span class="tag t-run">15K</span>',meta:"Velocidad y umbral. Cierre de temporada en ruta."},
-  {name:"IRONMAN 70.3 Victoria",date:"2027-05-23",approx:true,tag:'<span class="tag t-tri">Medio IRONMAN</span>',meta:"1.9 km · 90 km · 21.1 km. Ensayo general del IRONMAN. Wetsuit ✓."},
+  {name:"Allianz 15K Bogotá",date:"2026-10-18",tag:'<span class="tag t-run">15K</span>',meta:"Velocidad y umbral a 2.600 m. Primera de las dos de ruta del cierre."},
+  {name:"Split Adidas 28K",date:"2026-11-08",tag:'<span class="tag t-run">28K</span>',meta:"Tu carrera a pie más larga hasta la fecha: 6,4 km por encima de la media maratón. Ritmo de fondo, nutrición en marcha."},
+  {name:"IRONMAN 70.3 Victoria",date:"2027-05-30",tag:'<span class="tag t-tri">Medio IRONMAN</span>',meta:"Vancouver, Canadá. 1.9 km nado · 90 km bici · 21.1 km carrera. Inscripción confirmada. Ensayo general del IRONMAN."},
   {name:"IRONMAN completo",date:"2028-06-01",approx:true,summit:true,tag:'<span class="tag" style="background:var(--bike);color:#10141d">META 2028</span>',meta:"Tu destino final. Ventana objetivo: 2028. Fecha exacta a definir tras Victoria."}
 ];
 
@@ -484,31 +490,67 @@ const PHASES=[
   {n:"FASE 1",title:"Afinar la Media Maratón",when:"jun → 26 jul 2026",done:true,ratio:"—",zone:"Específico",
    body:"21.6 km a 6:12/km. 8 PRs. Base de carrera probada.",
    focus:['<span class="tag t-run">Carrera</span>','<span class="tag t-str">Fuerza</span>']},
-  {n:"FASE 2",title:"Estreno triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026 · 6 sem",cur:true,ratio:"70/30",zone:"Base + bricks",goal:"Vol 6h → 6.5h · Nado 1.5k continuo · Brick 40k+10k · Fondo bici 2h",
-   body:"Encadenar las tres disciplinas. Foco en bici y bricks. Reconstruir base Z2.",
-   focus:['<span class="tag t-bike">+ Bici</span>','<span class="tag t-brick">Bricks</span>','<span class="tag t-swim">Aguas abiertas</span>']},
-  {n:"FASE 3",title:"Velocidad · Allianz 15K",when:"7 sep → 18 oct 2026 · 6 sem",ratio:"65/35",zone:"Umbral",goal:"Vol 6h · 15K sub-1:35 · mantener base nado/bici 2x/sem",
-   body:"Afilar velocidad para la 15K. Umbral a 163 ppm.",
-   focus:['<span class="tag t-run">Velocidad</span>','<span class="tag t-bike">Base</span>']},
-  {n:"FASE 4",title:"Base grande + recomposición",when:"19 oct → ene 2027 · ~14 sem",ratio:"80/20",zone:"Base pura",goal:"Vol 7-8h · Fuerza 2x/sem · Nado técnica · Peso 91-92kg · Base Z2 80%",
-   body:"El cimiento del 70.3. Base aeróbica en volumen + fuerza de gimnasio.",
+  {n:"FASE 2",title:"Estreno triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026",done:true,ratio:"70/30",zone:"Base + bricks",
+   body:"Primer triatlón encadenando las tres disciplinas.",
+   focus:['<span class="tag t-tri">Tri olímpico</span>','<span class="tag t-brick">Bricks</span>']},
+  {n:"FASE 3",title:"Doble de ruta · 15K y 28K",when:"7 sep → 8 nov 2026 · 9 sem",cur:true,ratio:"70/30",zone:"Umbral + fondo",
+   goal:"Allianz 15K 18 oct · Split Adidas 28K 8 nov · Vol 8-10h · Tirada larga 24-26k antes del 28K",
+   body:"Dos carreras en tres semanas: velocidad primero, fondo después. El 28K será tu distancia a pie más larga.",
+   focus:['<span class="tag t-run">Velocidad</span>','<span class="tag t-run">Fondo</span>','<span class="tag t-bike">Base</span>']},
+  {n:"FASE 4",title:"Base grande + recomposición",when:"9 nov 2026 → ene 2027 · ~11 sem",ratio:"80/20",zone:"Base pura",
+   goal:"Vol 9-10h · Fuerza 2x/sem · Peso 84-86kg · Z2 80% del volumen · Test de umbral",
+   body:"El cimiento del 70.3. Volumen aeróbico y fuerza de gimnasio.",
    focus:['<span class="tag t-str">Fuerza gym</span>','<span class="tag t-bike">Base bici</span>','<span class="tag t-swim">Técnica</span>']},
-  {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → may 2027 · ~16 sem",ratio:"70/30",zone:"Específico 70.3",goal:"Vol 8-9h · Bici 90k · Brick 3h · Nado 1.9k aguas abiertas · Carrera 18k post-bici",
-   body:"Fondos largos, bricks, nutrición de carrera, aguas abiertas. Pico 8-9 h.",
+  {n:"FASE 5",title:"Construcción 70.3 Victoria",when:"feb → 30 may 2027 · ~17 sem",ratio:"70/30",zone:"Específico 70.3",
+   goal:"Vol 10-12h · Bici 90k · Brick 3h · Nado 1.9k aguas abiertas con wetsuit · Carrera 18k post-bici",
+   body:"Build específico hacia Vancouver. Fondos largos, bricks y nutrición de carrera.",
    focus:['<span class="tag t-brick">Bricks largos</span>','<span class="tag t-bike">Fondos</span>','<span class="tag t-swim">Wetsuit</span>']},
-  {n:"FASE 6",title:"70.3 Victoria → base Ironman",when:"jun → dic 2027 · ~28 sem",ratio:"80/20",zone:"Base + volumen",goal:"70.3 finisher · luego Vol 9-10h · Bici 120k · Tirada 25-30k · W/kg objetivo 2.8+",
-   body:"Primer 70.3 en Victoria. Luego, gran volumen hacia el Ironman.",
+  {n:"FASE 6",title:"70.3 Victoria → base Ironman",when:"jun → dic 2027 · ~28 sem",ratio:"80/20",zone:"Base + volumen",
+   goal:"70.3 finisher 30 may · luego Vol 11-13h · Bici 120k · Tirada 25-30k · 3,2+ W/kg",
+   body:"Corres el 70.3 en Vancouver. Recuperas y empieza el gran volumen del Ironman.",
    focus:['<span class="tag t-tri">70.3</span>','<span class="tag t-bike">Volumen</span>','<span class="tag t-run">Fondos</span>']},
-  {n:"FASE 7",title:"Construcción IRONMAN",when:"ene → carrera 2028 · ~20 sem",ratio:"75/25",zone:"Específico IM",goal:"Vol 10-12h · Bici 5-6h fondo · Brick día completo · Nutrición 60-90g CH/h · Peso 88-90kg",
-   body:"Build del Ironman: fondos de 5-6 h, bricks de día completo.",
+  {n:"FASE 7",title:"Construcción IRONMAN",when:"ene → carrera 2028 · ~20 sem",ratio:"75/25",zone:"Específico IM",
+   goal:"Vol 12-14h · Bici 5-6h fondo · Brick día completo · Nutrición 60-90g CH/h",
+   body:"Build del Ironman: 3.8 nado / 180 bici / 42 carrera.",
    focus:['<span class="tag t-brick">Día completo</span>','<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN</span>']},
-  {n:"FASE 8",title:"IRONMAN → puente a Ultraman",when:"2028 → 2029",ratio:"85/15",zone:"Ultra-base",goal:"Vol 12-15h · Dobles sesiones · Bici back-to-back fin de semana · Base 85%",
-   body:"Ironman cruzado. Salto a ultra: volumen masivo, dobles sesiones.",
+  {n:"FASE 8",title:"IRONMAN → puente a Ultraman",when:"2028 → 2029",ratio:"85/15",zone:"Ultra-base",
+   goal:"Vol 14-16h · Dobles sesiones · Bici back-to-back fin de semana",
+   body:"Cruzas el Ironman. El salto a ultra cambia la lógica: capacidad de horas.",
    focus:['<span class="tag" style="background:var(--bike);color:#10141d">IRONMAN ✓</span>','<span class="tag t-bike">Ultra-volumen</span>']},
-  {n:"FASE 9",title:"ULTRAMAN · la cima",when:"2029+ · el objetivo final",summit:true,ratio:"90/10",zone:"Ultra-resistencia",goal:"Vol 15h+ · Bloques de 6-8h · Nutrición sólida practicada · Sueño 8h innegociable",
-   body:"10K nado · 421K bici · 84K carrera en 3 días. Conocer tus límites.",
+  {n:"FASE 9",title:"ULTRAMAN · la cima",when:"2029+ · el objetivo final",summit:true,ratio:"90/10",zone:"Ultra-resistencia",
+   goal:"Vol 16h+ · Bloques de 6-8h · Nutrición sólida practicada · Sueño 8h",
+   body:"10K nado · 421K bici · 84K carrera en 3 días.",
    focus:['<span class="tag t-swim">10K nado</span>','<span class="tag t-bike">421K bici</span>','<span class="tag t-run">84K carrera</span>']}
 ];
+
+// ===== ZONAS CALIBRADAS (oct 2026) =====
+// FC max 188 de Garmin: validada contra la Media Maraton (pico 176 = 93,6%).
+// Umbral 168: el 163 de Garmin esta subestimado — sostuvo FC media 163
+// durante 2h14 en la media maraton, y el umbral solo se sostiene ~1h.
+// Bici: umbral 8 ppm por debajo del de carrera (menor masa muscular implicada).
+// Natacion: el sensor optico falla en agua (marca FC mas alta que en carrera,
+// fisiologicamente imposible) — no prescribir nado por pulso.
+const FCMAX=188, LTHR_RUN=168, LTHR_BIKE=160;
+const ZONAS={
+  run:{umbral:LTHR_RUN,z:[
+    {n:'Z1',lbl:'Recuperación',lo:0,hi:141,c:'var(--rest)',uso:'Trote regenerativo'},
+    {n:'Z2',lbl:'Base aeróbica',lo:142,hi:149,c:'var(--go)',uso:'El motor del Ironman'},
+    {n:'Z3',lbl:'Tempo',lo:150,hi:157,c:'var(--bike)',uso:'Ritmo sostenido'},
+    {n:'Z4',lbl:'Umbral',lo:158,hi:167,c:'var(--caution)',uso:'Series largas'},
+    {n:'Z5',lbl:'VO2max',lo:168,hi:188,c:'var(--stop)',uso:'Intervalos cortos'}]},
+  bike:{umbral:LTHR_BIKE,z:[
+    {n:'Z1',lbl:'Recuperación',lo:0,hi:135,c:'var(--rest)',uso:'Rodillo suave'},
+    {n:'Z2',lbl:'Base aeróbica',lo:136,hi:142,c:'var(--go)',uso:'Fondos largos'},
+    {n:'Z3',lbl:'Tempo',lo:143,hi:150,c:'var(--bike)',uso:'Ritmo de 70.3'},
+    {n:'Z4',lbl:'Umbral',lo:151,hi:159,c:'var(--caution)',uso:'Bloques de fuerza'},
+    {n:'Z5',lbl:'VO2max',lo:160,hi:188,c:'var(--stop)',uso:'Repechos'}]}
+};
+function zonaDe(fc,dep){
+  const set=(dep==='bike'||dep==='bici')?ZONAS.bike:ZONAS.run;
+  if(fc==null)return null;
+  return set.z.find(x=>fc>=x.lo&&fc<=x.hi)||set.z[set.z.length-1];
+}
+
 
 const STR_A="Fuerza A · tren inferior (30'): sentadilla goblet, peso muerto a 1 pierna, zancadas, elevación de gemelos, plancha lateral. 2–3 series, carga moderada.";
 const STR_B="Fuerza B · core e hips (25'): plancha, dead bug, puente de glúteo, clamshell, bird-dog. 2–3 series. Activa glúteos = seguro antilesión.";
@@ -1588,35 +1630,60 @@ async function renderBank(){
 // --- El ascenso: sendero de 7 fases ---
 async function renderTrail(){
   const box=document.getElementById('trail');if(!box)return;
-  const curIdx=Math.max(0,PHASES.findIndex(p=>p.cur));
-  const nodes=PHASES.map((p,i)=>{
-    const done=!!p.done||i<curIdx, cur=i===curIdx, summit=!!p.summit;
-    const cls=done?'done':(cur?'cur':(summit&&!cur?'future summit':(summit?'summit':'future')));
-    const openCls=cur?' open':'';
-    const dotContent=summit?'▲':(done?'✓':(i+1));
-    const prog=done?100:(cur?42:0);
-    const focus=p.focus?p.focus.join(''):'';
-    return `<div class="jnode ${cls}${openCls}" data-i="${i}">
-      <div class="jdot">${dotContent}</div>
-      <div class="jcard glass">
-        <div class="jc-top"><span class="jc-n">${p.n}</span><span class="jc-ratio">${p.ratio&&p.ratio!=='—'?'suave/duro '+p.ratio:'✓'}</span></div>
-        <div class="jc-title">${p.title}</div>
-        <div class="jc-when">${p.when}</div>
-        ${p.zone?`<div class="jc-zone">${p.zone}</div>`:''}
-        <div class="jc-prog"><i style="width:${prog}%"></i></div>
-        <div class="jc-body">${p.body}</div>
-        ${p.goal?`<div class="jc-goal"><span class="jc-goal-lbl">METAS</span> ${p.goal}</div>`:''}
-        <div class="jc-focus">${focus}</div>
-        <div class="jc-expand"><span class="cx">▸</span> ${cur?'fase actual':'ver detalle'}</div>
-      </div>
-    </div>`;
-  }).join('');
-  box.innerHTML=`<div class="journey"><div class="jline"></div>${nodes}</div>`;
-  box.querySelectorAll('.jnode').forEach(n=>{
-    const card=n.querySelector('.jcard');
-    if(card)card.onclick=()=>n.classList.toggle('open');
-  });
+  const cur=Math.max(0,PHASES.findIndex(p=>p.cur));
+  if(typeof selPhase!=='number')selPhase=cur;
+  const n=PHASES.length;
+  const pct=Math.round(((cur+0.4)/n)*100);
+  const rail=PHASES.map((p,i)=>{
+    const done=!!p.done||i<cur, isCur=i===cur, summit=!!p.summit;
+    const cls=[done?'done':'',isCur?'cur':'',summit?'summit':'',i===selPhase?'sel':''].filter(Boolean).join(' ');
+    const mark=summit?'▲':(done?'✓':(i+1));
+    return `<button class="pnode ${cls}" data-i="${i}" aria-label="Fase ${i+1}: ${p.title}"><span class="pdot">${mark}</span><span class="ptick"></span></button>`;
+  }).join('<span class="prail-link"></span>');
+
+  const p=PHASES[selPhase];
+  const done=!!p.done||selPhase<cur, isCur=selPhase===cur;
+  const estado=done?'CUMPLIDA':(isCur?'EN CURSO':'PENDIENTE');
+  const estCol=done?'var(--go)':(isCur?'var(--run)':'var(--faint)');
+  const prog=done?100:(isCur?42:0);
+
+  let ratioHtml='';
+  const m=p.ratio&&String(p.ratio).match(/(\d+)\s*\/\s*(\d+)/);
+  if(m){
+    ratioHtml=`<div class="ratiobar"><div class="rb-track">
+      <i class="rb-soft" style="width:${+m[1]}%"><b>${+m[1]}%</b></i>
+      <i class="rb-hard" style="width:${+m[2]}%"><b>${+m[2]}%</b></i></div>
+      <div class="rb-legend"><span><i class="sw soft"></i>suave</span><span><i class="sw hard"></i>duro</span></div></div>`;
+  }
+  let metas='';
+  if(p.goal){
+    metas=`<div class="gblock"><div class="glabel">METAS</div><div class="gchips">${
+      String(p.goal).split('·').map(x=>x.trim()).filter(Boolean).map(x=>`<span class="gchip">${x}</span>`).join('')}</div></div>`;
+  }
+  box.innerHTML=`<div class="journey2">
+    <div class="j2-head">
+      <div><div class="j2-eyebrow">LA TRAVESÍA</div>
+        <div class="j2-count"><b>${cur+1}</b><span>/ ${n} fases</span></div></div>
+      <div class="j2-pct"><span class="j2-pctn">${pct}%</span><span class="j2-pctl">del camino</span></div>
+    </div>
+    <div class="j2-prog"><i style="width:${pct}%"></i></div>
+    <div class="prail">${rail}</div>
+    <div class="pdetail">
+      <div class="pd-top"><span class="pd-n">${p.n}</span>
+        <span class="pd-estado" style="color:${estCol};border-color:${estCol}">${estado}</span></div>
+      <div class="pd-title">${p.title}</div>
+      <div class="pd-when">${p.when}</div>
+      <div class="pd-bar"><i style="width:${prog}%"></i></div>
+      ${ratioHtml}
+      ${p.zone?`<div class="pd-zone">${p.zone}</div>`:''}
+      <div class="pd-body">${p.body}</div>
+      ${metas}
+      <div class="pd-focus">${p.focus?p.focus.join(''):''}</div>
+    </div></div>`;
+  box.querySelectorAll('.pnode').forEach(b=>{b.onclick=()=>{selPhase=+b.dataset.i;renderTrail();};});
 }
+let selPhase;
+
 
 // Hero de misión: estado del atleta con datos reales
 async function renderMission(){
@@ -1722,9 +1789,225 @@ async function renderImportedPlan(){
   if(colEls[openIdx])colEls[openIdx].click();
 }
 
-async function renderRuta(){
-  await renderMission();await renderRaceHero();await renderCapacity();await renderEfficiency();await renderBank();await renderTrail();
+// ===================== GRAFICAS DE DATOS =====================
+
+// Curva de forma: CTL (fitness) como area + ATL (fatiga) como linea.
+// Dos series -> leyenda obligatoria + etiquetas directas (identidad nunca solo por color).
+async function renderFitnessChart(){
+  const box=document.getElementById('fitChart');if(!box)return;
+  const w=wellAsc(await getWell()).filter(d=>d.ctl!=null).slice(-70);
+  if(w.length<5){box.innerHTML='<div class="cempty">Aún no hay suficientes datos de carga para dibujar la curva.</div>';return;}
+  const W=340,H=150,pL=26,pR=34,pT=14,pB=20;
+  const max=Math.max(...w.map(d=>Math.max(d.ctl||0,d.atl||0)))*1.15||1;
+  const X=i=>pL+(i/(w.length-1))*(W-pL-pR);
+  const Y=v=>H-pB-((v||0)/max)*(H-pT-pB);
+  const ptsCtl=w.map((d,i)=>`${X(i).toFixed(1)},${Y(d.ctl).toFixed(1)}`).join(' ');
+  const ptsAtl=w.map((d,i)=>`${X(i).toFixed(1)},${Y(d.atl).toFixed(1)}`).join(' ');
+  const area=`${pL},${H-pB} ${ptsCtl} ${(W-pR).toFixed(1)},${H-pB}`;
+  const last=w[w.length-1];
+  // rejilla recesiva
+  let grid='';
+  for(let k=0;k<=2;k++){
+    const v=max*k/2, y=Y(v);
+    grid+=`<line x1="${pL}" y1="${y.toFixed(1)}" x2="${W-pR}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+    grid+=`<text x="${pL-5}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="7.5" font-family="IBM Plex Mono" fill="var(--faint)">${Math.round(v)}</text>`;
+  }
+  const tsb=last.form!=null?last.form:null;
+  const tsbCol=tsb==null?'var(--mut)':(tsb>5?'var(--go)':(tsb<-20?'var(--stop)':'var(--bike)'));
+  box.innerHTML=`
+    <div class="chead"><span class="ctitle">Curva de forma · 70 días</span>
+      <span class="cnow">forma <b style="color:${tsbCol}">${tsb!=null?(tsb>0?'+':'')+tsb:'—'}</b></span></div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block" role="img" aria-label="Evolución de fitness y fatiga">
+      <defs><linearGradient id="gctl" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--swim)" stop-opacity=".32"/>
+        <stop offset="100%" stop-color="var(--swim)" stop-opacity=".02"/></linearGradient></defs>
+      ${grid}
+      <polygon points="${area}" fill="url(#gctl)"/>
+      <polyline points="${ptsCtl}" fill="none" stroke="var(--swim)" stroke-width="2" stroke-linejoin="round"/>
+      <polyline points="${ptsAtl}" fill="none" stroke="var(--run)" stroke-width="2" stroke-dasharray="3 2.5" stroke-linejoin="round"/>
+      <circle cx="${X(w.length-1).toFixed(1)}" cy="${Y(last.ctl).toFixed(1)}" r="3.5" fill="var(--swim)" stroke="var(--bg)" stroke-width="2"/>
+      <circle cx="${X(w.length-1).toFixed(1)}" cy="${Y(last.atl).toFixed(1)}" r="3.5" fill="var(--run)" stroke="var(--bg)" stroke-width="2"/>
+      <text x="${(W-pR+4)}" y="${(Y(last.ctl)+3).toFixed(1)}" font-size="8.5" font-family="IBM Plex Mono" font-weight="600" fill="var(--swim)">${Math.round(last.ctl)}</text>
+      <text x="${(W-pR+4)}" y="${(Y(last.atl)+3).toFixed(1)}" font-size="8.5" font-family="IBM Plex Mono" font-weight="600" fill="var(--run)">${Math.round(last.atl)}</text>
+    </svg>
+    <div class="clegend">
+      <span><i class="sw" style="background:var(--swim)"></i>Fitness (CTL)</span>
+      <span><i class="sw dash" style="background:var(--run)"></i>Fatiga (ATL)</span>
+    </div>`;
 }
+
+// Volumen semanal apilado por deporte. Categorico: 3 series con sus colores de marca
+// + leyenda + etiqueta de horas sobre cada barra (identidad y magnitud sin depender del color).
+async function renderVolumeChart(){
+  const box=document.getElementById('volChart');if(!box)return;
+  const ses=(await Store.get('strava_sessions'))||[];
+  if(!ses.length){box.innerHTML='<div class="cempty">Sincroniza para ver tu volumen semanal.</div>';return;}
+  const sem={};
+  ses.forEach(s=>{
+    const d=parse(s.date);if(!d)return;
+    const mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));
+    const k=fmtLocal(mon);
+    sem[k]=sem[k]||{k,swim:0,bike:0,run:0,otro:0};
+    const h=(+s.min||0)/60;
+    const sp=s.sport==='swim'?'swim':(s.sport==='bike'?'bike':(s.sport==='run'?'run':'otro'));
+    sem[k][sp]+=h;
+  });
+  const arr=Object.values(sem).sort((a,b)=>a.k<b.k?-1:1).slice(-12);
+  if(!arr.length){box.innerHTML='<div class="cempty">Sin datos de volumen.</div>';return;}
+  const W=340,H=150,pL=24,pR=8,pT=16,pB=24;
+  const tot=a=>a.swim+a.bike+a.run+a.otro;
+  const max=Math.max(...arr.map(tot))*1.15||1;
+  const bw=(W-pL-pR)/arr.length;
+  const barW=Math.min(20,bw*0.62);
+  let bars='',labels='';
+  arr.forEach((a,i)=>{
+    const cx=pL+bw*i+bw/2;
+    let y=H-pB;
+    [['run','var(--run)'],['bike','var(--bike)'],['swim','var(--swim)']].forEach(([sp,col])=>{
+      const hh=(a[sp]/max)*(H-pT-pB);
+      if(hh<=0.5)return;
+      y-=hh;
+      // separador de 2px entre segmentos apilados
+      bars+=`<rect x="${(cx-barW/2).toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(1,hh-2).toFixed(1)}" rx="2" fill="${col}"/>`;
+    });
+    const t=tot(a);
+    if(t>0.3)labels+=`<text x="${cx.toFixed(1)}" y="${(y-4).toFixed(1)}" text-anchor="middle" font-size="7.5" font-family="IBM Plex Mono" fill="var(--mut)">${t.toFixed(0)}</text>`;
+    if(i%3===0||i===arr.length-1){
+      const d=parse(a.k);
+      labels+=`<text x="${cx.toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="7" font-family="IBM Plex Mono" fill="var(--faint)">${d.getDate()}/${d.getMonth()+1}</text>`;
+    }
+  });
+  let grid='';
+  for(let k=0;k<=2;k++){
+    const v=max*k/2,y=H-pB-(v/max)*(H-pT-pB);
+    grid+=`<line x1="${pL}" y1="${y.toFixed(1)}" x2="${W-pR}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+    grid+=`<text x="${pL-4}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="7.5" font-family="IBM Plex Mono" fill="var(--faint)">${v.toFixed(0)}</text>`;
+  }
+  const media=arr.reduce((s,a)=>s+tot(a),0)/arr.length;
+  box.innerHTML=`
+    <div class="chead"><span class="ctitle">Volumen semanal · 12 sem</span>
+      <span class="cnow">media <b>${media.toFixed(1)} h</b></span></div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block" role="img" aria-label="Horas semanales por deporte">
+      ${grid}${bars}${labels}
+    </svg>
+    <div class="clegend">
+      <span><i class="sw" style="background:var(--swim)"></i>Nado</span>
+      <span><i class="sw" style="background:var(--bike)"></i>Bici</span>
+      <span><i class="sw" style="background:var(--run)"></i>Carrera</span>
+      <span class="cnote">horas sobre cada barra</span>
+    </div>`;
+}
+
+// ===================== RECOMENDACION DIARIA =====================
+// Cruza readiness, forma, ratio de carga, dias a la carrera y fase actual
+// para prescribir la sesion de hoy con zona objetivo concreta.
+async function recomendacionHoy(){
+  const r=await computeReadiness();
+  const ses=(await Store.get('strava_sessions'))||[];
+  const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
+  const dRace=next?daysTo(next.date):null;
+  const fase=PHASES.find(p=>p.cur)||PHASES[0];
+
+  // carga de los ultimos 7 dias
+  const hace7=fmtLocal(new Date(today().getTime()-7*MS));
+  const h7=ses.filter(s=>s.date>hace7).reduce((a,s)=>a+(+s.min||0),0)/60;
+  const ratio=(r.ctl&&r.atl)?+(r.atl/r.ctl).toFixed(2):null;
+
+  let tipo,zona,dur,razon,urg;
+
+  if(r.hasData&&r.level==='rojo'){
+    tipo='Descanso o recuperación activa';zona=ZONAS.run.z[0];dur='0-30 min';urg='stop';
+    razon=`Semáforo rojo (${r.score}/100). Hoy entrenar resta más de lo que suma.`;
+  } else if(dRace!=null&&dRace<=2){
+    tipo='Activación pre-carrera';zona=ZONAS.run.z[1];dur='20-30 min';urg='caution';
+    razon=`${next.name} en ${dRace===0?'HOY':dRace+' día'+(dRace>1?'s':'')}. Soltar piernas, nada más.`;
+  } else if(dRace!=null&&dRace<=7){
+    tipo='Taper · calidad corta';zona=ZONAS.run.z[3];dur='40-50 min';urg='caution';
+    razon=`${next.name} en ${dRace} días. Mantén intensidad, baja volumen.`;
+  } else if(r.hasData&&r.level==='amarillo'){
+    tipo='Aeróbico suave';zona=ZONAS.run.z[1];dur='45-60 min';urg='caution';
+    razon=`Semáforo amarillo (${r.score}/100). Base aeróbica sí, calidad no.`;
+  } else if(ratio!=null&&ratio>1.3){
+    tipo='Descarga';zona=ZONAS.run.z[0];dur='30-40 min';urg='caution';
+    razon=`Ratio agudo:crónico ${ratio} — por encima de 1,3 el riesgo de lesión sube.`;
+  } else if(h7<4){
+    tipo='Volumen aeróbico';zona=ZONAS.run.z[1];dur='60-90 min';urg='go';
+    razon=`Solo ${h7.toFixed(1)} h en 7 días. Hay margen para construir base.`;
+  } else if(r.hasData&&r.level==='verde'){
+    const duro=/velocidad|umbral|específico|bricks/i.test(fase.zone||'');
+    tipo=duro?'Sesión de calidad':'Fondo aeróbico';
+    zona=duro?ZONAS.run.z[3]:ZONAS.run.z[1];
+    dur=duro?'60-75 min':'75-120 min';urg='go';
+    razon=`Semáforo verde (${r.score}/100) y fase "${fase.zone}". Buen día para exigir.`;
+  } else {
+    tipo='Aeróbico de mantenimiento';zona=ZONAS.run.z[1];dur='50-70 min';urg='go';
+    razon='Sin señales de alarma. Mantén la base.';
+  }
+
+  const zb=ZONAS.bike.z[ZONAS.run.z.indexOf(zona)]||ZONAS.bike.z[1];
+  return {tipo,zona,zonaBici:zb,dur,razon,urg,readiness:r,ratio,h7,dRace,next,fase};
+}
+
+async function renderRecomendacion(){
+  const destinos=['recoBox','recoBoxHome'].map(id=>document.getElementById(id)).filter(Boolean);
+  if(!destinos.length)return;
+  const R=await recomendacionHoy();
+  const col=R.urg==='go'?'var(--go)':(R.urg==='caution'?'var(--caution)':'var(--stop)');
+  const r=R.readiness;
+  const chips=[
+    r.hasData?{l:'Semáforo',v:r.score+'/100',c:r.level==='verde'?'var(--go)':(r.level==='amarillo'?'var(--caution)':'var(--stop)')}:null,
+    R.ratio!=null?{l:'Ratio carga',v:R.ratio,c:R.ratio>1.3?'var(--stop)':(R.ratio<0.8?'var(--bike)':'var(--go)')}:null,
+    r.form!=null?{l:'Forma',v:(r.form>0?'+':'')+r.form,c:r.form>5?'var(--go)':(r.form<-20?'var(--stop)':'var(--bike)')}:null,
+    {l:'7 días',v:R.h7.toFixed(1)+' h',c:'var(--ink)'}
+  ].filter(Boolean);
+
+  const html=`
+    <div class="reco" style="--rc:${col}">
+      <div class="reco-top"><span class="reco-lbl">RECOMENDACIÓN DE HOY</span>
+        <span class="reco-dur">${R.dur}</span></div>
+      <div class="reco-tipo">${R.tipo}</div>
+      <div class="reco-zona">
+        <span class="rz-pill" style="background:${R.zona.c}">${R.zona.n}</span>
+        <span class="rz-txt">${R.zona.lbl} · <b>${R.zona.lo||'<'}${R.zona.lo?'-':''}${R.zona.hi} ppm</b> corriendo
+          · <b>${R.zonaBici.lo||'<'}${R.zonaBici.lo?'-':''}${R.zonaBici.hi} ppm</b> en bici</span>
+      </div>
+      <div class="reco-razon">${R.razon}</div>
+      <div class="reco-chips">${chips.map(c=>`<span class="rchip"><i>${c.l}</i><b style="color:${c.c}">${c.v}</b></span>`).join('')}</div>
+    </div>`;
+  destinos.forEach(d=>{d.innerHTML=html;});
+}
+
+// Tabla de zonas calibradas
+function renderZonas(){
+  const box=document.getElementById('zonasBox');if(!box)return;
+  const fila=(z,dep)=>`<div class="zrow"><span class="zpill" style="background:${z.c}">${z.n}</span>
+    <span class="zlbl">${z.lbl}</span>
+    <span class="zrng">${z.lo?z.lo+'-'+z.hi:'<'+z.hi}</span>
+    <span class="zuso">${z.uso}</span></div>`;
+  box.innerHTML=`
+    <div class="zhead">Calibradas con tus datos · FC máx ${FCMAX} · umbral ${LTHR_RUN} corriendo / ${LTHR_BIKE} en bici</div>
+    <div class="ztabs"><button class="ztab on" data-d="run">🏃 Carrera</button><button class="ztab" data-d="bike">🚴 Bici</button></div>
+    <div id="zbody">${ZONAS.run.z.map(z=>fila(z,'run')).join('')}</div>
+    <div class="znote">El nado no se prescribe por pulso: el sensor óptico falla en el agua. Usa ritmo por 100 m.</div>`;
+  box.querySelectorAll('.ztab').forEach(b=>b.onclick=()=>{
+    box.querySelectorAll('.ztab').forEach(x=>x.classList.toggle('on',x===b));
+    document.getElementById('zbody').innerHTML=ZONAS[b.dataset.d].z.map(z=>fila(z,b.dataset.d)).join('');
+  });
+}
+
+async function renderRuta(){
+  await renderMission();
+  await renderRaceHero();
+  await renderRecomendacion();
+  await renderCapacity();
+  await renderFitnessChart();
+  await renderVolumeChart();
+  renderZonas();
+  await renderEfficiency();
+  await renderBank();
+  await renderTrail();
+}
+
 
 // ================== INFORME EXPORTABLE + CORTE DIARIO 9 PM ==================
 // Última frontera de corte (hoy 21:00 si ya pasó; si no, ayer 21:00)
@@ -2404,6 +2687,7 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
   await step('planImportado',renderImportedPlan);
   await step('semana',renderWeek);
   await step('cinta',renderRibbon);
+  await step('recomendacion',renderRecomendacion);
   await step('feed',renderFeed);
   await step('progreso',renderProgress);
   await step('sesiones',renderSessions);
