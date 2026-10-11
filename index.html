@@ -317,9 +317,10 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 </head>
 <body>
 <div class="wrap">
+  <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1011">PROYECTO <em>IRONMAN</em> <span style="font-size:8px;color:var(--faint);font-family:IBM Plex Mono">v1011</span></div>
+      <div class="brand" data-version="v1011">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1011</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -2676,6 +2677,57 @@ async function renderChecks(){
 function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));const t=document.getElementById('v-'+v);if(t)t.classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
 
+// ===================== ACTUALIZACION DE VERSION =====================
+// En iOS, una web anadida a la pantalla de inicio cachea el HTML con fuerza.
+// Esto detecta si hay version nueva y permite forzar la recarga saltando la cache.
+const APP_VERSION=(document.querySelector('.brand')||{}).dataset?.version||'?';
+
+function forzarActualizacion(){
+  try{ if(window.caches&&caches.keys) caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))); }catch(e){}
+  // Un parametro nuevo obliga a Safari a pedir el HTML al servidor en vez de servirlo de cache.
+  location.replace(location.origin+location.pathname+'?v='+Date.now());
+}
+
+async function versionRemota(){
+  try{
+    const r=await fetch(location.pathname+'?_chk='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return null;
+    const t=await r.text();
+    const m=t.match(/data-version="([^"]+)"/);
+    return m?m[1]:null;
+  }catch(e){ return null; }
+}
+
+function mostrarBannerUpd(v){
+  const b=document.getElementById('updBanner');if(!b)return;
+  b.hidden=false;
+  b.innerHTML=`<span class="ub-txt">Hay una versión nueva (<b>${v}</b>). Estás en ${APP_VERSION}.</span>
+    <button class="ub-btn" id="ubGo">Actualizar</button>`;
+  const g=document.getElementById('ubGo');if(g)g.onclick=forzarActualizacion;
+}
+
+async function chequearVersion(manual){
+  const btn=document.getElementById('btnUpd');
+  if(btn)btn.classList.add('spin');
+  const v=await versionRemota();
+  if(btn)btn.classList.remove('spin');
+  if(v&&v!==APP_VERSION){ mostrarBannerUpd(v); return true; }
+  if(manual){
+    if(btn){btn.classList.add('ok');setTimeout(()=>btn.classList.remove('ok'),1800);}
+    toast(v?'Ya tienes la última versión ('+APP_VERSION+')':'No pude comprobar la versión');
+  }
+  return false;
+}
+
+function wireUpd(){
+  const btn=document.getElementById('btnUpd');
+  if(!btn)return;
+  btn.onclick=()=>chequearVersion(true);
+  // doble toque = recarga forzada aunque la version coincida
+  let t=null;
+  btn.ondblclick=()=>{ if(t)clearTimeout(t); forzarActualizacion(); };
+}
+
 (async function(){
   const step=async(name,fn)=>{try{await fn();}catch(e){console.error('[Proyecto IRONMAN] fallo en '+name+':',e);}};
   await step('carreras',loadCustomRaces);
@@ -2704,6 +2756,8 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
     const b=document.getElementById('btnExport');if(b)b.onclick=()=>exportReport(true);
     const c=document.getElementById('btnCopy');if(c)c.onclick=()=>exportReport(false);
   });
+  await step('botonVersion',wireUpd);
+  await step('chequeoVersion',()=>chequearVersion(false));
   await step('autosync',autoSyncOnOpen);
 })();
 </script>
