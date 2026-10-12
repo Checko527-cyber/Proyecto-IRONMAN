@@ -381,6 +381,80 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .hoy-why:last-child,.hoy-det:last-child,.hoy-mot:last-child{padding-bottom:15px}
 .zwarn{border:1px solid var(--caution)!important;border-radius:11px;margin-top:12px}
 .zwarn summary{color:var(--caution)}
+
+/* ===== SEMANA: dias en orden, solo hoy desplegado ===== */
+.day2{position:relative;border:1px solid var(--line);border-left:3px solid var(--c);
+  border-radius:12px;background:var(--surf);margin:0 0 7px;overflow:hidden}
+.day2.is-today{border-color:var(--go);border-left-color:var(--go);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--go) 7%,var(--surf)),var(--surf))}
+.day2.is-future{opacity:.88}
+.day2.is-fallo{opacity:.55}
+.day2.checked .d2nom{color:var(--mut)}
+.d2sum{display:block;padding:0;cursor:pointer;list-style:none}
+.d2row{display:flex;align-items:center;gap:9px;padding:11px 12px}
+.d2fecha{flex:0 0 46px}
+.d2ic{flex:0 0 20px}
+.d2nom{flex:1 1 auto;min-width:0}
+.d2cif{flex:0 0 auto}
+.d2sum::-webkit-details-marker{display:none}
+.d2fecha{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.15}
+.d2fecha small{display:block;font-size:9px;font-weight:400;color:var(--faint)}
+.d2ic{font-size:16px;text-align:center;line-height:1}
+.d2nom{font-size:13px;font-weight:600;color:var(--ink);line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.d2cif{font-family:'IBM Plex Mono',monospace;font-size:11px;white-space:nowrap;display:flex;align-items:center;gap:3px}
+.d2plan{color:var(--faint)}
+.d2flecha{color:var(--line2)}
+.d2real.bien{color:var(--go);font-weight:600}
+.d2real.corto{color:var(--caution);font-weight:600}
+.d2real.extra{color:var(--swim);font-weight:600}
+.d2ck{color:var(--go);font-weight:800;font-size:13px}
+.d2no{color:var(--faint);font-size:15px}
+.d2body{padding:0 12px 13px;border-top:1px solid var(--line);margin-top:2px;padding-top:11px}
+.day2:not([open]) .d2body{display:none}
+/* navegacion de semanas */
+.wtab .wlab{display:flex;align-items:center;gap:5px;font-weight:700}
+.wtab .wvol{display:block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint);margin-top:2px}
+.wtab.pasada{opacity:.55}
+.wtab.ahora{border-color:var(--go)}
+.wnow{font-size:8px;font-weight:800;letter-spacing:.08em;color:#0A0E14;background:var(--go);
+  border-radius:3px;padding:1px 4px}
+
+/* ===== Leyendas de graficas =====
+   El marcado ya existia desde hace versiones, pero .clegend y .sw nunca
+   tuvieron CSS: el cuadrito de color era un <i> sin dimensiones, invisible.
+   Por eso las graficas se veian sin leyenda. */
+.clegend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:10px;
+  padding-top:9px;border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut)}
+.clegend span{display:inline-flex;align-items:center;white-space:nowrap}
+.clegend .sw{width:11px;height:11px;border-radius:3px;flex:0 0 auto;display:inline-block;margin-right:5px}
+.clegend .sw.line{height:3px;width:14px;border-radius:2px}
+.clegend .sw.hollow{background:var(--surf)!important;border:1.6px solid var(--mut);border-radius:50%}
+.clegend .cnote{color:var(--faint);font-style:normal;margin-left:auto}
+@media(max-width:360px){.clegend{gap:5px 10px;font-size:9px}.clegend .cnote{margin-left:0;width:100%}}
+
+/* ===== Medidores de riesgo ===== */
+.rg{padding:13px 0;border-bottom:1px solid var(--line)}
+.rg:first-child{padding-top:0}
+.rg-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.rg-t{font-size:13.5px;font-weight:700;color:var(--ink)}
+.rg-n{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.08em}
+.rg-track{position:relative;height:8px;border-radius:4px;background:var(--raise);overflow:hidden}
+.rg-track i{display:block;height:100%;border-radius:4px;transition:width .5s ease}
+.rg-m{position:absolute;top:0;bottom:0;width:1px;background:var(--bg);opacity:.75}
+.rg-why{margin-top:8px;font-size:11.5px;line-height:1.5;color:var(--mut)}
+.rg-d summary{margin-top:8px;cursor:pointer;font-size:11px;color:var(--faint);list-style:none}
+.rg-d summary::-webkit-details-marker{display:none}
+.rg-d summary::after{content:' ＋'}
+.rg-d[open] summary::after{content:' −'}
+.rg-d p{margin:7px 0 0;font-size:12px;line-height:1.55;color:var(--mut)}
+/* la leyenda suave/duro del reparto de intensidad tampoco tenia CSS */
+.rb-legend{display:flex;gap:14px;margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint)}
+.rb-legend span{display:inline-flex;align-items:center}
+.rb-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px}
+.rb-legend .sw.soft{background:var(--go)}
+.rb-legend .sw.hard{background:var(--caution)}
 </style>
 </head>
 <body>
@@ -388,7 +462,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1102">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1102</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1103">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1103</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -450,22 +524,6 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     <section><p class="eyebrow">Registro de hoy</p>
       <div class="card pad">
         <div class="field" style="max-width:150px;margin-bottom:14px"><label>Peso (kg)</label><input type="number" step="0.1" inputmode="decimal" id="inWeight" placeholder="93.0"></div>
-        <div class="rpe-wrap">
-          <div class="rpe-q">¿Cómo te sentiste hoy?</div>
-          <div class="feelrow" id="feelRow">
-            <button class="feel" data-v="1">😣</button>
-            <button class="feel" data-v="2">😕</button>
-            <button class="feel" data-v="3">😐</button>
-            <button class="feel" data-v="4">🙂</button>
-            <button class="feel" data-v="5">💪</button>
-          </div>
-          <div class="rpe-lbl"><span>Agotado</span><span>Fuerte</span></div>
-        </div>
-        <div class="rpe-wrap" style="margin-top:16px">
-          <div class="rpe-q">Esfuerzo percibido (RPE)</div>
-          <div class="rpe-scale" id="rpeRow"></div>
-          <div class="rpe-lbl"><span>1 · muy suave</span><span>10 · máximo</span></div>
-        </div>
         <div class="btnrow"><button class="btn primary" id="saveLog">Guardar</button></div>
         <div style="font-size:11.5px;color:var(--faint);margin-top:11px;line-height:1.5">Sueño, HRV y Body Battery entran solos desde Garmin. Tu sensación y esfuerzo alimentan las decisiones del plan.</div>
       </div>
@@ -505,9 +563,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     <section><p class="eyebrow">◈ Índice de eficiencia · ¿el plan sirve?</p><div class="glass pad" id="effBox"></div></section>
     <section><p class="eyebrow">◈ Trabajo depositado</p><div class="glass pad" id="bankBox"></div></section>
     <section><p class="eyebrow">◈ La travesía · 9 fases hacia Ultraman</p><div id="trail"></div></section>
-    <section><p class="eyebrow">Tu ancla</p>
-      <div class="anchor"><div class="q">"Conocer mis límites emocionales, físicos y mentales."</div><div class="a">Cada madrugada a las 4 am ya es una respuesta. La meta es la ceremonia; el viaje ya empezó.</div></div>
-    </section>
+    
     <section><p class="eyebrow">Tus competencias</p>
       <div class="card pad">
         <div id="customRaceList"></div>
@@ -523,11 +579,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
         <div class="btnrow" id="addRaceBtnRow"><button class="btn" id="rcAddBtn">＋ Agregar competencia</button></div>
       </div>
     </section>
-    <section><p class="eyebrow">Riesgos y principios</p>
-      <div class="risk"><h4>😴 Abandono por fatiga</h4><div class="shield"><b>Escudo:</b> el plan vive dentro de tus horas reales. Dormir 7.5–8 h. En semanas difíciles, modo viaje en vez de cero.</div></div>
-      <div class="risk"><h4>🤕 Lesión por acelerar</h4><div class="shield"><b>Escudo:</b> progresión lenta, sobre todo en carrera. El semáforo manda: aflojar a tiempo es ejecutar el plan.</div></div>
-      <div class="card pad" id="checkList" style="margin-top:11px"></div>
-    </section>
+    <section><p class="eyebrow">◈ Riesgos · medidos, no supuestos</p><div class="glass pad" id="riesgos"></div></section>
   </div>
   <nav><div class="nav-wrap">
   <button class="navbtn active" data-v="inicio"><span class="ni">◧</span>Inicio</button>
@@ -1060,7 +1112,19 @@ function renderPhases(){
 }
 
 function renderWeekNav(){
-  document.getElementById('weekNav').innerHTML=PLAN_WEEKS.map((w,i)=>`<button class="wtab ${i===selWeek?'active':''}" data-w="${i}">${w.label}<span class="sub">${w.focus}</span></button>`).join('');
+  // Seis semanas y nada mas: la anterior, la actual y las cuatro siguientes.
+  const act=currentWeekIdx();
+  const desde=Math.max(0,act-1), hasta=Math.min(PLAN_WEEKS.length-1,act+4);
+  const vis=[];for(let i=desde;i<=hasta;i++)vis.push(i);
+  document.getElementById('weekNav').innerHTML=vis.map(i=>{
+    const w=PLAN_WEEKS[i];
+    const cls=i<act?'pasada':(i===act?'ahora':'futura');
+    const marca=i===act?'<span class="wnow">AHORA</span>':'';
+    return `<button class="wtab ${cls} ${i===selWeek?'active':''}" data-w="${i}">
+      <span class="wlab">${w.label}${marca}</span>
+      <span class="sub">${w.focus}</span>
+      <span class="wvol">${w.vol}</span></button>`;
+  }).join('');
   document.querySelectorAll('.wtab').forEach(b=>b.onclick=()=>{selWeek=+b.dataset.w;renderWeekNav();renderWeek();});
 }
 async function renderWeek(){
@@ -1076,42 +1140,74 @@ async function renderWeek(){
   const wellDays=wellAsc(await getWell());
   const importedAll=await getPlan();
   const todayStr=fmtLocal(today());
-  // Orden: del m\u00e1s reciente al m\u00e1s antiguo.
-  const order=WD.map((d,i)=>i).sort((a,b)=>dayDateStr(selWeek,b).localeCompare(dayDateStr(selWeek,a)));
-  document.getElementById('weekDays').innerHTML=order.map(i=>{
-    const d=WD[i];
+  // Orden cronológico, de lunes a domingo. Solo el día de hoy viene desplegado;
+  // los demás quedan en una línea con plan contra real.
+  const cortaNombre=t=>String(t||'').replace(/\s\d+h\d*\b/g,'').replace(/\s\d+\s?min\b/g,'').replace(/\s+·\s*$/,'').trim();
+  let hechos=0;
+  document.getElementById('weekDays').innerHTML=WD.map((d,i)=>{
     const key=selWeek+'-'+i,manual=done[key],auto=autoDone[i];
-    const ds=dayDateStr(selWeek,i);const isT=ds===todayStr;const future=ds>todayStr;
-    const isRest=!sportFromTag(d.tag);
+    const ds=dayDateStr(selWeek,i);const isT=ds===todayStr;const future=ds>todayStr;const past=ds<todayStr;
+    const sport=sportFromTag(d.tag);
+    const isRest=!sport;
     const wr=wellDays.find(x=>x.date===ds);
     const restOk=isRest&&!future&&!!(wr&&(wr.sleep!=null||wr.hrv!=null||wr.bb!=null||wr.readiness!=null));
-    const ck=manual||!!auto||restOk;
+    // Lo REAL del día: todo lo que Garmin registró esa fecha, planeado o no.
+    const delDia=sessions.filter(s=>s.date===ds);
+    const realMin=delDia.reduce((a,s)=>a+(+s.min||0),0);
+    const planMin=+d.dmin||0;
+    const ck=manual||!!auto||restOk||realMin>=20||(planMin>0&&realMin>=Math.max(15,planMin*0.6));
+    if(ck)hechos++;
     const dLabel=parse(ds).toLocaleDateString('es',{day:'numeric',month:'short'});
     const ctx={longest:auto?L[auto.sport+'_km']:null,weight:wt};
-    const stravaBadge=auto?`<span class="stravatag">\u2713 Strava \u00b7 ${auto.name||''}</span>`:'';
+
+    // --- La línea resumen: día, deporte, sesión, plan contra real, cumplido ---
+    const cifras=planMin
+      ? `<span class="d2plan">${durTxt(planMin)}</span>${realMin?`<span class="d2flecha">→</span><span class="d2real ${realMin>=planMin*0.9?'bien':'corto'}">${durTxt(realMin)}</span>`:''}`
+      : (realMin
+          ? `<span class="d2plan">off</span><span class="d2flecha">→</span><span class="d2real extra">${durTxt(realMin)}</span>`
+          : '<span class="d2plan">—</span>');
+    const estado=ck?'<span class="d2ck">✓</span>':(past?'<span class="d2no">·</span>':'');
+    const sum=`<summary class="d2sum"><div class="d2row">`+
+      `<span class="d2fecha">${d.d}<small>${dLabel}</small></span>`+
+      `<span class="d2ic">${isRest?'🛌':(SPORT_IC[sport]||'🏋️')}</span>`+
+      `<span class="d2nom">${cortaNombre(d.t)}</span>`+
+      `<span class="d2cif">${cifras}</span>${estado}`+
+      `</div></summary>`;
+
+    // --- El cuerpo, igual que antes ---
+    const stravaBadge=auto?`<span class="stravatag">✓ Garmin · ${auto.name||''}</span>`:'';
     const detail=auto?sessionDetailHtml(auto,ctx):'';
-    const objHtml=d.obj?`<div class="dobj">\ud83c\udfaf <b>Objetivo:</b> ${d.obj}</div>`:'';
+    const objHtml=d.obj?`<div class="dobj">🎯 <b>Objetivo:</b> ${d.obj}</div>`:'';
     const impDay=importedAll.filter(w=>w.date===ds);
-    const impHtml=impDay.length?`<div class="impday"><span class="planbadge">TP</span> ${impDay.map(w=>`<b>${w.name}</b>${w.duration_min?' \u00b7 '+w.duration_min+' min':''}`).join(' + ')}${impDay.some(w=>w.steps&&w.steps.length)?`<div class="wsteps" style="margin-top:6px">${impDay.flatMap(w=>w.steps||[]).slice(0,6).map(s=>`<span class="wstep">${s}</span>`).join('')}</div>`:''}</div>`:'';
+    const impHtml=impDay.length?`<div class="impday"><span class="planbadge">TP</span> ${impDay.map(w=>`<b>${w.name}</b>${w.duration_min?' · '+w.duration_min+' min':''}`).join(' + ')}</div>`:'';
     let restHtml='';
     if(isRest&&restOk){
       const pills=[];
-      if(wr.sleep!=null)pills.push(`\ud83d\udecf\ufe0f ${hm(wr.sleep)}`);
+      if(wr.sleep!=null)pills.push(`🛏️ ${hm(wr.sleep)}`);
       if(wr.hrv!=null)pills.push(`HRV ${wr.hrv}`);
       if(wr.bb!=null)pills.push(`BB ${wr.bb}`);
       else if(wr.readiness!=null)pills.push(`Ready ${wr.readiness}`);
       if(wr.restingHR!=null)pills.push(`FCrep ${wr.restingHR}`);
-      restHtml=`<div class="restrecov"><span class="rrh">\u2713 Descanso registrado</span>${pills.map(p=>`<span class="rrp">${p}</span>`).join('')}</div>`;
+      restHtml=`<div class="restrecov"><span class="rrh">✓ Descanso registrado</span>${pills.map(p=>`<span class="rrp">${p}</span>`).join('')}</div>`;
     }
-    // Sesiones no planeadas registradas ESE d\u00eda \u2192 integradas aqu\u00ed mismo.
-    const dayExtras=extra.filter(s=>s.date===ds);
-    const extraHtml=dayExtras.map(s=>`<div class="inlineextra"><div class="iehead"><span class="si">${SPORT_IC[s.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">\u26a1 Adicional \u00b7 no estaba en el plan</div></div><div class="sv">${distStr(s)||''}${(s.km&&s.min)?' \u00b7 ':''}${hhmm(s.min)||''}</div></div>${sessionDetailHtml(s,{longest:L[s.sport+'_km'],weight:wt})}</div>`).join('');
-    return `<div class="day ${isT?'is-today':''} ${ck?'checked':''} ${future?'is-future':''}" data-key="${key}" style="--c:${SPORT_COLOR[sportFromTag(d.tag)]||'var(--rest)'}"><div class="dtop"><span class="dname">${d.d}<span class="ddate">${dLabel}</span>${isT?' \u00b7 hoy':''}</span><button class="check">\u2713</button></div><div class="dttl">${d.t} ${d.tag}</div>${stravaBadge}${impHtml}${restHtml}${detail}<div class="ddetail">${d.detail}</div>${objHtml}<div class="dtip">\ud83d\udca1 ${d.tip}</div>${d.str?`<div class="dstr">\ud83d\udcaa ${d.str}</div>`:''}${d.strat?`<details class="dstrat"><summary>\ud83d\udccb Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}${extraHtml}</div>`;
+    const usados=new Set(auto?[auto.name+auto.date]:[]);
+    const extraHtml=delDia.filter(s=>!usados.has(s.name+s.date)).map(s=>`<div class="inlineextra"><div class="iehead"><span class="si">${SPORT_IC[s.sport]||'🏋️'}</span><div class="smain"><div class="sn">${s.name||s.sport}</div><div class="sd">${auto?'⚡ Adicional · no estaba en el plan':'Registrado en Garmin'}</div></div><div class="sv">${distStr(s)||''}${(s.km&&s.min)?' · ':''}${hhmm(s.min)||''}</div></div>${sessionDetailHtml(s,{longest:L[s.sport+'_km'],weight:wt})}</div>`).join('');
+
+    const cuerpo=`<div class="d2body">${stravaBadge}${impHtml}${restHtml}${detail}
+      <div class="ddetail">${d.detail||''}</div>${objHtml}
+      ${d.tip?`<div class="dtip">💡 ${d.tip}</div>`:''}
+      ${d.str?`<div class="dstr">💪 ${d.str}</div>`:''}
+      ${d.strat?`<details class="dstrat"><summary>📋 Ver estrategia de carrera completa</summary><div class="strat-body">${d.strat}</div></details>`:''}
+      ${extraHtml}</div>`;
+
+    return `<details class="day2 ${isT?'is-today':''} ${ck?'checked':''} ${future?'is-future':''} ${past&&!ck?'is-fallo':''}"
+      ${isT?'open':''} data-key="${key}" style="--c:${SPORT_COLOR[sport]||'var(--rest)'}">${sum}${cuerpo}</details>`;
   }).join('');
   document.getElementById('weekExtra').innerHTML='';
-  document.querySelectorAll('#weekDays .check').forEach(btn=>btn.onclick=async(ev)=>{ev.stopPropagation();const key=btn.closest('.day').dataset.key;const dn=await Store.get('week_done')||{};dn[key]=!dn[key];await Store.set('week_done',dn);renderWeek();renderTodayButtons();});
-  const total=WD.filter((d,i)=>done[selWeek+'-'+i]||autoDone[i]).length;
-  document.getElementById('weekProg').textContent=total+' / 7';
+  document.getElementById('weekProg').textContent=hechos+' / 7';
+  // Al abrir la pestaña, el día de hoy queda a la vista.
+  setTimeout(()=>{const t=document.querySelector('#weekDays .is-today');
+    if(t&&selWeek===currentWeekIdx())t.scrollIntoView({block:'nearest',behavior:'smooth'});},120);
 }
 
 
@@ -1190,12 +1286,7 @@ async function renderProgress(){
   const lastVol=volSeries.length?volSeries[volSeries.length-1].v:'—';
   set('vNow',lastVol);set('msVol',lastVol);set('msSleep',hm(sAvgDec));
 }
-let selFeel=null,selRpe=null;
 function wireLogInputs(){
-  const fr=document.getElementById('feelRow'),rr=document.getElementById('rpeRow');
-  if(rr&&!rr.children.length){for(let n=1;n<=10;n++){const b=document.createElement('button');b.className='rpe';b.dataset.v=n;b.textContent=n;rr.appendChild(b);}}
-  if(fr)fr.querySelectorAll('.feel').forEach(b=>b.onclick=()=>{selFeel=+b.dataset.v;fr.querySelectorAll('.feel').forEach(x=>x.classList.toggle('on',x===b));});
-  if(rr)rr.querySelectorAll('.rpe').forEach(b=>b.onclick=()=>{selRpe=+b.dataset.v;rr.querySelectorAll('.rpe').forEach(x=>x.classList.toggle('on',+x.dataset.v<=selRpe));});
   const sb=document.getElementById('saveLog');if(sb)sb.onclick=doSaveLog;
 }
 async function doSaveLog(){
@@ -1203,11 +1294,8 @@ async function doSaveLog(){
   const w=parseFloat(document.getElementById('inWeight').value);
   logs[k]=logs[k]||{};manual[k]=manual[k]||{};
   if(!isNaN(w)){logs[k].weight=w;manual[k].weight=true;}
-  if(selFeel!=null){logs[k].feel=selFeel;manual[k].feel=true;}
-  if(selRpe!=null){logs[k].rpe=selRpe;manual[k].rpe=true;}
   await Store.set('logs',logs);await Store.set('logs_manual',manual);
-  document.getElementById('inWeight').value='';selFeel=null;selRpe=null;
-  document.querySelectorAll('.feel,.rpe').forEach(x=>x.classList.remove('on'));
+  document.getElementById('inWeight').value='';
   try{await renderProgress();}catch(e){}
   try{await renderFeed();}catch(e){}
   try{await renderFormBoard();}catch(e){}
@@ -1885,6 +1973,7 @@ async function renderCapacity(){
   const ready=data.filter(d=>d.cur>=d.tgt).length;
   box.innerHTML=`<div style="font-size:11.5px;color:var(--mut);margin-bottom:12px;line-height:1.5">Tu distancia máxima frente a lo que exige el <b style="color:var(--ink)">IRONMAN 70.3</b>.</div>
     ${capacityRings(data)}
+    <div class="clegend"><span><i class="sw" style="background:var(--swim)"></i>Nado</span><span><i class="sw" style="background:var(--bike)"></i>Bici</span><span><i class="sw" style="background:var(--run)"></i>Carrera</span><span class="cnote">anillo completo = distancia del 70.3</span></div>
     ${ready>0?`<div class="vd ok" style="margin-top:12px"><b>${ready} de 3 disciplinas</b> ya alcanzan la distancia del 70.3.${data[2].cur<data[2].tgt?' La carrera es tu frontera: ahí está el trabajo por hacer.':''}</div>`:''}`;
 }
 
@@ -1902,7 +1991,8 @@ async function renderEfficiency(){
       <div class="eff-quad"><div class="eff-code" style="color:${col}">${e.quad.code}</div><div class="eff-t">${e.quad.t}</div></div>
     </div>
     <div class="eff-2"><div class="eff-cell"><div class="eff-cv" id="effComp">${compTxt}</div><div class="eff-cl">cumplimiento 8 sem</div></div><div class="eff-cell"><div class="eff-cv" style="color:${e.capChange>0?'var(--go)':e.capChange<0?'var(--caution)':'var(--ink)'}">${capTxt}</div><div class="eff-cl">cambio de capacidad</div></div></div>
-    ${e.comps.length?`<div class="eff-comp-bars">${e.comps.map(c=>{const v=Math.max(-25,Math.min(25,Math.round(c.d*100)));const w=Math.abs(v)/25*50;const pos=v>=0;return `<div class="ecb"><span class="ecb-l">${c.k}</span><div class="ecb-track"><i class="ecb-fill ${pos?'pos':'neg'}" style="width:${w}%;${pos?'left:50%':'right:50%'}"></i><span class="ecb-mid"></span></div><span class="ecb-v ${pos?'pos':'neg'}">${v>0?'+':''}${v}%</span></div>`;}).join('')}</div>`:''}`;
+    ${e.comps.length?`<div class="eff-comp-bars">${e.comps.map(c=>{const v=Math.max(-25,Math.min(25,Math.round(c.d*100)));const w=Math.abs(v)/25*50;const pos=v>=0;return `<div class="ecb"><span class="ecb-l">${c.k}</span><div class="ecb-track"><i class="ecb-fill ${pos?'pos':'neg'}" style="width:${w}%;${pos?'left:50%':'right:50%'}"></i><span class="ecb-mid"></span></div><span class="ecb-v ${pos?'pos':'neg'}">${v>0?'+':''}${v}%</span></div>`;}).join('')}</div>`:''}
+    <div class="clegend"><span><i class="sw" style="background:var(--go)"></i>mejora</span><span><i class="sw" style="background:var(--caution)"></i>retroceso</span><span class="cnote">frente a las 8 semanas previas</span></div>`;
 }
 
 // --- Banco de trabajo acumulado ---
@@ -1948,7 +2038,14 @@ async function renderTrail(){
   const done=!!p.done||selPhase<cur, isCur=selPhase===cur;
   const estado=done?'CUMPLIDA':(isCur?'EN CURSO':'PENDIENTE');
   const estCol=done?'var(--go)':(isCur?'var(--run)':'var(--faint)');
-  const prog=done?100:(isCur?42:0);
+  // Progreso real de la fase, calculado con sus fechas, no con un numero fijo.
+  let prog=done?100:0;
+  if(isCur){
+    const fc=FASE_CAL.find(f=>f.n===p.n);
+    if(fc){const a=parse(fc.from),b=parse(fc.to);
+      prog=Math.max(2,Math.min(100,Math.round(((today()-a)/(b-a))*100)));}
+    else prog=42;
+  }
 
   let ratioHtml='';
   const m=p.ratio&&String(p.ratio).match(/(\d+)\s*\/\s*(\d+)/);
@@ -2494,6 +2591,60 @@ async function renderMontana(){
     </div>`;
 }
 
+// ===== RIESGOS MEDIDOS =====
+// Antes eran dos tarjetas de texto fijo que decian lo mismo cada dia. Ahora cada
+// riesgo es un medidor alimentado por tus datos reales, y cambia cuando tu cambias.
+async function renderRiesgos(){
+  const box=document.getElementById('riesgos'); if(!box)return;
+  const w=wellAsc(await getWell());
+  const ses=(await Store.get('strava_sessions'))||[];
+  const ult=k=>{for(let i=w.length-1;i>=0;i--){if(w[i][k]!=null)return w[i][k];}return null;};
+  const media=(k,n)=>{const v=w.slice(-n).map(x=>x[k]).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;};
+
+  const ctl=ult('ctl'), atl=ult('atl'), tsb=ult('form');
+  const ratio=(ctl&&atl)?atl/ctl:null;
+  const sueno=media('sleep',7);
+
+  // --- Riesgo 1: fatiga acumulada (lo que termina los proyectos de Ironman) ---
+  let f=0; const fWhy=[];
+  if(sueno!=null){ const d=Math.max(0,7.5-sueno); f+=Math.min(40,d*26); if(d>0.4)fWhy.push(`duermes ${hm(sueno)} de 7,5 h`); }
+  if(ratio!=null){ const d=Math.max(0,ratio-1.0); f+=Math.min(35,d*90); if(ratio>1.15)fWhy.push(`ratio de carga ${ratio.toFixed(2)}`); }
+  if(tsb!=null){ const d=Math.max(0,-tsb-10); f+=Math.min(25,d*1.3); if(tsb<-15)fWhy.push(`forma ${Math.round(tsb)}`); }
+  f=Math.round(Math.min(100,f));
+
+  // --- Riesgo 2: lesion por acelerar (se mide en el salto de carga de carrera) ---
+  const hace7=fmtLocal(new Date(today().getTime()-7*MS));
+  const hace35=fmtLocal(new Date(today().getTime()-35*MS));
+  const kmSem=d=>ses.filter(s=>s.sport==='run'&&s.date>d).reduce((a,s)=>a+(+s.km||0),0);
+  const km7=kmSem(hace7);
+  const km28prom=ses.filter(s=>s.sport==='run'&&s.date>hace35&&s.date<=hace7).reduce((a,s)=>a+(+s.km||0),0)/4;
+  const salto=km28prom>3?(km7/km28prom):null;
+  let l=0; const lWhy=[];
+  if(salto!=null){ const d=Math.max(0,salto-1.0); l+=Math.min(55,d*110); if(salto>1.15)lWhy.push(`carrera +${Math.round((salto-1)*100)}% sobre tu media de 4 semanas`); }
+  if(ratio!=null){ l+=Math.min(30,Math.max(0,ratio-1.1)*100); }
+  if(sueno!=null&&sueno<6.8){ l+=15; lWhy.push('poco sueño reduce la reparación del tejido'); }
+  l=Math.round(Math.min(100,l));
+
+  const nivel=v=>v<34?{t:'BAJO',c:'var(--go)'}:v<67?{t:'MEDIO',c:'var(--caution)'}:{t:'ALTO',c:'var(--stop)'};
+  const medidor=(titulo,v,why,escudo)=>{
+    const n=nivel(v);
+    return `<div class="rg">
+      <div class="rg-top"><span class="rg-t">${titulo}</span><span class="rg-n" style="color:${n.c}">${n.t}</span></div>
+      <div class="rg-track"><i style="width:${v}%;background:${n.c}"></i>
+        <span class="rg-m" style="left:34%"></span><span class="rg-m" style="left:67%"></span></div>
+      <div class="rg-why">${why.length?why.join(' · '):'Sin señales de alerta ahora mismo.'}</div>
+      <details class="rg-d"><summary>Qué hacer</summary><p>${escudo}</p></details>
+    </div>`;
+  };
+
+  box.innerHTML=
+    medidor('😴 Fatiga y abandono', f, fWhy,
+      'El plan vive dentro de tus horas reales, no dentro de las ideales. Dormir 7,5 h rinde más que cualquier sesión extra: acostarte 45 minutos antes es la intervención con mejor retorno que tienes disponible. En semanas difíciles, modo viaje en vez de cero.')+
+    medidor('🤕 Lesión por acelerar', l, lWhy,
+      'La progresión lenta manda, sobre todo en carrera, que es donde está el impacto. Ninguna semana sube más de un 10% sobre la anterior — el motor del plan ya lo aplica solo. Si el semáforo marca amarillo, aflojar a tiempo ES ejecutar el plan, no incumplirlo.')+
+    `<div class="clegend"><span><i class="sw" style="background:var(--go)"></i>bajo</span><span><i class="sw" style="background:var(--caution)"></i>medio</span><span><i class="sw" style="background:var(--stop)"></i>alto</span><span class="cnote">calculado con tus datos de hoy</span></div>`;
+}
+
 async function renderRuta(){
   await renderMontana();
   await renderMission();
@@ -2506,6 +2657,7 @@ async function renderRuta(){
   await renderEfficiency();
   await renderBank();
   await renderTrail();
+  await renderRiesgos();
 }
 
 
@@ -3275,7 +3427,6 @@ function wireUpd(){
   await step('progreso',renderProgress);
   await step('sesiones',renderSessions);
   await step('calibracion',renderCalibration);
-  await step('checks',renderChecks);
   await step('marcas',renderBench);
   await step('competencias',renderCustomRaces);
   await step('formulario',wireRaceForm);
