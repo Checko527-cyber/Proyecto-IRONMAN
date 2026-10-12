@@ -388,7 +388,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1100">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1100</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1101">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1101</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -650,9 +650,9 @@ const RACE_STRAT_5150='<h5>2 días antes</h5><p>Sube carbohidratos, hidrátate, 
 const FASE_CAL=[
   {n:"FASE 1",from:"2026-06-01",to:"2026-07-26",vol:[6,8],    bikeL:[60,90],  runL:[80,130],foco:"run"},
   {n:"FASE 2",from:"2026-07-27",to:"2026-09-06",vol:[4,7],    bikeL:[90,120], runL:[45,75], foco:"tri"},
-  {n:"FASE 3",from:"2026-09-07",to:"2026-11-08",vol:[8,10.5], bikeL:[120,195],runL:[80,160],foco:"run"},
-  {n:"FASE 4",from:"2026-11-09",to:"2027-01-31",vol:[9,11],   bikeL:[150,240],runL:[70,110],foco:"base"},
-  {n:"FASE 5",from:"2027-02-01",to:"2027-05-30",vol:[10,13],  bikeL:[180,300],runL:[80,135],foco:"tri"},
+  {n:"FASE 3",from:"2026-09-07",to:"2026-11-08",vol:[9.5,11.5], bikeL:[120,195],runL:[80,160],foco:"run"},
+  {n:"FASE 4",from:"2026-11-09",to:"2027-01-31",vol:[10,12],  bikeL:[150,240],runL:[70,110],foco:"base"},
+  {n:"FASE 5",from:"2027-02-01",to:"2027-05-30",vol:[11,13.5],bikeL:[180,300],runL:[80,135],foco:"tri"},
   {n:"FASE 6",from:"2027-05-31",to:"2027-12-31",vol:[11,13],  bikeL:[210,330],runL:[90,150],foco:"base"},
   {n:"FASE 7",from:"2028-01-01",to:"2028-12-31",vol:[12,14],  bikeL:[240,390],runL:[100,170],foco:"im"},
   {n:"FASE 8",from:"2029-01-01",to:"2029-12-31",vol:[14,16],  bikeL:[300,420],runL:[110,180],foco:"ultra"},
@@ -736,6 +736,20 @@ function sFuerza(dia,min,cual){
     obj:"Tu seguro antilesión. Es lo que te permitirá sostener 12-14 h semanales en 2028 sin romperte.",
     tip:"En casa, con lo que tengas: mochila cargada o bandas. La progresión es añadir repeticiones, no peso.",
     str:cual==="A"?STR_A:STR_B};
+}
+
+// Doble sesion: nado por la mañana + la sesion principal por la tarde.
+// Es como ya entrenas: tus semanas 40 y 41 tienen 5 nados y varios dias dobles.
+function conNadoAM(day,min){
+  const pm=day.dmin||0;
+  return Object.assign({},day,{
+    t:"Nado AM "+durTxt(min)+" + "+day.t,
+    dmin:pm+min,
+    doble:true,
+    detail:"<b>AM · "+durTxt(min)+":</b> 300 m calentamiento + 8×100 m a ritmo cómodo con 20 s de pausa + 200 m suelta.<br>"+
+           "<b>PM · "+durTxt(pm)+":</b> "+(day.detail||""),
+    tip:"El nado de la mañana no debe comprometer la sesión de la tarde: si llegas cansado a la tarde, el nado fue demasiado fuerte."
+  });
 }
 function sDescanso(dia,texto){
   return {d:dia,t:texto||"Descanso",tag:'<span class="tag t-rest">Off</span>',dmin:0,
@@ -827,9 +841,15 @@ function generarPlan(atras,adelante){
       (esTri&&semFase%2===1) ? sBrick(DOW_N[6],r5(bikeL*0.55),r5(runL*0.6),fase)
                              : sCorreLargo(DOW_N[6],runL,fase,tipo)
     ];
+    // En semanas de carga, dos dias llevan nado de mañana: asi el volumen de
+    // nado queda en ~200 min/sem, que es lo que de verdad haces.
+    if(tipo==="carga"){ const nAM=r5(45*mult); days[1]=conNadoAM(days[1],nAM); days[2]=conNadoAM(days[2],nAM); }
     if(raceIn) days=aplicarCarrera(days,raceIn,fase);
     else if(recien){
-      days[0]=sDescanso(DOW_N[0],"Descanso post-"+recien.name.split(" ")[0]);
+      // Nadar suave descarga mejor que no hacer nada, y es tu habito diario.
+      days[0]=sNado(DOW_N[0],40,"suave");
+      days[0].t="Nado regenerativo 40 min";
+      days[0].obj="Recuperación activa tras "+recien.name+". Sin impacto, moviliza las piernas y acelera la limpieza muscular.";
       days[1]=sCorreCalidad(DOW_N[1],r5(corto*0.8),fase,"descarga");
     }
     // Regla del 10%: ninguna semana sube mas de un 10% sobre la anterior.
