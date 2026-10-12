@@ -313,6 +313,74 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .savetoast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;padding:8px 15px;border-radius:8px;z-index:60;transition:.22s;pointer-events:none}
 .savetoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== LA RUTA · mapa de montaña ===== */
+.mt-wrap{position:relative;margin:0 0 18px;border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(180deg,rgba(47,217,138,.055),rgba(19,24,34,.92) 58%,var(--surf));
+  overflow:hidden}
+.mt-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:14px 16px 2px}
+.mt-tit{font-family:Archivo,system-ui,sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+.mt-sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);white-space:nowrap}
+.mt-svg{padding:2px 4px 0}
+.mt-svg svg{display:block;width:100%;height:auto}
+.mt-leg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:4px 16px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint)}
+.mt-leg span{display:inline-flex;align-items:center;gap:5px}
+.mt-leg .sw{width:13px;height:3px;border-radius:2px;flex:0 0 auto}
+.mt-leg .sw-go{background:var(--go)}
+.mt-leg .sw-pr{background:linear-gradient(90deg,var(--bike),var(--ink));opacity:.75}
+.mt-leg .sw-cp{width:8px;height:8px;border-radius:50%;background:var(--surf);border:1.6px solid var(--mut)}
+.mt-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:12px 0 0;
+  background:var(--line);border-top:1px solid var(--line)}
+.mt-n{background:var(--surf);padding:11px 8px;text-align:center}
+.mt-v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.mt-l{font-size:9.5px;color:var(--faint);margin-top:5px;letter-spacing:.04em;text-transform:uppercase}
+.mt-det{border-top:1px solid var(--line);background:var(--surf)}
+.mt-det summary{cursor:pointer;padding:11px 16px;font-size:11.5px;color:var(--mut);list-style:none}
+.mt-det summary::-webkit-details-marker{display:none}
+.mt-det summary::after{content:' ＋';color:var(--faint)}
+.mt-det[open] summary::after{content:' −'}
+.mt-det p{margin:0;padding:0 16px 14px;font-size:12.5px;line-height:1.55;color:var(--mut)}
+@media(max-width:360px){.mt-v{font-size:21px}.mt-tit{font-size:17px}}
+
+/* ===== PANTALLA DE HOY: estado + entreno ajustado ===== */
+.hoy{position:relative;border:1px solid var(--line);border-radius:18px;background:var(--surf);
+  overflow:hidden;margin:0 0 16px}
+.hoy::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--hc)}
+.hoy-estado{display:flex;align-items:center;gap:10px;padding:15px 16px 11px}
+.hoy-dot{width:11px;height:11px;border-radius:50%;background:var(--hc);flex:0 0 auto;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--hc) 22%,transparent)}
+.hoy-vd{font-family:Archivo,system-ui,sans-serif;font-size:15px;font-weight:800;letter-spacing:.06em;color:var(--hc);flex:1}
+.hoy-sc{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;line-height:1;color:var(--ink)}
+.hoy-sc small{font-size:11px;color:var(--faint);font-weight:400}
+.hoy-senales{padding:0 16px 14px;display:flex;flex-direction:column;gap:7px}
+.sg{display:grid;grid-template-columns:48px 1fr 56px;align-items:center;gap:9px}
+.sg-l{font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase}
+.sg-t{height:6px;border-radius:3px;background:var(--raise);overflow:hidden}
+.sg-f{height:100%;border-radius:3px;transition:width .4s ease}
+.sg-v{font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;text-align:right}
+.hoy-sep{height:1px;background:var(--line)}
+.hoy-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:13px 16px 0}
+.hoy-lbl{font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--faint)}
+.hoy-sem{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint);text-align:right}
+.hoy-tit{display:flex;align-items:flex-start;gap:9px;padding:7px 16px 0;
+  font-family:Archivo,system-ui,sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;
+  line-height:1.2;color:var(--ink)}
+.hoy-ic{font-size:21px;line-height:1.05;flex:0 0 auto}
+.hoy-det{padding:9px 16px 0;font-size:13px;line-height:1.5;color:var(--mut)}
+.hoy-why{padding:10px 16px 0;font-size:12.5px;line-height:1.5;color:var(--mut)}
+.hoy-why b{color:var(--ink)}
+.hoy-orig{margin:11px 16px 0;padding:8px 11px;border-radius:9px;background:var(--raise);
+  font-size:11.5px;color:var(--mut)}
+.hoy-orig b{color:var(--ink)}
+.hoy-mot{margin:9px 0 0;padding:0 16px 0 32px;font-size:12px;line-height:1.55;color:var(--mut)}
+.hoy-mot li{margin:3px 0}
+.hoy-ok{margin:12px 0 0;padding:10px 16px;background:color-mix(in srgb,var(--go) 11%,transparent);
+  border-top:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--go)}
+.hoy>:last-child{margin-bottom:0}
+.hoy-why:last-child,.hoy-det:last-child,.hoy-mot:last-child{padding-bottom:15px}
+.zwarn{border:1px solid var(--caution)!important;border-radius:11px;margin-top:12px}
+.zwarn summary{color:var(--caution)}
 </style>
 </head>
 <body>
@@ -320,7 +388,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1011">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1011</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1100">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1100</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -426,6 +494,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div class="view" id="v-ruta">
     <div class="aurora-bg"></div>
     <div id="reviewBanner"></div>
+    <div id="montana"></div>
     <div id="missionHero"></div>
     <div id="raceHero"></div>
     <div id="recoBox"></div>
@@ -479,12 +548,12 @@ const Store={mem:{},
 const toast=(m)=>{const t=document.getElementById('toast');t.textContent=m||'Guardado ✓';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)};
 
 const RACES=[
-  {name:"Media Maratón de Bogotá",date:"2026-07-26",tag:'<span class="tag t-run">21K</span>',meta:"Tu pico de carrera. A 2.600 m — pacea por esfuerzo, no por ritmo."},
-  {name:"5150 Cartagena",date:"2026-09-06",tag:'<span class="tag t-tri">Tri olímpico</span>',meta:"1.5 km nado · 40 km bici · 10 km carrera. Tu estreno encadenando las tres."},
-  {name:"Allianz 15K Bogotá",date:"2026-10-18",tag:'<span class="tag t-run">15K</span>',meta:"Velocidad y umbral a 2.600 m. Primera de las dos de ruta del cierre."},
-  {name:"Split Adidas 28K",date:"2026-11-08",tag:'<span class="tag t-run">28K</span>',meta:"Tu carrera a pie más larga hasta la fecha: 6,4 km por encima de la media maratón. Ritmo de fondo, nutrición en marcha."},
-  {name:"IRONMAN 70.3 Victoria",date:"2027-05-30",tag:'<span class="tag t-tri">Medio IRONMAN</span>',meta:"Vancouver, Canadá. 1.9 km nado · 90 km bici · 21.1 km carrera. Inscripción confirmada. Ensayo general del IRONMAN."},
-  {name:"IRONMAN completo",date:"2028-06-01",approx:true,summit:true,tag:'<span class="tag" style="background:var(--bike);color:#10141d">META 2028</span>',meta:"Tu destino final. Ventana objetivo: 2028. Fecha exacta a definir tras Victoria."}
+  {name:"Media Maratón de Bogotá",date:"2026-07-26",prio:"B",dmin:134,corto:"21K",exig:45,tag:'<span class="tag t-run">21K</span>',meta:"Tu pico de carrera. A 2.600 m — pacea por esfuerzo, no por ritmo."},
+  {name:"5150 Cartagena",date:"2026-09-06",prio:"B",dmin:190,corto:"5150",exig:52,tag:'<span class="tag t-tri">Tri olímpico</span>',meta:"1.5 km nado · 40 km bici · 10 km carrera. Tu estreno encadenando las tres."},
+  {name:"Allianz 15K Bogotá",date:"2026-10-18",prio:"C",test:true,dmin:85,corto:"15K",exig:48,tag:'<span class="tag t-run">15K</span>',meta:"Velocidad y umbral a 2.600 m. Primera de las dos de ruta del cierre."},
+  {name:"Split Adidas 28K",date:"2026-11-08",prio:"B",dmin:175,corto:"28K",exig:60,tag:'<span class="tag t-run">28K</span>',meta:"Tu carrera a pie más larga hasta la fecha: 6,4 km por encima de la media maratón. Ritmo de fondo, nutrición en marcha."},
+  {name:"IRONMAN 70.3 Victoria",date:"2027-05-30",prio:"A",dmin:390,corto:"70.3",exig:78,tag:'<span class="tag t-tri">Medio IRONMAN</span>',meta:"Vancouver, Canadá. 1.9 km nado · 90 km bici · 21.1 km carrera. Inscripción confirmada. Ensayo general del IRONMAN."},
+  {name:"IRONMAN completo",date:"2028-06-01",prio:"A",dmin:800,corto:"IRONMAN",exig:100,approx:true,summit:true,tag:'<span class="tag" style="background:var(--bike);color:#10141d">META 2028</span>',meta:"Tu destino final. Ventana objetivo: 2028. Fecha exacta a definir tras Victoria."}
 ];
 
 const PHASES=[
@@ -565,74 +634,239 @@ const RACE_STRAT='<h5>2 días antes</h5><p>Sube un poco los carbohidratos, hidr�
 
 const RACE_STRAT_5150='<h5>2 días antes</h5><p>Sube carbohidratos, hidrátate, prioriza el sueño. No estrenes NADA (comida, gafas, ropa). Revisa la bici: frenos, cambios, presión de llantas. Deja todo el material listo.</p>'+'<h5>La mañana</h5><p>Despierta 3 h antes. Desayuna 2.5–3 h antes: carbohidratos fáciles, poca grasa y fibra. Llega temprano a montar la transición: ordena tu material (casco, gafas, zapatillas) como lo ensayaste.</p>'+'<h5>Nado · 1.5 km</h5><p>Sal CONSERVADOR. La adrenalina y el pelotón te harán arrancar rápido — resiste. Ubícate a un lado o atrás para evitar el caos. Es tu fortaleza, no la quemes en los primeros 300 m. Levanta la vista cada 6-8 brazadas para no desviarte.</p>'+'<h5>Transición 1</h5><p>Sin prisa torpe: sal del agua, baja el wetsuit hasta la cintura mientras corres. Casco ANTES de tocar la bici (regla obligatoria). Respira: las prisas cuestan penalizaciones.</p>'+'<h5>Bici · 40 km</h5><p>Tu mayor margen. Rueda a ritmo Z3 sostenible, el de los bricks. Come e hidrata AQUÍ, que es donde puedes: un gel a la mitad, sorbos constantes. No te vacíes, aún queda correr. Cadencia alta para llegar con piernas.</p>'+'<h5>Transición 2 y carrera · 10 km</h5><p>Los primeros 800 m las piernas serán de gelatina — lo entrenaste, sabes que pasa. Acorta la zancada, sube la cadencia, y el ritmo llega. Sal controlado y aprieta en la segunda mitad si el cuerpo responde. Los últimos 2 km son tuyos.</p>'+'<h5>La cabeza</h5><p>Es tu PRIMER triatlón: la meta es cruzar entero y aprender, no un tiempo. Cada transición es nueva, cada disciplina un logro. Divídelo en las tres partes y celebra cada una. Es el estreno de lo que viniste a construir.</p>';
 
-const PLAN_WEEKS=[
- {label:"Sem 1",sub:"27 jul – 2 ago",focus:"Recuperación 21K",vol:"~4 h",start:"2026-07-27",end:"2026-08-02",
-  note:"<b>Foco:</b> recuperar de la Media Maratón. Nada de intensidad — tu cuerpo corrió 21 km y necesita reconstruir. Volumen bajo, todo suave. El nado es tu mejor recuperación activa.",
-  days:[
-   {d:"Lun",t:"Descanso total",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo completo o caminata ligera 20 min. Estira suave, hidrata, come proteína.",obj:"Dar al cuerpo el descanso que exige tras 21 km. La recuperación es donde ocurre la mejora.",tip:"Sin culpa. Hoy descansar ES entrenar."},
-   {d:"Mar",t:"Natación suave 45 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Nado continuo y relajado, técnica. Sin series. Foco en rolido y respiración bilateral.",obj:"Recuperación activa: el agua descarga las piernas sin impacto. Tu fortaleza mantiene ritmo sin coste.",tip:"Disfruta el agua. Nada por sensación, no por reloj."},
-   {d:"Mié",t:"Bici rodillo 40 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Suave en Z2, cadencia alta (90+), sin fuerza. Regenerativo.",obj:"Mover sangre a las piernas para acelerar la recuperación muscular. Cero fatiga añadida.",tip:"Si las piernas pesan, para en 30 min."},
-   {d:"Jue",t:"Descanso o caminata",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Si te sientes bien, caminata 30 min sin más.",obj:"Seguir absorbiendo la carga de la carrera.",tip:"Escucha al cuerpo — aún estás recuperando."},
-   {d:"Vie",t:"Natación 50 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Aeróbico continuo suave + algo de técnica. Sin esfuerzos duros.",obj:"Mantener el contacto con el agua de cara a los bricks del 5150.",tip:"Relaja hombros y cuello."},
-   {d:"Sáb",t:"Trote MUY suave 20-30 min",tag:'<span class="tag t-run">Run</span>',detail:"Primer trote post-21K. MUY suave, solo para probar sensaciones. Si algo molesta en rodilla o tobillo, para y camina.",obj:"Test de recuperación: ver cómo responden las piernas. No es entrenamiento, es diagnóstico.",tip:"Si duele, caminar. No hay premio por forzar hoy."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo real. Duerme largo.",obj:"Cerrar la semana de recuperación listo para construir.",tip:"El sueño de esta semana define cómo arrancas el bloque de Cartagena."}
-  ]},
- {label:"Sem 2",sub:"3 – 9 ago",focus:"Vuelta a la carga",vol:"~5.5 h",start:"2026-08-03",end:"2026-08-09",
-  note:"<b>Foco:</b> retomar el ritmo con las tres disciplinas y girar hacia la bici, tu mayor margen para el 5150. Reaparece algo de intensidad, con cabeza.",
-  days:[
-   {d:"Lun",t:"Bici rodillo 50 min",tag:'<span class="tag t-bike">Bici</span>',detail:"10 min calent + 35 min Z2 + 4 aceleraciones de 20 s a cadencia alta + 5 min suelta.",obj:"Reconstruir base de bici. Priorizamos tu disciplina de mayor margen.",tip:"Cadencia fluida, sin machacar.",str:STR_A},
-   {d:"Mar",t:"Natación 1h",tag:'<span class="tag t-swim">Nado</span>',detail:"Calent + 6×100 a ritmo cómodo con 20 s descanso + suelta. Empieza técnica de aguas abiertas.",obj:"Volver al trabajo estructurado en tu fortaleza. El 5150 nada 1.5 km, muy dentro de tu rango.",tip:"Practica levantar la vista (sightear) para aguas abiertas."},
-   {d:"Mié",t:"Trote 35 min Z2",tag:'<span class="tag t-run">Run</span>',detail:"Trote continuo aeróbico, ritmo conversado. Sin series todavía.",obj:"Reintroducir la carrera con suavidad tras la 21K. Cuidamos rodillas y tobillos.",tip:"Si las piernas responden bien, la recuperación funcionó."},
-   {d:"Jue",t:"Natación 50 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave + movilidad de hombros. Descarga.",obj:"Recuperación activa entre días de carga.",tip:"Rango sin dolor en hombro izquierdo."},
-   {d:"Vie",t:"Fuerza + core 30 min",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza B: core, glúteos, estabilidad. Tu seguro antilesión.",obj:"Blindar articulaciones de cara al aumento de carga en bici y carrera.",tip:"Activa glúteos: protegen rodillas.",str:STR_B},
-   {d:"Sáb",t:"Bici 1h30 fondo",tag:'<span class="tag t-bike">Bici</span>',detail:"Salida en Z2 de 1h30, terreno mixto. Practica nutrición e hidratación de bici.",obj:"Primer fondo de bici del bloque. Construye la resistencia para los 40 km del 5150.",tip:"Come e hidrata como en carrera — ensaya el estómago."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo o caminata. Proteína e hidratación.",obj:"Absorber la primera semana de vuelta a la carga.",tip:"Si el Body Battery viene bajo, duerme hasta tarde."}
-  ]},
- {label:"Sem 3",sub:"10 – 16 ago",focus:"Bricks + ritmo",vol:"~6 h",start:"2026-08-10",end:"2026-08-16",
-  note:"<b>Foco:</b> el brick (bici→carrera encadenados), la sesión clave del triatlón. Enseña a las piernas a correr después de pedalear. Aquí empieza lo específico del 5150.",
-  days:[
-   {d:"Lun",t:"Bici rodillo 55 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Calent + 3×6 min en Z3 (ritmo olímpico) con 3 min suave + suelta.",obj:"Trabajar la intensidad a la que rodarás en Cartagena. Ritmo sostenible pero exigente.",tip:"Z3 es cómodamente duro: hablas en frases cortas.",str:STR_A},
-   {d:"Mar",t:"Natación 1h",tag:'<span class="tag t-swim">Nado</span>',detail:"Calent + 8×100 progresivos + 200 continuo simulando salida. Técnica aguas abiertas.",obj:"Resistencia y ritmo de nado. Simula el arranque del 5150.",tip:"Practica arrancar fuerte y estabilizar, como en carrera."},
-   {d:"Mié",t:"🔗 BRICK bici+trote",tag:'<span class="tag t-brick">Brick</span>',detail:"45 min bici Z2-Z3 + INMEDIATO 15 min trote. La transición sin pausa es la clave.",obj:"La sesión estrella del triatlón: enseña a correr con piernas de bici. Esas piernas de gelatina se entrenan.",tip:"Los primeros 5 min de trote se sienten raros — es normal, sigue."},
-   {d:"Jue",t:"Natación 45 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave, recuperación. Movilidad.",obj:"Descargar del brick.",tip:"Nada relajado."},
-   {d:"Vie",t:"Fuerza 30 min",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza A: tren inferior + estabilidad.",obj:"Mantener durabilidad mientras sube la carga específica.",tip:"Carga moderada, técnica primero.",str:STR_A},
-   {d:"Sáb",t:"Bici 1h45 fondo",tag:'<span class="tag t-bike">Bici</span>',detail:"Z2 con 3×8 min en Z3 intercalados. Nutrición completa de carrera.",obj:"Fondo con toques de ritmo. Acostumbra al cuerpo a los 40 km con calidad.",tip:"Bebe cada 15-20 min, come cada 45 min."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Duerme largo.",obj:"Recuperar del pico de carga semanal.",tip:"Semana exigente hecha — descansa sin culpa."}
-  ]},
- {label:"Sem 4",sub:"17 – 23 ago",focus:"Pico de volumen",vol:"~6.5 h",start:"2026-08-17",end:"2026-08-23",
-  note:"<b>Foco:</b> la semana más exigente del bloque. Brick largo y simulacro de las distancias del 5150. Cuida sueño y comida post-entreno como nunca.",
-  days:[
-   {d:"Lun",t:"Bici rodillo 55 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Calent + 4×5 min Z3 con 3 min suave + suelta.",obj:"Mantener la potencia en ritmo olímpico.",tip:"Cadencia alta en los intervalos.",str:STR_A},
-   {d:"Mar",t:"Natación 1h10",tag:'<span class="tag t-swim">Nado</span>',detail:"Simulacro: 1.500 m continuos (la distancia del 5150) a ritmo de carrera + técnica.",obj:"Confirmar que la distancia de nado del 5150 la tienes dominada. Confianza para el día.",tip:"Cronométrate: sabrás tu tiempo real de nado en Cartagena."},
-   {d:"Mié",t:"🔗 BRICK largo",tag:'<span class="tag t-brick">Brick</span>',detail:"1h bici Z2-Z3 + 20 min trote a ritmo objetivo. El ensayo grande.",obj:"Simular la fatiga acumulada del 5150. La transición larga es el examen.",tip:"El trote debe ser a ritmo de carrera, no de paseo."},
-   {d:"Jue",t:"Natación 50 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave + movilidad. Recuperación.",obj:"Descargar del brick largo.",tip:"Relaja."},
-   {d:"Vie",t:"Fuerza 25 min",tag:'<span class="tag t-str">Fuerza</span>',detail:"Fuerza B ligera: core e hips. Baja una serie si vienes cargado.",obj:"Mantener sin fatigar antes del fondo.",tip:"Mañana es día grande de bici.",str:STR_B},
-   {d:"Sáb",t:"Bici 2h + trote 15 min",tag:'<span class="tag t-brick">Brick</span>',detail:"2h de bici en Z2 (pico del bloque) + 15 min trote de transición. Nutrición completa.",obj:"El fondo más largo del bloque. Prepara el cuerpo para el esfuerzo total del 5150.",tip:"Este es tu ensayo general de energía y estómago."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo real. Proteína, hidratación, sueño.",obj:"Absorber el pico de carga.",tip:"Body Battery bajo = duerme hasta tarde."}
-  ]},
- {label:"Sem 5",sub:"24 – 30 ago",focus:"Afinamiento",vol:"~5 h",start:"2026-08-24",end:"2026-08-30",
-  note:"<b>Foco:</b> empieza el taper. Bajamos volumen pero mantenemos intensidad. Sentirás las piernas con ganas — buena señal, no la desperdicies entrenando de más.",
-  days:[
-   {d:"Lun",t:"Bici rodillo 45 min",tag:'<span class="tag t-bike">Bici</span>',detail:"Suave + 3×1 min Z3 para mantener el motor. Regenerativo.",obj:"Menos volumen, motor encendido.",tip:"No busques fatiga."},
-   {d:"Mar",t:"Natación 55 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Calent + 5×100 a ritmo carrera + suelta. Mantén sensaciones.",obj:"Afinar el nado sin cargar.",tip:"Velocidad sí, volumen no."},
-   {d:"Mié",t:"🔗 Brick corto",tag:'<span class="tag t-brick">Brick</span>',detail:"30 min bici + 10 min trote, ambos con 5 min a ritmo objetivo. Recordatorio de la transición.",obj:"Mantener la mecánica del brick fresca sin fatigar.",tip:"Corto y de calidad."},
-   {d:"Jue",t:"Natación 40 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave, descanso activo.",obj:"Recuperación.",tip:"Escucha al cuerpo."},
-   {d:"Vie",t:"Descanso o trote 20 min",tag:'<span class="tag t-rest">Off</span>',detail:"Descanso, o trote muy suave si lo necesitas.",obj:"Frescura.",tip:"Si el HRV está bajo, descansa sin dudar."},
-   {d:"Sáb",t:"Bici 1h + trote 10 min",tag:'<span class="tag t-brick">Brick</span>',detail:"1h bici cómoda + 10 min trote, con los últimos minutos a ritmo objetivo.",obj:"Último brick antes de Cartagena. Sensaciones, no números.",tip:"Termina con ganas de más."},
-   {d:"Dom",t:"Descanso",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Prioriza sueño.",obj:"Cargar para la semana de carrera.",tip:"El cuerpo se recarga para el gran día."}
-  ]},
- {label:"Sem 6",sub:"31 ago – 6 sep",focus:"Semana 5150 🏁",vol:"~3 h",start:"2026-08-31",end:"2026-09-06",
-  note:"<b>Foco:</b> llegar fresco y confiado a tu primer triatlón. Volumen mínimo, toques de las tres disciplinas. Regla de oro: <b>nada nuevo</b>. La forma ya está hecha.",
-  days:[
-   {d:"Lun",t:"Natación 30 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Suave, relajante. Siente el agua.",obj:"Afloja cuerpo y mente.",tip:"Sin esfuerzo."},
-   {d:"Mar",t:"Bici 40 min + trote 10 min",tag:'<span class="tag t-brick">Brick</span>',detail:"Bici suave + 4 aceleraciones de 30 s a ritmo carrera + 10 min trote con 3 toques de 20 s a ritmo objetivo.",obj:"Despertar las piernas sin fatigarlas. Recordar las tres velocidades.",tip:"Toques cortos, nada largo."},
-   {d:"Mié",t:"Natación 25 min",tag:'<span class="tag t-swim">Nado</span>',detail:"Muy suave. Repasa técnica de aguas abiertas.",obj:"Contacto final con el agua.",tip:"Relaja."},
-   {d:"Jue",t:"Trote 25 min + ritmo",tag:'<span class="tag t-run">Run</span>',detail:"20 min suave + 3×100 m a ritmo de carrera.",obj:"Último recordatorio de velocidad.",tip:"Piernas frescas."},
-   {d:"Vie",t:"Descanso + prep",tag:'<span class="tag t-rest">Off</span>',detail:"Reposo. Revisa material: bici, wetsuit, gafas, gorro, dorsal, nutrición. Deja TODO listo.",obj:"Llegar sin estrés logístico. La cabeza tranquila rinde mejor.",tip:"Checklist completo hoy, no mañana."},
-   {d:"Sáb",t:"Activación 20 min",tag:'<span class="tag t-rest">Off</span>',detail:"Nado o bici muy suave 15-20 min para soltar. Desayuna como lo harás el domingo.",obj:"Soltar el cuerpo y ensayar el desayuno de carrera.",tip:"Acuéstate temprano. Visualiza las transiciones."},
-   {d:"Dom",t:"🏁 5150 CARTAGENA",tag:'<span class="tag t-race">Tri Olímpico</span>',detail:"1.5 km nado · 40 km bici · 10 km carrera. Tu primer triatlón. Nado controlado, bici a tu ritmo, corre lo que las piernas den.",obj:"Encadenar las tres disciplinas por primera vez en competencia. Cruzar entero y disfrutar el estreno.",tip:"Sal conservador en el nado (no te embales con la adrenalina). Come en la bici. Disfruta: es historia.",strat:RACE_STRAT_5150}
-  ]}
+// ===== MOTOR DE PLAN RODANTE (oct 2026) =====
+// Antes el plan era un array fijo de 6 semanas: se agoto el 6 de septiembre y la app
+// quedo congelada cinco semanas. Ahora el plan SE GENERA cada vez que abres la app,
+// a partir de (1) la fase en curso, (2) el calendario de carreras con prioridad A/B/C
+// y (3) las restricciones reales de tu semana. No vuelve a expirar nunca.
+//
+// Restricciones declaradas por el atleta (oct 2026):
+//   Lun a vie: una sesion de 45-90 min.   Vie: descanso (prepara el finde grande).
+//   Sab y dom: libres para fondos largos.
+//   Fuerza: 2 sesiones por semana en casa, 25-30 min (Lun y Jue).
+//   Sin potenciometro: TODO se prescribe por frecuencia cardiaca.
+//   Nado: no se prescribe por pulso (el sensor optico falla en agua).
+
+const FASE_CAL=[
+  {n:"FASE 1",from:"2026-06-01",to:"2026-07-26",vol:[6,8],    bikeL:[60,90],  runL:[80,130],foco:"run"},
+  {n:"FASE 2",from:"2026-07-27",to:"2026-09-06",vol:[4,7],    bikeL:[90,120], runL:[45,75], foco:"tri"},
+  {n:"FASE 3",from:"2026-09-07",to:"2026-11-08",vol:[8,10.5], bikeL:[120,195],runL:[80,160],foco:"run"},
+  {n:"FASE 4",from:"2026-11-09",to:"2027-01-31",vol:[9,11],   bikeL:[150,240],runL:[70,110],foco:"base"},
+  {n:"FASE 5",from:"2027-02-01",to:"2027-05-30",vol:[10,13],  bikeL:[180,300],runL:[80,135],foco:"tri"},
+  {n:"FASE 6",from:"2027-05-31",to:"2027-12-31",vol:[11,13],  bikeL:[210,330],runL:[90,150],foco:"base"},
+  {n:"FASE 7",from:"2028-01-01",to:"2028-12-31",vol:[12,14],  bikeL:[240,390],runL:[100,170],foco:"im"},
+  {n:"FASE 8",from:"2029-01-01",to:"2029-12-31",vol:[14,16],  bikeL:[300,420],runL:[110,180],foco:"ultra"},
+  {n:"FASE 9",from:"2030-01-01",to:"2035-12-31",vol:[16,18],  bikeL:[360,480],runL:[120,200],foco:"ultra"}
 ];
+const DOW_N=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+
+function faseCal(iso){return FASE_CAL.find(f=>iso>=f.from&&iso<=f.to)||FASE_CAL[FASE_CAL.length-1];}
+function addD(d,n){const x=new Date(d);x.setDate(x.getDate()+n);x.setHours(0,0,0,0);return x;}
+function lunesDe(d){const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));x.setHours(0,0,0,0);return x;}
+function durTxt(m){const h=Math.floor(m/60),r=m%60;return h?(r?h+"h"+(r<10?"0":"")+r:h+"h"):r+" min";}
+function r5(x){return Math.max(15,Math.round(x/5)*5);}
+// Rango de pulso de una zona, listo para leer: "Z2 · 142-149 ppm"
+function zr(dep,i){const s=(dep==="bike")?ZONAS.bike:ZONAS.run;const z=s.z[i-1];return z.n+" · "+z.lo+"-"+z.hi+" ppm";}
+
+// ---- Sesiones tipo. Cada una devuelve el objeto de dia que ya consume renderWeek(). ----
+function sNado(dia,min,modo,str){
+  const largo=min>=60;
+  const cuerpo = modo==="tecnica"
+    ? "300 m calentamiento + 6×50 m técnica (brazada larga, rolido, respiración bilateral) + "+(largo?8:5)+"×100 m cómodo con 20 s de pausa + 200 m suelta."
+    : modo==="fondo"
+    ? "400 m calentamiento + "+(largo?"1.900 m continuos a ritmo de carrera":"1.200 m continuos")+" + 200 m suelta. Levanta la vista cada 8 brazadas."
+    : "Nado continuo y relajado con movilidad de hombros. Sin series.";
+  return {d:dia,t:"Natación "+durTxt(min),tag:'<span class="tag t-swim">Nado</span>',dmin:min,
+    detail:cuerpo,
+    obj:modo==="fondo"?"Resistencia específica de nado. Ya cubres 1.900 m seguidos: aquí se trabaja ritmo y eficiencia.":"Recuperación activa y técnica. El agua descarga las piernas sin impacto.",
+    tip:"Sin pulsómetro en el agua: el sensor óptico marca mal. Guíate por sensación y por el reloj de pared.",
+    str:str||undefined};
+}
+function sCorreCalidad(dia,min,fase,tipo){
+  const suave=(tipo==="taper"||tipo==="descarga");
+  let cuerpo,obj;
+  if(fase.foco==="run"&&!suave){
+    cuerpo="15 min calentamiento + 5×1.000 m en "+zr("run",4)+" con 2 min de trote entre series + 10 min suelta.";
+    obj="Subir el umbral. Es la sesión que te da velocidad en el 15K y te hace sostenible el ritmo del 28K.";
+  }else if(suave){
+    cuerpo="Trote continuo en "+zr("run",2)+" + 4 progresiones de 20 s. Nada más.";
+    obj="Mantener el motor encendido sin generar fatiga.";
+  }else{
+    cuerpo="15 min calentamiento + 20 min en "+zr("run",3)+" (tempo continuo) + 10 min suelta.";
+    obj="Tempo: el ritmo al que correrás los 21 km del 70.3 después de nadar y pedalear.";
+  }
+  return {d:dia,t:"Carrera calidad "+durTxt(min),tag:'<span class="tag t-run">Run</span>',dmin:min,
+    detail:cuerpo,obj:obj,
+    tip:"A 2.600 m el pulso sube y el ritmo baja: manda la zona de pulso, no el ritmo por kilómetro."};
+}
+function sBici(dia,min,fase,tipo){
+  const suave=(tipo==="taper"||tipo==="descarga");
+  const cuerpo=suave
+    ? "Rodaje continuo en "+zr("bike",2)+", cadencia alta (90+). Regenerativo."
+    : "15 min calentamiento + 3×8 min en "+zr("bike",4)+" con 4 min suave entre bloques + 10 min suelta.";
+  return {d:dia,t:"Bici "+durTxt(min),tag:'<span class="tag t-bike">Bici</span>',dmin:min,
+    detail:cuerpo,
+    obj:suave?"Mover sangre sin añadir fatiga.":"Fuerza específica de pedaleo. Sin potenciómetro, el umbral se controla por pulso: 151-159 ppm.",
+    tip:"Vigila la cadencia: si cae por debajo de 80 en los bloques, baja el desarrollo en vez de machacar la rodilla."};
+}
+function sBiciFondo(dia,min,fase,tipo){
+  const horas=min/60;
+  const ch=Math.round(60*horas), ml=Math.round(600*horas);
+  return {d:dia,t:"Bici fondo "+durTxt(min),tag:'<span class="tag t-bike">Bici</span>',dmin:min,
+    detail:"Salida continua en "+zr("bike",2)+". Terreno con desnivel. "+(horas>=3?"Incluye 3×10 min en "+zr("bike",3)+" en la segunda mitad.":"Ritmo constante, sin heroicidades."),
+    obj:"El motor aeróbico del IRONMAN se construye aquí. Es la sesión más importante de la semana.",
+    tip:"Nutrición en marcha: ~"+ch+" g de carbohidrato y ~"+ml+" ml de líquido en total. Ensáyalo ahora, no el día de la carrera."};
+}
+function sCorreLargo(dia,min,fase,tipo){
+  const km=Math.round(min/6.2);
+  return {d:dia,t:"Tirada larga "+durTxt(min),tag:'<span class="tag t-run">Run</span>',dmin:min,
+    detail:"Continuo en "+zr("run",2)+" (≈"+km+" km). "+(min>=110?"Últimos 15 min en "+zr("run",3)+" si las piernas responden.":"Ritmo conversado de principio a fin."),
+    obj:"Resistencia a pie y tolerancia al impacto. "+(fase.foco==="run"?"Camino directo al 28K del 8 de noviembre.":"Base para los 21 km finales del 70.3."),
+    tip:"Si el pulso se va por encima de 149 sin que subas el ritmo, es deriva cardíaca: estás deshidratado o cansado. Bebe y baja."};
+}
+function sBrick(dia,minB,minR,fase){
+  return {d:dia,t:"🔗 Brick "+durTxt(minB)+" bici + "+durTxt(minR)+" trote",tag:'<span class="tag t-brick">Brick</span>',dmin:minB+minR,
+    detail:durTxt(minB)+" de bici en "+zr("bike",2)+"-"+zr("bike",3)+" y, SIN pausa, "+durTxt(minR)+" de trote en "+zr("run",2)+".",
+    obj:"La sesión que define al triatleta: enseña a correr con piernas de bici. La transición sin pausa es lo que se entrena.",
+    tip:"Los primeros 5 min de trote se sienten horribles. Es normal y mejora: acorta la zancada y sube la cadencia."};
+}
+function sFuerza(dia,min,cual){
+  return {d:dia,t:"Fuerza "+cual+" "+durTxt(min),tag:'<span class="tag t-str">Fuerza</span>',dmin:min,
+    detail:cual==="A"?"Sentadilla goblet, peso muerto a una pierna, zancadas, elevación de gemelos, plancha lateral. 3 series.":"Plancha, dead bug, puente de glúteo, clamshell, bird-dog. 3 series.",
+    obj:"Tu seguro antilesión. Es lo que te permitirá sostener 12-14 h semanales en 2028 sin romperte.",
+    tip:"En casa, con lo que tengas: mochila cargada o bandas. La progresión es añadir repeticiones, no peso.",
+    str:cual==="A"?STR_A:STR_B};
+}
+function sDescanso(dia,texto){
+  return {d:dia,t:texto||"Descanso",tag:'<span class="tag t-rest">Off</span>',dmin:0,
+    detail:"Reposo real. Caminata ligera si quieres moverte.",
+    obj:"La mejora no ocurre al entrenar, ocurre al recuperar. Este día es parte del plan, no un hueco.",
+    tip:"Objetivo de sueño: 7.5 h. Acostarte 45 min antes rinde más que cualquier sesión extra."};
+}
+
+// ---- Semana de carrera: reescribe los dias segun la prioridad A / B / C ----
+function aplicarCarrera(days,race,fase){
+  const i=(parse(race.date).getDay()+6)%7;
+  const prio=race.prio||"C";
+  const strat=race.strat||(race.name.indexOf("5150")>=0?RACE_STRAT_5150:RACE_STRAT);
+  days[i]={d:DOW_N[i],t:"🏁 "+race.name.toUpperCase(),tag:'<span class="tag t-race">Carrera</span>',dmin:race.dmin||90,
+    detail:(race.meta||"")+(race.test?" ESTE ES TU TEST DE UMBRAL: corre a tope sostenido. La FC media de la carrera recalibra todas tus zonas.":""),
+    obj:race.test?"Doble objetivo: competir y medir. Sin potenciómetro, esta carrera es la forma gratuita de obtener tu umbral real.":"Competir con lo que ya construiste. La forma está hecha.",
+    tip:prio==="C"?"Prioridad C: se corre dentro del plan, sin taper. No interrumpe el bloque.":"Sal conservador. El error número uno es arrancar por encima de tu ritmo con la adrenalina de la salida.",
+    strat:strat,race:true};
+  // Dias previos: afinamiento proporcional a la prioridad
+  const vent = prio==="A"?5 : prio==="B"?3 : 1;
+  for(let k=1;k<=vent&&i-k>=0;k++){
+    const j=i-k;
+    if(k===1) days[j]= prio==="C"
+      ? {d:DOW_N[j],t:"Activación 30 min",tag:'<span class="tag t-rest">Off</span>',dmin:30,
+         detail:"Trote o bici muy suave 25 min + 4 progresiones de 20 s a ritmo de carrera.",
+         obj:"Prioridad C: no se interrumpe el bloque. Solo se llega con piernas vivas.",
+         tip:"Deja dorsal, chip y ropa listos hoy."}
+      : sDescanso(DOW_N[j],"Descanso + preparar material");
+    else if(k===2) days[j]={d:DOW_N[j],t:"Activación 25 min",tag:'<span class="tag t-rest">Off</span>',dmin:25,
+      detail:"Trote o bici muy suave 20 min + 4 progresiones de 20 s a ritmo de carrera.",
+      obj:"Despertar el sistema nervioso sin gastar nada. Llegar con piernas vivas, no cansadas.",
+      tip:"Si dudas entre hacer esto o descansar, descansa."};
+    else days[j]=sNado(DOW_N[j],35,"suave");
+  }
+  // Dias posteriores: recuperacion
+  for(let j=i+1;j<7;j++){
+    days[j]= j===i+1 ? sDescanso(DOW_N[j],"Descanso post-carrera") : sNado(DOW_N[j],40,"suave");
+  }
+  return days;
+}
+
+// ---- Generador principal ----
+function generarPlan(atras,adelante){
+  atras=atras==null?3:atras; adelante=adelante==null?16:adelante;
+  const L0=lunesDe(addD(today(),-7*atras));
+  const carreras=allRaces().filter(r=>r.date);
+  const out=[]; let ultCarga=0;
+  for(let w=0;w<atras+adelante+1;w++){
+    const ini=addD(L0,7*w), fin=addD(ini,6);
+    const iniS=fmtLocal(ini), finS=fmtLocal(fin);
+    const fase=faseCal(iniS);
+    const semFase=Math.max(0,Math.round((ini-parse(fase.from))/(7*MS)));
+    const totFase=Math.max(2,Math.round((parse(fase.to)-parse(fase.from))/(7*MS))+1);
+    // El pico de volumen cae 2 semanas ANTES de la carrera clave de la fase,
+    // no al final: asi la tirada mas larga se hace cuando sirve, no en la semana de carrera.
+    const clave=carreras.filter(r=>r.date>=fase.from&&r.date<=fase.to&&(r.prio==="A"||r.prio==="B")).pop();
+    const pico=clave?addD(parse(clave.date),-14):parse(fase.to);
+    const span=Math.max(14,pico-parse(fase.from));
+    const p=Math.max(0,Math.min(1,(ini-parse(fase.from))/span));
+
+    const raceIn=carreras.find(r=>r.date>=iniS&&r.date<=finS);
+    const sig=carreras.find(r=>r.date>finS);
+    const dSig=sig?Math.round((parse(sig.date)-fin)/MS):null;
+
+    let tipo="carga";
+    if(raceIn) tipo="carrera";
+    else if(sig&&sig.prio==="A"&&dSig<=14) tipo="taper";
+    else if(sig&&sig.prio==="B"&&dSig<=7) tipo="taper";
+    else if(semFase%4===3) tipo="descarga";
+
+    const prioIn=raceIn?(raceIn.prio||"C"):null;
+    // Semana posterior a una carrera: lunes de descanso real y carga recortada.
+    const recien=carreras.find(r=>{const d=Math.round((ini-parse(r.date))/MS);return d>0&&d<=5;});
+    const mult = tipo==="carrera"?(prioIn==="A"?0.5:prioIn==="B"?0.62:0.85)
+               : tipo==="taper"?0.68 : tipo==="descarga"?0.72 : 1;
+    const kL = tipo==="carga"?1 : tipo==="descarga"?0.6 : tipo==="taper"?0.5 : (prioIn==="C"?0.5:0.4);
+    let bikeL=r5((fase.bikeL[0]+(fase.bikeL[1]-fase.bikeL[0])*p)*kL);
+    let runL =r5((fase.runL[0] +(fase.runL[1] -fase.runL[0] )*p)*(tipo==="carga"?1:kL*1.1));
+    const corto=r5(55*mult), medio=r5(75*mult), nado=r5(60*mult);
+    const esTri=(fase.foco==="tri"||fase.foco==="im"||fase.foco==="ultra");
+
+    let days=[
+      sNado(DOW_N[0],nado,"tecnica",tipo==="carga"?STR_A:null),
+      sCorreCalidad(DOW_N[1],corto,fase,tipo),
+      sBici(DOW_N[2],medio,fase,tipo),
+      sNado(DOW_N[3],r5(nado*0.85),"fondo",tipo==="carga"?STR_B:null),
+      sDescanso(DOW_N[4]),
+      sBiciFondo(DOW_N[5],bikeL,fase,tipo),
+      (esTri&&semFase%2===1) ? sBrick(DOW_N[6],r5(bikeL*0.55),r5(runL*0.6),fase)
+                             : sCorreLargo(DOW_N[6],runL,fase,tipo)
+    ];
+    if(raceIn) days=aplicarCarrera(days,raceIn,fase);
+    else if(recien){
+      days[0]=sDescanso(DOW_N[0],"Descanso post-"+recien.name.split(" ")[0]);
+      days[1]=sCorreCalidad(DOW_N[1],r5(corto*0.8),fase,"descarga");
+    }
+    // Regla del 10%: ninguna semana sube mas de un 10% sobre la anterior.
+    if(ultCarga&&tipo==="carga"){
+      const prev=ultCarga;
+      let suma=days.reduce((a,d)=>a+(d.dmin||0),0);
+      if(prev>0&&suma>prev*1.10){
+        const k=(prev*1.10)/suma;
+        [5,6].forEach(j=>{if(days[j].dmin>40){days[j].dmin=r5(days[j].dmin*k);
+          days[j].t=days[j].t.replace(/\s[\d]+h[\d]*$|\s[\d]+\smin$/,' '+durTxt(days[j].dmin));}});
+      }
+    }
+
+    const volMin=days.reduce((a,d)=>a+(d.dmin||0),0);
+    if(tipo==="carga") ultCarga=volMin;
+    const etq = (raceIn&&raceIn.test) ? "Test de umbral 🏁"
+              : tipo==="carrera" ? "Semana de carrera 🏁"
+              : tipo==="taper"   ? "Afinamiento"
+              : tipo==="descarga"? "Descarga"
+              : "Carga "+(semFase%4+1)+"/4";
+    const subt = ini.toLocaleDateString('es',{day:'numeric',month:'short'})+" – "+fin.toLocaleDateString('es',{day:'numeric',month:'short'});
+    out.push({
+      label:"Sem "+(semFase+1), sub:subt, focus:etq, vol:"~"+(volMin/60).toFixed(1)+" h",
+      start:iniS, end:finS, volMin:volMin, tipo:tipo, fase:fase.n, semFase:semFase+1, totFase:totFase,
+      note:raceIn?("<b>"+raceIn.name+"</b> el "+fmtNice(raceIn.date)+". Prioridad "+(raceIn.prio||"C")+"."):
+           tipo==="taper"?("Afinamiento hacia <b>"+(sig?sig.name:"la carrera")+"</b>: baja el volumen, se mantiene la intensidad."):
+           tipo==="descarga"?"Semana de descarga: el cuerpo asimila las tres semanas de carga anteriores.":
+           ("<b>"+fase.n+"</b> · semana "+(semFase+1)+" de "+totFase+"."),
+      days:days
+    });
+  }
+  return out;
+}
+
+
+let PLAN_WEEKS=[];  // se llena con generarPlan() en cuanto los helpers estan listos
+
 
 const CHECKS=[
   {id:'blood',t:"<b>Analítica de sangre base</b> · perfil lipídico, glucosa, hierro/ferritina, vit. D, función renal/hepática. Primeras semanas."},
@@ -721,6 +955,7 @@ function matchStravaWeek(wIdx,sessions){
 }
 
 function currentWeekIdx(){const t=today();for(let i=0;i<PLAN_WEEKS.length;i++){if(t>=parse(PLAN_WEEKS[i].start)&&t<=parse(PLAN_WEEKS[i].end))return i;}if(t<parse(PLAN_WEEKS[0].start))return 0;return PLAN_WEEKS.length-1;}
+PLAN_WEEKS=generarPlan();
 let selWeek=currentWeekIdx();
 
 function renderRoad(){
@@ -1902,81 +2137,112 @@ async function renderVolumeChart(){
 // ===================== RECOMENDACION DIARIA =====================
 // Cruza readiness, forma, ratio de carga, dias a la carrera y fase actual
 // para prescribir la sesion de hoy con zona objetivo concreta.
+// ===== PANTALLA DE HOY: primero el estado, despues el entreno ya ajustado =====
+// El entreno NO se inventa: sale del motor de plan. El semaforo solo lo modifica.
 async function recomendacionHoy(){
   const r=await computeReadiness();
   const ses=(await Store.get('strava_sessions'))||[];
+  const wi=currentWeekIdx(), wk=PLAN_WEEKS[wi];
+  const plan=(daysFor(wi)||[])[dowIdx]||{d:DOW_N[dowIdx],t:'Descanso',tag:'<span class="tag t-rest">Off</span>',dmin:0,detail:'',obj:'',tip:''};
   const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
   const dRace=next?daysTo(next.date):null;
-  const fase=PHASES.find(p=>p.cur)||PHASES[0];
-
-  // carga de los ultimos 7 dias
+  const hoyS=fmtLocal(today());
   const hace7=fmtLocal(new Date(today().getTime()-7*MS));
   const h7=ses.filter(s=>s.date>hace7).reduce((a,s)=>a+(+s.min||0),0)/60;
   const ratio=(r.ctl&&r.atl)?+(r.atl/r.ctl).toFixed(2):null;
+  const hecho=ses.filter(s=>s.date===hoyS);
 
-  let tipo,zona,dur,razon,urg;
+  // El semaforo de Garmin se endurece con dos senales que el no ve:
+  // la relacion de carga aguda:cronica y el sueno de anoche.
+  let nivel=r.hasData?r.level:'verde';
+  const motivos=[];
+  if(ratio!=null&&ratio>1.40){ nivel='rojo'; motivos.push(`Ratio agudo:crónico <b>${ratio}</b> — zona de lesión. Hoy no se negocia.`); }
+  else if(ratio!=null&&ratio>1.20){ if(nivel==='verde')nivel='amarillo'; motivos.push(`Ratio agudo:crónico <b>${ratio}</b> — vas cargado. Por encima de 1,30 el riesgo de lesión se dispara.`); }
+  if(r.form!=null&&r.form<-20){ if(nivel==='verde')nivel='amarillo'; motivos.push(`Forma (TSB) <b>${r.form}</b>: fatiga acumulada por encima de tu condición.`); }
+  if(r.sleep!=null&&r.sleep<7){ if(nivel==='verde')nivel='amarillo'; motivos.push(`Dormiste <b>${hm(r.sleep)}</b>, bajo tu objetivo de 7,5 h: con menos de 7 h no se absorbe la calidad.`); }
+  if(dRace!=null&&dRace<=2&&next){ motivos.push(`<b>${next.name}</b> ${dRace===0?'es HOY':'en '+dRace+' día'+(dRace>1?'s':'')}.`); }
 
-  if(r.hasData&&r.level==='rojo'){
-    tipo='Descanso o recuperación activa';zona=ZONAS.run.z[0];dur='0-30 min';urg='stop';
-    razon=`Semáforo rojo (${r.score}/100). Hoy entrenar resta más de lo que suma.`;
-  } else if(dRace!=null&&dRace<=2){
-    tipo='Activación pre-carrera';zona=ZONAS.run.z[1];dur='20-30 min';urg='caution';
-    razon=`${next.name} en ${dRace===0?'HOY':dRace+' día'+(dRace>1?'s':'')}. Soltar piernas, nada más.`;
-  } else if(dRace!=null&&dRace<=7){
-    tipo='Taper · calidad corta';zona=ZONAS.run.z[3];dur='40-50 min';urg='caution';
-    razon=`${next.name} en ${dRace} días. Mantén intensidad, baja volumen.`;
-  } else if(r.hasData&&r.level==='amarillo'){
-    tipo='Aeróbico suave';zona=ZONAS.run.z[1];dur='45-60 min';urg='caution';
-    razon=`Semáforo amarillo (${r.score}/100). Base aeróbica sí, calidad no.`;
-  } else if(ratio!=null&&ratio>1.3){
-    tipo='Descarga';zona=ZONAS.run.z[0];dur='30-40 min';urg='caution';
-    razon=`Ratio agudo:crónico ${ratio} — por encima de 1,3 el riesgo de lesión sube.`;
-  } else if(h7<4){
-    tipo='Volumen aeróbico';zona=ZONAS.run.z[1];dur='60-90 min';urg='go';
-    razon=`Solo ${h7.toFixed(1)} h en 7 días. Hay margen para construir base.`;
-  } else if(r.hasData&&r.level==='verde'){
-    const duro=/velocidad|umbral|específico|bricks/i.test(fase.zone||'');
-    tipo=duro?'Sesión de calidad':'Fondo aeróbico';
-    zona=duro?ZONAS.run.z[3]:ZONAS.run.z[1];
-    dur=duro?'60-75 min':'75-120 min';urg='go';
-    razon=`Semáforo verde (${r.score}/100) y fase "${fase.zone}". Buen día para exigir.`;
-  } else {
-    tipo='Aeróbico de mantenimiento';zona=ZONAS.run.z[1];dur='50-70 min';urg='go';
-    razon='Sin señales de alarma. Mantén la base.';
+  // El marcador debe coincidir con el veredicto: cada señal que endurece, lo baja.
+  let score=r.hasData?r.score:null;
+  if(score!=null){
+    if(nivel==='rojo') score=Math.min(score,30);
+    else score=Math.max(35,score-12*motivos.filter(m=>m.indexOf('HOY')<0&&m.indexOf('en ')!==0).length);
   }
+  const aj=adjustSession(plan,nivel);
+  return {plan,aj,nivel,r,score,ratio,h7,dRace,next,wk,wi,hecho,motivos};
+}
 
-  const zb=ZONAS.bike.z[ZONAS.run.z.indexOf(zona)]||ZONAS.bike.z[1];
-  return {tipo,zona,zonaBici:zb,dur,razon,urg,readiness:r,ratio,h7,dRace,next,fase};
+// Barra de una señal contra su objetivo. Es el "un dato = un gráfico".
+function barraSenal(lbl,txt,pct,col){
+  const p=Math.max(0,Math.min(1,pct==null?0:pct));
+  return `<div class="sg">
+    <div class="sg-l">${lbl}</div>
+    <div class="sg-t"><div class="sg-f" style="width:${(p*100).toFixed(0)}%;background:${col}"></div></div>
+    <div class="sg-v" style="color:${col}">${txt}</div>
+  </div>`;
 }
 
 async function renderRecomendacion(){
-  const destinos=['recoBox','recoBoxHome'].map(id=>document.getElementById(id)).filter(Boolean);
+  const destinos=['recoBoxHome','recoBox'].map(id=>document.getElementById(id)).filter(Boolean);
   if(!destinos.length)return;
   const R=await recomendacionHoy();
-  const col=R.urg==='go'?'var(--go)':(R.urg==='caution'?'var(--caution)':'var(--stop)');
-  const r=R.readiness;
-  const chips=[
-    r.hasData?{l:'Semáforo',v:r.score+'/100',c:r.level==='verde'?'var(--go)':(r.level==='amarillo'?'var(--caution)':'var(--stop)')}:null,
-    R.ratio!=null?{l:'Ratio carga',v:R.ratio,c:R.ratio>1.3?'var(--stop)':(R.ratio<0.8?'var(--bike)':'var(--go)')}:null,
-    r.form!=null?{l:'Forma',v:(r.form>0?'+':'')+r.form,c:r.form>5?'var(--go)':(r.form<-20?'var(--stop)':'var(--bike)')}:null,
-    {l:'7 días',v:R.h7.toFixed(1)+' h',c:'var(--ink)'}
-  ].filter(Boolean);
+  const r=R.r;
+  const col=R.nivel==='verde'?'var(--go)':(R.nivel==='amarillo'?'var(--caution)':'var(--stop)');
+  const veredicto=R.nivel==='verde'?'LISTO':(R.nivel==='amarillo'?'CON CABEZA':'FRENA');
+
+  // --- Las cuatro señales, cada una como barra contra su objetivo ---
+  const base=r.hrvBase||null;
+  const senales=[
+    barraSenal('Sueño', r.sleep!=null?hm(r.sleep):'—', r.sleep!=null?r.sleep/7.5:null,
+      r.sleep==null?'var(--faint)':(r.sleep>=7?'var(--go)':r.sleep>=6.5?'var(--caution)':'var(--stop)')),
+    barraSenal('HRV', r.hrv!=null?r.hrv+' ms':'—', (r.hrv!=null&&base)?(r.hrv/base)/1.2:null,
+      (r.hrv==null||!base)?'var(--faint)':(r.hrv/base>=0.93?'var(--go)':r.hrv/base>=0.85?'var(--caution)':'var(--stop)')),
+    barraSenal('Carga', R.ratio!=null?R.ratio:'—', R.ratio!=null?(1.5-R.ratio)/0.8:null,
+      R.ratio==null?'var(--faint)':(R.ratio<=1.1?'var(--go)':R.ratio<=1.3?'var(--caution)':'var(--stop)')),
+    barraSenal('Forma', r.form!=null?((r.form>0?'+':'')+r.form):'—', r.form!=null?(r.form+35)/45:null,
+      r.form==null?'var(--faint)':(r.form>-10?'var(--go)':r.form>-25?'var(--caution)':'var(--stop)'))
+  ].join('');
+
+  // --- El entreno: el del plan, ya modificado por el estado ---
+  const yaEntreno=R.hecho.reduce((a,s)=>a+(+s.min||0),0)>=20;
+  const titulo=yaEntreno?('✓ '+R.hecho.map(s=>s.name||s.sport).join(' + '))
+             :(R.aj?R.aj.t:R.plan.t);
+  const cuerpo=yaEntreno
+    ? R.hecho.map(s=>[s.km?(s.sport==='swim'?Math.round(s.km*1000)+' m':s.km+' km'):null,
+        s.min?s.min+' min':null, s.elev?Math.round(s.elev)+' m desnivel':null,
+        s.avgHr?'FC media '+s.avgHr:null].filter(Boolean).join(' · ')).join('<br>')
+    : (R.aj?R.aj.detail:R.plan.detail);
+  const porque=yaEntreno
+    ? 'Sesión del día registrada. Lo que viene ahora es recuperar: proteína en la próxima hora, hidratación y sueño.'
+    : (R.aj?R.aj.why:(R.plan.obj||''));
+  const sport=sportFromTag(R.plan.tag)||'rest';
+
+  const cambiado=!!R.aj&&!yaEntreno;
+  const hechoHtml=yaEntreno?`<div class="hoy-ok">Cumplido automáticamente desde Garmin</div>`:'';
+  const origen=yaEntreno
+    ? `<div class="hoy-orig">El plan de hoy era <b>${R.plan.t}</b></div>`
+    : (cambiado?`<div class="hoy-orig">El plan de hoy era <b>${R.plan.t}</b> · ajustado por tu estado</div>`:'');
+  const motivos=R.motivos.length?`<ul class="hoy-mot">${R.motivos.map(m=>`<li>${m}</li>`).join('')}</ul>`:'';
+  const semana=R.wk?`<span class="hoy-sem">${R.wk.focus} · ${R.wk.vol} objetivo</span>`:'';
 
   const html=`
-    <div class="reco" style="--rc:${col}">
-      <div class="reco-top"><span class="reco-lbl">RECOMENDACIÓN DE HOY</span>
-        <span class="reco-dur">${R.dur}</span></div>
-      <div class="reco-tipo">${R.tipo}</div>
-      <div class="reco-zona">
-        <span class="rz-pill" style="background:${R.zona.c}">${R.zona.n}</span>
-        <span class="rz-txt">${R.zona.lbl} · <b>${R.zona.lo||'<'}${R.zona.lo?'-':''}${R.zona.hi} ppm</b> corriendo
-          · <b>${R.zonaBici.lo||'<'}${R.zonaBici.lo?'-':''}${R.zonaBici.hi} ppm</b> en bici</span>
-      </div>
-      <div class="reco-razon">${R.razon}</div>
-      <div class="reco-chips">${chips.map(c=>`<span class="rchip"><i>${c.l}</i><b style="color:${c.c}">${c.v}</b></span>`).join('')}</div>
-    </div>`;
-  destinos.forEach(d=>{d.innerHTML=html;});
+  <div class="hoy" style="--hc:${col}">
+    <div class="hoy-estado">
+      <div class="hoy-dot"></div>
+      <div class="hoy-vd">${veredicto}</div>
+      <div class="hoy-sc">${R.score==null?'—':R.score}<small>/100</small></div>
+    </div>
+    <div class="hoy-senales">${senales}</div>
+    <div class="hoy-sep"></div>
+    <div class="hoy-head"><span class="hoy-lbl">HOY · ${R.plan.d}</span>${semana}</div>
+    <div class="hoy-tit"><span class="hoy-ic">${SPORT_IC[sport]||'🛌'}</span>${titulo}</div>
+    ${cuerpo?`<div class="hoy-det">${cuerpo}</div>`:''}
+    ${porque?`<div class="hoy-why"><b>Por qué:</b> ${porque}</div>`:''}
+    ${origen}${motivos}${hechoHtml}
+  </div>`;
+  destinos.forEach(d=>d.innerHTML=html);
 }
+
 
 // Tabla de zonas calibradas
 function renderZonas(){
@@ -1994,9 +2260,175 @@ function renderZonas(){
     box.querySelectorAll('.ztab').forEach(x=>x.classList.toggle('on',x===b));
     document.getElementById('zbody').innerHTML=ZONAS[b.dataset.d].z.map(z=>fila(z,b.dataset.d)).join('');
   });
+
+  const _zb=document.getElementById('zonasBox');
+  if(_zb) _zb.insertAdjacentHTML('beforeend', `<div class="mt-det zwarn"><details><summary>Dos ajustes pendientes en Intervals.icu</summary><p>Intervals.icu sigue con <b>LTHR 171</b> y <b>FTP 250 W</b> en sus propios ajustes, y con eso calcula tu CTL, ATL y la carga de cada sesión. Las dos cifras están infladas: no tienes potenciómetro, así que ese FTP es una estimación. Cámbialos a <b>LTHR 168</b> en carrera y quita o baja el FTP a ~200 W hasta tener un test real. El <b>15K del 18 de octubre</b> es ese test: la FC media de la carrera te da el umbral verdadero.</p></details></div>`);
+
+}
+
+// ===================== LA RUTA · MAPA DE MONTAÑA =====================
+// El eje vertical NO es decorativo: es tu CTL (condicion fisica acumulada que
+// calcula Intervals.icu). La ladera recorrida se dibuja con tus datos reales;
+// la pendiente que falta, con la proyeccion del plan. Los campamentos son las
+// carreras, clavadas a la ALTURA DE CTL QUE CADA UNA EXIGE. Cuando un
+// campamento queda por encima de la ladera, ese hueco es, literalmente, lo que
+// te falta por construir.
+
+// Proyeccion de CTL con el modelo estandar de 42 dias de constante de tiempo.
+// TSS por hora calibrado con tus propios datos: semana 41 = 10.6 h y carga 525.
+function ctlProyectado(ctl0){
+  const out=[]; let c=(ctl0!=null?ctl0:45);
+  const k=1-Math.exp(-7/42), TSSxH=50;
+  let d=lunesDe(today()); const fin=parse("2028-08-01");
+  while(d<=fin){
+    const f=faseCal(fmtLocal(d));
+    const sem=Math.max(0,Math.round((d-parse(f.from))/(7*MS)));
+    const tot=Math.max(2,Math.round((parse(f.to)-parse(f.from))/(7*MS))+1);
+    let h=f.vol[0]+(f.vol[1]-f.vol[0])*Math.min(1,sem/(tot-1));
+    if(sem%4===3) h*=0.72;
+    c=c+((h*TSSxH/7)-c)*k;
+    out.push({d:fmtLocal(d),v:+c.toFixed(1)});
+    d=addD(d,7);
+  }
+  return out;
+}
+function interp(serie,iso){
+  if(!serie.length)return null;
+  if(iso<=serie[0].d)return serie[0].v;
+  if(iso>=serie[serie.length-1].d)return serie[serie.length-1].v;
+  for(let i=1;i<serie.length;i++){
+    if(serie[i].d>=iso){
+      const a=serie[i-1],b=serie[i];
+      const ta=parse(a.d).getTime(),tb=parse(b.d).getTime(),t=parse(iso).getTime();
+      return a.v+(b.v-a.v)*((t-ta)/Math.max(1,tb-ta));
+    }
+  }
+  return serie[serie.length-1].v;
+}
+
+async function renderMontana(){
+  const box=document.getElementById('montana'); if(!box)return;
+  const W=360,H=250,pL=4,pR=4,pT=26,pB=34, CMAX=112;
+  const T0=parse("2025-09-01").getTime(), T1=parse("2028-09-01").getTime();
+  const X=iso=>pL+((parse(iso).getTime()-T0)/(T1-T0))*(W-pL-pR);
+  const Y=v=>H-pB-(Math.max(0,Math.min(CMAX,v))/CMAX)*(H-pT-pB);
+  const hoyS=fmtLocal(today()), xHoy=X(hoyS);
+
+  // --- Ladera recorrida: un punto por semana de tu CTL real ---
+  const well=wellAsc(await getWell()).filter(w=>w.ctl!=null);
+  const real=[]; let last='';
+  well.forEach(w=>{const k=isoWeekKey(parse(w.date));
+    if(k!==last){real.push({d:w.date,v:w.ctl});last=k;} else real[real.length-1]={d:w.date,v:w.ctl};});
+  const ctlHoy=real.length?real[real.length-1].v:null;
+  const proy=ctlProyectado(ctlHoy);
+
+  // --- Dos laderas: la conquistada (datos) y la pendiente (proyeccion) ---
+  const pts=s=>s.map(p=>X(p.d).toFixed(1)+','+Y(p.v).toFixed(1)).join(' ');
+  const base=H-pB;
+  const areaDe=s=>s.length? `M${X(s[0].d).toFixed(1)},${base} L`+pts(s)+` L${X(s[s.length-1].d).toFixed(1)},${base} Z` : '';
+  const laderaReal=areaDe(real), laderaProy=areaDe(proy);
+
+  // --- Campamentos: las carreras a su altura de exigencia ---
+  const carreras=allRaces().filter(r=>r.date&&r.exig);
+  const puestas=[];   // etiquetas ya colocadas, para no pisarlas
+  const campos=carreras.map((r,i)=>{
+    const x=X(r.date), yC=Y(r.exig), hecho=daysTo(r.date)<0;
+    const terreno=hecho?interp(real,r.date):interp(proy,r.date);
+    const yT=Y(terreno==null?0:terreno);
+    const brecha=Math.round(r.exig-(terreno==null?0:terreno));
+    // Busca el primer hueco libre: arriba, abajo, mas arriba, mas abajo...
+    const cand=[yC-13,yC+17,yC-26,yC+30,yC-39,yC+43];
+    let yTxt=cand.find(c=>c>pT+8&&c<base-4&&!puestas.some(q=>Math.abs(q.x-x)<34&&Math.abs(q.y-c)<11));
+    if(yTxt==null)yTxt=yC-13;
+    puestas.push({x:x,y:yTxt});
+    const guia=Math.abs(yTxt-yC)>16
+      ? `<line x1="${x.toFixed(1)}" y1="${yC.toFixed(1)}" x2="${x.toFixed(1)}" y2="${(yTxt+(yTxt<yC?4:-7)).toFixed(1)}" stroke="var(--line2)" stroke-width=".8"/>` : '';
+    const anc = x<60?'start' : x>W-60?'end' : 'middle';
+    const col=hecho?'var(--go)':(r.summit?'var(--bike)':'var(--mut)');
+    // Si el campamento esta por encima del terreno, el hueco se dibuja
+    const hueco=(!hecho&&brecha>3)? `<line x1="${x.toFixed(1)}" y1="${yT.toFixed(1)}" x2="${x.toFixed(1)}" y2="${(yC+5).toFixed(1)}" stroke="var(--line2)" stroke-width="1" stroke-dasharray="2 2"/>`:'';
+    const bandera=r.summit
+      ? `<path d="M${x.toFixed(1)},${yC.toFixed(1)} l0,-11 l11,4 l-11,4" fill="var(--bike)"/><circle cx="${x.toFixed(1)}" cy="${yC.toFixed(1)}" r="4.5" fill="var(--bike)"/>`
+      : hecho
+      ? `<circle cx="${x.toFixed(1)}" cy="${yC.toFixed(1)}" r="4.2" fill="var(--go)"/><path d="M${(x-2).toFixed(1)},${yC.toFixed(1)} l1.6,1.8 l2.7,-3.4" stroke="#0A0E14" stroke-width="1.4" fill="none" stroke-linecap="round"/>`
+      : `<circle cx="${x.toFixed(1)}" cy="${yC.toFixed(1)}" r="4.2" fill="var(--surf)" stroke="var(--mut)" stroke-width="1.6"/>`;
+    return `${hueco}${guia}${bandera}<text x="${x.toFixed(1)}" y="${yTxt.toFixed(1)}" text-anchor="${anc}" font-size="8.5" font-family="'IBM Plex Mono',monospace" fill="${col}" font-weight="600">${r.corto||''}</text>`;
+  }).join('');
+
+  // --- Reticula de altura, rotulada en CTL ---
+  const grid=[`<text x="${pL+2}" y="${pT-14}" font-size="7" font-family="'IBM Plex Mono',monospace" fill="var(--faint)" letter-spacing=".1em">CTL</text>`].concat([25,50,75,100].map(v=>
+    `<line x1="${pL}" y1="${Y(v).toFixed(1)}" x2="${W-pR}" y2="${Y(v).toFixed(1)}" stroke="var(--line)" stroke-width=".6" stroke-dasharray="1 4"/>`+
+    `<text x="${pL+2}" y="${(Y(v)-2.5).toFixed(1)}" font-size="7" font-family="'IBM Plex Mono',monospace" fill="var(--faint)">${v}</text>`
+  )).join('');
+  // --- Años en la base ---
+  const anios=['2026-01-01','2027-01-01','2028-01-01'].map(a=>
+    `<line x1="${X(a).toFixed(1)}" y1="${pT-4}" x2="${X(a).toFixed(1)}" y2="${base}" stroke="var(--line)" stroke-width=".6"/>`+
+    `<text x="${X(a).toFixed(1)}" y="${base+12}" text-anchor="middle" font-size="7.5" font-family="'IBM Plex Mono',monospace" fill="var(--faint)">${a.slice(0,4)}</text>`
+  ).join('');
+
+  // --- Tu posicion exacta ---
+  const yHoy=Y(ctlHoy==null?0:ctlHoy);
+  const marca=ctlHoy==null?'':`
+    <line x1="${xHoy.toFixed(1)}" y1="${pT-6}" x2="${xHoy.toFixed(1)}" y2="${base}" stroke="var(--ink)" stroke-width=".8" stroke-dasharray="3 3" opacity=".5"/>
+    <circle cx="${xHoy.toFixed(1)}" cy="${yHoy.toFixed(1)}" r="8" fill="var(--go)" opacity=".16"/>
+    <circle cx="${xHoy.toFixed(1)}" cy="${yHoy.toFixed(1)}" r="4" fill="var(--go)" stroke="#0A0E14" stroke-width="1.4"/>
+    <text x="${xHoy.toFixed(1)}" y="${pT-10}" text-anchor="middle" font-size="8" font-family="'IBM Plex Mono',monospace" fill="var(--go)" font-weight="700">ESTÁS AQUÍ</text>`;
+
+  const svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet" role="img"
+    aria-label="Mapa de ascenso: tu condición física real desde 2025 y la proyección del plan hasta el IRONMAN 2028, con cada carrera a la altura de exigencia que requiere.">
+    <defs>
+      <linearGradient id="gReal" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2FD98A" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#2FD98A" stop-opacity=".04"/>
+      </linearGradient>
+      <linearGradient id="gProy" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#F6C445" stop-opacity=".20"/>
+        <stop offset="100%" stop-color="#38425A" stop-opacity=".03"/>
+      </linearGradient>
+      <linearGradient id="gCresta" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#2FD98A"/><stop offset="55%" stop-color="#F6C445"/><stop offset="100%" stop-color="#EDF1F7"/>
+      </linearGradient>
+    </defs>
+    ${grid}${anios}
+    <path d="${laderaProy}" fill="url(#gProy)"/>
+    <polyline points="${pts(proy)}" fill="none" stroke="url(#gCresta)" stroke-width="1.5" opacity=".65"/>
+    <path d="${laderaReal}" fill="url(#gReal)"/>
+    <polyline points="${pts(real)}" fill="none" stroke="#2FD98A" stroke-width="2.1" stroke-linejoin="round"/>
+    ${campos}${marca}
+  </svg>`;
+
+  // --- Un dato = un numero. Tres cifras, sin parrafos. ---
+  const sig=carreras.find(r=>daysTo(r.date)>=0);
+  const sigTerr=sig?interp(proy,sig.date):null;
+  const brechaSig=(sig&&sigTerr!=null)?Math.round(sig.exig-sigTerr):null;
+  const hechas=carreras.filter(r=>daysTo(r.date)<0).length;
+  const cifras=[
+    {v:ctlHoy==null?'—':Math.round(ctlHoy), l:'tu altura hoy', c:'var(--go)'},
+    {v:sig?sig.exig:'—', l:sig?('exige '+(sig.corto||'')):'—', c:'var(--bike)'},
+    {v:brechaSig==null?'—':(brechaSig<=0?'✓':'+'+brechaSig), l:brechaSig!=null&&brechaSig<=0?'ladera alcanza':'falta ascender', c:brechaSig!=null&&brechaSig<=0?'var(--go)':'var(--caution)'}
+  ];
+
+  box.innerHTML=`
+    <div class="mt-wrap">
+      <div class="mt-head">
+        <div class="mt-tit">El ascenso</div>
+        <div class="mt-sub">${hechas} de ${carreras.length} campamentos</div>
+      </div>
+      <div class="mt-svg">${svg}</div>
+      <div class="mt-leg">
+        <span><i class="sw sw-go"></i>recorrido</span>
+        <span><i class="sw sw-pr"></i>proyección del plan</span>
+        <span><i class="sw sw-cp"></i>campamento pendiente</span>
+      </div>
+      <div class="mt-nums">${cifras.map(c=>`<div class="mt-n"><div class="mt-v" style="color:${c.c}">${c.v}</div><div class="mt-l">${c.l}</div></div>`).join('')}</div>
+      <details class="mt-det"><summary>Cómo se lee este mapa</summary>
+        <p>La altura es tu <b>CTL</b>: la condición física acumulada que calcula Intervals.icu con todos tus entrenamientos. La ladera verde son tus datos reales; la amarilla punteada es a dónde te lleva el plan. Cada carrera está clavada a la altura de CTL que exige — si el círculo queda por encima de la ladera, esa distancia punteada es lo que falta por construir.</p>
+      </details>
+    </div>`;
 }
 
 async function renderRuta(){
+  await renderMontana();
   await renderMission();
   await renderRaceHero();
   await renderRecomendacion();
@@ -2615,6 +3047,37 @@ async function runGarminSync(){
   }finally{garminBusy=false;document.querySelectorAll('.js-live').forEach(b=>b.disabled=false);}
 }
 
+
+// --- Actividades reales desde Intervals.icu (Garmin) ---
+// Alimentan el cumplimiento automatico: si Garmin lo registro, el plan lo marca hecho.
+// Se escriben en las mismas claves que ya consumen renderWeek y renderProgress,
+// asi que todo lo que ya existia sigue funcionando sin cambios.
+let actsBusy=false;
+async function syncActividades(){
+  if(actsBusy)return null; actsBusy=true;
+  try{
+    const r=await fetch('/api/actividades?dias=180',{headers:{'Accept':'application/json'}});
+    const j=await r.json().catch(()=>null);
+    if(!r.ok||!j||j.error||!Array.isArray(j.actividades))return null;
+    const ses=j.actividades.map(a=>({date:a.date,sport:a.sport,name:a.name,km:a.km,min:a.min,
+      kcal:a.kcal,elev:a.desnivel,avgHr:a.fc_media,maxHr:a.fc_max,cadence:a.cadencia,carga:a.carga}));
+    await Store.set('strava_sessions',ses);
+    await Store.set('strava_summary',aggregateFromSessions(ses));
+    await Store.set('ic_por_semana',j.por_semana||[]);
+    await Store.set('acts_synced',new Date().toISOString());
+    return ses;
+  }catch(e){ return null; }
+  finally{ actsBusy=false; }
+}
+
+// Horas reales de una semana del plan, directo de lo que registro Garmin.
+async function horasReales(wIdx){
+  const wk=PLAN_WEEKS[wIdx]; if(!wk)return 0;
+  const ses=await Store.get('strava_sessions')||[];
+  const min=ses.filter(s=>s.date>=wk.start&&s.date<=wk.end).reduce((a,s)=>a+(+s.min||0),0);
+  return +(min/60).toFixed(1);
+}
+
 let liveBusy=false;
 function parseJsonLoose(text){let s=text.indexOf('{'),e=text.lastIndexOf('}');if(s>=0&&e>s){try{return JSON.parse(text.slice(s,e+1));}catch(_){}}s=text.indexOf('[');e=text.lastIndexOf(']');if(s>=0&&e>s){try{return {sessions:JSON.parse(text.slice(s,e+1))};}catch(_){}}return null;}
 function aggregateFromSessions(sessions){
@@ -2733,6 +3196,7 @@ function wireUpd(){
   await step('carreras',loadCustomRaces);
   await step('viaje',loadTravel);
   await step('fecha',()=>{const c=document.getElementById('todayChip');if(c)c.textContent=today().toLocaleDateString('es',{day:'numeric',month:'short'}).toUpperCase();});
+  await step('actividades',syncActividades);
   await step('ruta',renderRuta);
   await step('weekNav',renderWeekNav);
   await step('barraViaje',renderTravelBar);
