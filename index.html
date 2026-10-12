@@ -388,7 +388,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1101">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1101</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1102">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1102</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -640,10 +640,14 @@ const RACE_STRAT_5150='<h5>2 días antes</h5><p>Sube carbohidratos, hidrátate, 
 // a partir de (1) la fase en curso, (2) el calendario de carreras con prioridad A/B/C
 // y (3) las restricciones reales de tu semana. No vuelve a expirar nunca.
 //
-// Restricciones declaradas por el atleta (oct 2026):
-//   Lun a vie: una sesion de 45-90 min.   Vie: descanso (prepara el finde grande).
-//   Sab y dom: libres para fondos largos.
-//   Fuerza: 2 sesiones por semana en casa, 25-30 min (Lun y Jue).
+// Estructura semanal REAL del atleta (oct 2026), declarada por el:
+//   Lun  descanso
+//   Mar  natacion + algo de fuerza (+ bici suave opcional)
+//   Mie  pista de atletismo con 30 min de calentamiento previo + natacion al mediodia
+//   Jue  natacion AM + bici PM
+//   Vie  natacion AM
+//   Sab  tirada larga
+//   Dom  brick: bici + carrera
 //   Sin potenciometro: TODO se prescribe por frecuencia cardiaca.
 //   Nado: no se prescribe por pulso (el sensor optico falla en agua).
 
@@ -725,10 +729,13 @@ function sCorreLargo(dia,min,fase,tipo){
     tip:"Si el pulso se va por encima de 149 sin que subas el ritmo, es deriva cardíaca: estás deshidratado o cansado. Bebe y baja."};
 }
 function sBrick(dia,minB,minR,fase){
+  const horas=minB/60, ch=Math.round(60*horas), ml=Math.round(600*horas);
   return {d:dia,t:"🔗 Brick "+durTxt(minB)+" bici + "+durTxt(minR)+" trote",tag:'<span class="tag t-brick">Brick</span>',dmin:minB+minR,
-    detail:durTxt(minB)+" de bici en "+zr("bike",2)+"-"+zr("bike",3)+" y, SIN pausa, "+durTxt(minR)+" de trote en "+zr("run",2)+".",
-    obj:"La sesión que define al triatleta: enseña a correr con piernas de bici. La transición sin pausa es lo que se entrena.",
-    tip:"Los primeros 5 min de trote se sienten horribles. Es normal y mejora: acorta la zancada y sube la cadencia."};
+    detail:"<b>Bici · "+durTxt(minB)+":</b> continuo en "+zr("bike",2)+(horas>=2.5?", con 3×10 min en "+zr("bike",3)+" en la segunda mitad":"")+".<br>"+
+           "<b>Transición:</b> sin pausa. Cambio de zapatillas y a correr.<br>"+
+           "<b>Trote · "+durTxt(minR)+":</b> en "+zr("run",2)+". Los primeros 5 min van a sentirse horribles.",
+    obj:"La sesión que define al triatleta, y además llega sobre las piernas de la tirada larga del sábado: es exactamente la fatiga del IRONMAN.",
+    tip:"Nutrición en marcha en la bici: ~"+ch+" g de carbohidrato y ~"+ml+" ml de líquido. Ensáyalo aquí, no el día de la carrera."};
 }
 function sFuerza(dia,min,cual){
   return {d:dia,t:"Fuerza "+cual+" "+durTxt(min),tag:'<span class="tag t-str">Fuerza</span>',dmin:min,
@@ -750,6 +757,47 @@ function conNadoAM(day,min){
            "<b>PM · "+durTxt(pm)+":</b> "+(day.detail||""),
     tip:"El nado de la mañana no debe comprometer la sesión de la tarde: si llegas cansado a la tarde, el nado fue demasiado fuerte."
   });
+}
+
+// Martes: natacion, algo de fuerza y bici suave opcional.
+function sMartes(dia,minNado,str,minBici){
+  return {d:dia,t:"Natación "+durTxt(minNado)+" + fuerza",tag:'<span class="tag t-swim">Nado</span>',
+    dmin:minNado+25,
+    detail:"<b>Nado · "+durTxt(minNado)+":</b> 300 m calentamiento + 6×50 m técnica + 8×100 m a ritmo cómodo con 20 s de pausa + 200 m suelta.<br>"+
+           "<b>Fuerza · 25 min:</b> sentadilla goblet, peso muerto a una pierna, zancadas, plancha. 3 series.<br>"+
+           "<b>Opcional · bici suave "+durTxt(minBici)+":</b> solo si llegas entero. En "+zr("bike",2)+", cadencia alta. Si dudas, no la hagas.",
+    obj:"Arrancar la semana por tu disciplina fuerte y blindar articulaciones antes de los días de impacto.",
+    tip:"La fuerza va DESPUÉS del nado, nunca antes: el agua con los hombros cansados arruina la técnica.",
+    str:str||undefined};
+}
+// Miercoles: pista de atletismo con 30 min de calentamiento + nado al mediodia.
+function sPista(dia,minSerie,fase,tipo,minNado){
+  const suave=(tipo==="taper"||tipo==="descarga");
+  const serie=suave
+    ? "6×400 m en "+zr("run",4)+" con 90 s de trote entre repeticiones."
+    : fase.foco==="run"
+    ? "5×1.000 m en "+zr("run",4)+" con 2 min de trote entre series."
+    : "4×8 min en "+zr("run",3)+" con 2 min de trote entre bloques.";
+  return {d:dia,t:"Pista "+durTxt(30+minSerie)+" + nado mediodía",tag:'<span class="tag t-run">Run</span>',
+    dmin:30+minSerie+minNado,
+    detail:"<b>Calentamiento · 30 min:</b> movilidad articular, 15 min de trote en "+zr("run",1)+", 4 progresiones de 60 m y técnica de carrera.<br>"+
+           "<b>Serie:</b> "+serie+"<br>"+
+           "<b>Suelta:</b> 10 min muy suave.<br>"+
+           "<b>Mediodía · nado "+durTxt(minNado)+":</b> continuo y relajado. Descarga las piernas de la pista sin impacto.",
+    obj:"La sesión de calidad de la semana. El calentamiento largo no es relleno: a 2.600 m el cuerpo tarda más en abrir y es lo que evita el tirón.",
+    tip:"Manda la zona de pulso, no el ritmo por kilómetro: en altura el mismo esfuerzo da un ritmo más lento y eso no es perder forma."};
+}
+// Jueves: natacion por la mañana y bici por la tarde.
+function sJueves(dia,minNado,minBici,fase,tipo){
+  const suave=(tipo==="taper"||tipo==="descarga");
+  return {d:dia,t:"Nado AM "+durTxt(minNado)+" + Bici "+durTxt(minBici),tag:'<span class="tag t-bike">Bici</span>',
+    dmin:minNado+minBici,
+    detail:"<b>AM · nado "+durTxt(minNado)+":</b> 400 m calentamiento + 1.200 m continuos + 200 m suelta. Levanta la vista cada 8 brazadas.<br>"+
+           "<b>PM · bici "+durTxt(minBici)+":</b> "+(suave
+             ? "rodaje continuo en "+zr("bike",2)+", cadencia alta."
+             : "15 min calentamiento + 3×8 min en "+zr("bike",4)+" con 4 min suave entre bloques + 10 min suelta."),
+    obj:"Fuerza específica de pedaleo con las piernas ya despiertas. Sin potenciómetro, el umbral de bici se controla por pulso: 151-159 ppm.",
+    tip:"Si la cadencia cae por debajo de 80 en los bloques, baja el desarrollo en vez de machacar la rodilla."};
 }
 function sDescanso(dia,texto){
   return {d:dia,t:texto||"Descanso",tag:'<span class="tag t-rest">Off</span>',dmin:0,
@@ -828,29 +876,28 @@ function generarPlan(atras,adelante){
     const kL = tipo==="carga"?1 : tipo==="descarga"?0.6 : tipo==="taper"?0.5 : (prioIn==="C"?0.5:0.4);
     let bikeL=r5((fase.bikeL[0]+(fase.bikeL[1]-fase.bikeL[0])*p)*kL);
     let runL =r5((fase.runL[0] +(fase.runL[1] -fase.runL[0] )*p)*(tipo==="carga"?1:kL*1.1));
-    const corto=r5(55*mult), medio=r5(75*mult), nado=r5(60*mult);
-    const esTri=(fase.foco==="tri"||fase.foco==="im"||fase.foco==="ultra");
+    const serie=r5(40*mult), bici=r5(70*mult), nado=r5(60*mult), nadoAM=r5(45*mult);
+    // El fondo de bici vive dentro del brick del domingo. En fases con foco de
+    // carrera se recorta, porque el sabado ya se hizo la tirada larga.
+    const brickB=r5(bikeL*(fase.foco==="run"?0.75:1));
+    const brickR=Math.min(55,Math.max(20,r5(runL*0.28)));
 
     let days=[
-      sNado(DOW_N[0],nado,"tecnica",tipo==="carga"?STR_A:null),
-      sCorreCalidad(DOW_N[1],corto,fase,tipo),
-      sBici(DOW_N[2],medio,fase,tipo),
-      sNado(DOW_N[3],r5(nado*0.85),"fondo",tipo==="carga"?STR_B:null),
-      sDescanso(DOW_N[4]),
-      sBiciFondo(DOW_N[5],bikeL,fase,tipo),
-      (esTri&&semFase%2===1) ? sBrick(DOW_N[6],r5(bikeL*0.55),r5(runL*0.6),fase)
-                             : sCorreLargo(DOW_N[6],runL,fase,tipo)
+      sDescanso(DOW_N[0]),                                            // Lun
+      sMartes(DOW_N[1],nado,tipo==="carga"?STR_A:null,r5(45*mult)),   // Mar
+      sPista(DOW_N[2],serie,fase,tipo,r5(nadoAM*0.95)),               // Mié
+      sJueves(DOW_N[3],nadoAM,bici,fase,tipo),                        // Jue
+      sNado(DOW_N[4],r5(nado*0.85),"fondo"),                          // Vie
+      sCorreLargo(DOW_N[5],runL,fase,tipo),                           // Sáb
+      sBrick(DOW_N[6],brickB,brickR,fase)                             // Dom
     ];
-    // En semanas de carga, dos dias llevan nado de mañana: asi el volumen de
-    // nado queda en ~200 min/sem, que es lo que de verdad haces.
-    if(tipo==="carga"){ const nAM=r5(45*mult); days[1]=conNadoAM(days[1],nAM); days[2]=conNadoAM(days[2],nAM); }
     if(raceIn) days=aplicarCarrera(days,raceIn,fase);
     else if(recien){
-      // Nadar suave descarga mejor que no hacer nada, y es tu habito diario.
-      days[0]=sNado(DOW_N[0],40,"suave");
-      days[0].t="Nado regenerativo 40 min";
-      days[0].obj="Recuperación activa tras "+recien.name+". Sin impacto, moviliza las piernas y acelera la limpieza muscular.";
-      days[1]=sCorreCalidad(DOW_N[1],r5(corto*0.8),fase,"descarga");
+      // El lunes ya es descanso. Lo que se suaviza es el martes y la pista del miercoles.
+      days[1]=sNado(DOW_N[1],45,"suave");
+      days[1].t="Nado regenerativo 45 min";
+      days[1].obj="Recuperación activa tras "+recien.name+". Sin impacto, moviliza las piernas y acelera la limpieza muscular.";
+      days[2]=sPista(DOW_N[2],r5(serie*0.6),fase,"descarga",r5(nadoAM*0.95));
     }
     // Regla del 10%: ninguna semana sube mas de un 10% sobre la anterior.
     if(ultCarga&&tipo==="carga"){
