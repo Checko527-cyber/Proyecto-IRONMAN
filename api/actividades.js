@@ -36,6 +36,60 @@ function clave(obj, nombres) {
   return null;
 }
 
+
+// Strava como red de seguridad.
+// El 18/10/2026 Intervals.icu dejó de recibir actividades durante tres días —
+// el bienestar seguía entrando, los entrenamientos no — y la app se quedó ciega
+// justo el día de una carrera. Desde entonces completamos los huecos con Strava,
+// que recibe directo del reloj. Intervals manda cuando tiene el dato; Strava
+// solo rellena lo que falta.
+async function traerStrava(dias) {
+  const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } = process.env;
+  if (!STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_REFRESH_TOKEN) return [];
+  try {
+    const tk = await fetch('https://www.strava.com/oauth/token', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: STRAVA_CLIENT_ID, client_secret: STRAVA_CLIENT_SECRET,
+        grant_type: 'refresh_token', refresh_token: STRAVA_REFRESH_TOKEN })
+    });
+    const t = await tk.json();
+    if (!t.access_token) return [];
+    const after = Math.floor((Date.now() - 86400000 * Math.min(dias, 183)) / 1000);
+    let page = 1, todas = [];
+    while (page <= 4) {
+      const r = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=200&page=${page}`,
+        { headers: { Authorization: 'Bearer ' + t.access_token } });
+      const lote = await r.json();
+      if (!Array.isArray(lote) || !lote.length) break;
+      todas = todas.concat(lote);
+      if (lote.length < 200) break;
+      page++;
+    }
+    const dep = x => { x = (x || '').toLowerCase();
+      if (x.includes('run')) return 'run';
+      if (x.includes('ride') || x.includes('bike') || x.includes('cycl')) return 'bike';
+      if (x.includes('swim')) return 'swim';
+      return 'other'; };
+    return todas.map(a => ({
+      id: a.id ? 's' + a.id : null,
+      date: (a.start_date_local || a.start_date || '').slice(0, 10),
+      sport: dep(a.sport_type || a.type),
+      tipo_crudo: a.sport_type || a.type || '',
+      name: a.name || '',
+      min: Math.round((a.moving_time || 0) / 60),
+      km: a.distance != null ? +((a.distance / 1000).toFixed(2)) : null,
+      desnivel: a.total_elevation_gain != null ? Math.round(a.total_elevation_gain) : null,
+      fc_media: a.average_heartrate ? Math.round(a.average_heartrate) : null,
+      fc_max: a.max_heartrate ? Math.round(a.max_heartrate) : null,
+      carga: a.suffer_score != null ? Math.round(a.suffer_score) : null,
+      kcal: a.calories != null ? Math.round(a.calories) : null,
+      cadencia: a.average_cadence != null ? +a.average_cadence : null,
+      prs: a.pr_count || 0,
+      fuente: 'strava'
+    })).filter(a => a.date && a.min);
+  } catch (e) { return []; }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   try {
@@ -95,9 +149,22 @@ export default async function handler(req, res) {
         fc_max: num(a[kFcMax]),
         carga: num(a[kCarga]),
         kcal: num(a[kKcal]),
-        cadencia: num(a[kCad])
+        cadencia: num(a[kCad]),
+        fuente: 'intervals'
       };
     }).filter(a => a.date).sort((a, b) => a.date < b.date ? 1 : -1);
+
+    // --- Fusión con Strava: solo rellena lo que Intervals no tiene ---
+    const deStrava = await traerStrava(dias);
+    const yaEsta = (a, b) => a.date === b.date && a.sport === b.sport &&
+      Math.abs((a.min || 0) - (b.min || 0)) <= Math.max(4, (a.min || 0) * 0.25);
+    const rellenadas = deStrava.filter(s2 => s2.date >= desde && !actividades.some(i => yaEsta(i, s2)));
+    const fusionadas = actividades.concat(rellenadas).sort((a, b) => a.date < b.date ? 1 : -1);
+
+    const ultIntervals = actividades.length ? actividades[0].date : null;
+    const hoyStr = fmt(new Date());
+    const desfase = ultIntervals
+      ? Math.round((new Date(hoyStr) - new Date(ultIntervals)) / 86400000) : null;
 
     // Horas y carga agrupadas por semana ISO, para la barra de hecho vs objetivo.
     const semanaDe = iso => {
@@ -108,7 +175,7 @@ export default async function handler(req, res) {
       return dt.toISOString().slice(0, 10);
     };
     const semanas = {};
-    for (const a of actividades) {
+    for (const a of fusionadas) {
       const k = semanaDe(a.date);
       const s = semanas[k] || (semanas[k] = { lunes: k, min: 0, carga: 0, sesiones: 0, desnivel: 0, por_deporte: {} });
       s.min += a.min || 0;
@@ -122,9 +189,17 @@ export default async function handler(req, res) {
       .sort((a, b) => a.lunes < b.lunes ? -1 : 1);
 
     return res.status(200).json({
-      actividades,
+      actividades: fusionadas,
       por_semana,
-      count: actividades.length,
+      count: fusionadas.length,
+      fuentes: { intervals: actividades.length, strava_rellenadas: rellenadas.length },
+      sincronizacion: {
+        ultima_de_intervals: ultIntervals,
+        dias_de_desfase: desfase,
+        aviso: (desfase != null && desfase >= 2)
+          ? 'Intervals.icu lleva ' + desfase + ' dias sin recibir actividades. Los huecos se rellenaron con Strava.'
+          : null
+      },
       rango: { desde, hasta },
       campos_detectados: { kDur, kDist, kDesn, kFcAvg, kFcMax, kCarga, kKcal, kCad }
     });

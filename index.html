@@ -538,6 +538,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 }
 /* cinco pestañas: cabe todo si se aprieta un poco */
 .nav-wrap .navbtn{font-size:9.5px;padding-left:2px;padding-right:2px}
+.rx-aviso{margin:0 0 14px}
 </style>
 </head>
 <body>
@@ -545,7 +546,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1200">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1200</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1201">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1201</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -2758,6 +2759,7 @@ async function historiaCompleta(forzar){
     if(r.ok && j && Array.isArray(j.actividades) && j.actividades.length){
       await Store.set('historia', j.actividades);
       await Store.set('historia_ts', new Date().toISOString());
+      await Store.set('sync_estado', j.sincronizacion || null);
       return j.actividades;
     }
   }catch(e){}
@@ -2938,6 +2940,12 @@ async function renderMotor(forzar){
 
   // --- cabecera y totales ---
   const meses = Math.max(1, Math.round((parse(R.tot.hasta)-parse(R.tot.desde))/MS/30.4));
+  const sync = await Store.get('sync_estado');
+  const avisoSync = (sync && sync.aviso)
+    ? `<div class="rx-ver rx-aviso" style="--c:var(--caution)"><b>Sincronización:</b> ${sync.aviso}
+       Revisa en intervals.icu → Settings → Integrations que la conexión con Garmin siga activa.</div>`
+    : '';
+
   let html = `
   <div class="rx-head">
     <div><div class="rx-k">Corte del ${fmtNice(R.generado)}</div>
@@ -2945,6 +2953,7 @@ async function renderMotor(forzar){
       <div class="rx-sub">${meses} meses · ${R.tot.ses} sesiones leídas una por una desde Intervals.icu</div></div>
     <button class="btn rx-upd" id="rxUpd" title="Recalcular con los datos de ahora">⟳</button>
   </div>
+  ${avisoSync}
   <div class="rx-tiles">
     ${cifra(R.tot.semConEntreno+'<small>/'+R.tot.semTot+'</small>','semanas con entrenamiento','var(--go)')}
     ${cifra(R.tot.ses,'sesiones')}
@@ -3705,6 +3714,7 @@ async function syncActividades(){
     await Store.set('strava_sessions',ses);
     await Store.set('strava_summary',aggregateFromSessions(ses));
     await Store.set('ic_por_semana',j.por_semana||[]);
+    await Store.set('sync_estado',j.sincronizacion||null);
     await Store.set('acts_synced',new Date().toISOString());
     return ses;
   }catch(e){ return null; }
