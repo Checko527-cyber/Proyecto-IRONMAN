@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     const athlete = (INTERVALS_ATHLETE_ID || '0').trim();
     const auth = 'Basic ' + Buffer.from('API_KEY:' + INTERVALS_API_KEY).toString('base64');
 
-    const dias = Math.min(400, Math.max(7, parseInt(req.query && req.query.dias, 10) || 120));
+    const dias = Math.min(900, Math.max(7, parseInt(req.query && req.query.dias, 10) || 120));
     const pad = n => String(n).padStart(2, '0');
     const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     const desde = fmt(new Date(Date.now() - dias * 86400000));

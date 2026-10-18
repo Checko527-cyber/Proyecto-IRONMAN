@@ -455,6 +455,89 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .rb-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px}
 .rb-legend .sw.soft{background:var(--go)}
 .rb-legend .sw.hard{background:var(--caution)}
+
+/* ===== RADIOGRAFÍA DEL MOTOR ===== */
+.rx-load{padding:40px 10px;text-align:center;color:var(--mut);font-size:13px}
+.rx-nodata{padding:22px 8px;text-align:center;color:var(--faint);font-size:11.5px}
+.rx-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.rx-head>div{flex:1;min-width:0}
+.rx-k{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.rx-h{font-size:25px;font-weight:800;letter-spacing:-.025em;margin:0;line-height:1.1}
+.rx-sub{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+.rx-upd{flex:0 0 auto;padding:8px 12px;font-size:15px;line-height:1}
+.rx-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:12px}
+.rx-t{background:var(--surf);padding:13px 9px}
+.rx-v{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;line-height:1.05;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.rx-v small{font-size:.55em;color:var(--mut);font-weight:400;margin-left:1px}
+.rx-d{font-size:.5em;margin-left:4px;font-weight:600}
+.rx-l{font-size:9.5px;color:var(--faint);margin-top:6px;line-height:1.35}
+.rx-sec{margin-top:26px}
+.rx-st{font-family:Archivo,system-ui,sans-serif;font-size:17px;font-weight:800;
+  letter-spacing:-.02em;margin-bottom:5px}
+.rx-sub2{font-size:12px;color:var(--mut);margin-bottom:13px;line-height:1.5}
+/* capítulo por deporte */
+.rx-sport{margin-top:22px;border:1px solid var(--line);border-left:3px solid var(--c);
+  border-radius:0 15px 15px 0;background:var(--surf);padding:15px 14px;overflow:hidden}
+.rx-sh{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.rx-si{font-size:22px;line-height:1;flex:0 0 auto}
+.rx-sh>div{flex:1;min-width:0}
+.rx-sn{font-family:Archivo,system-ui,sans-serif;font-size:17px;font-weight:800;letter-spacing:-.02em}
+.rx-sm{font-size:11px;color:var(--mut);margin-top:3px}
+.rx-rec{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--c);
+  text-align:right;flex:0 0 auto;line-height:1.15}
+.rx-rec small{display:block;font-size:8.5px;color:var(--faint);font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.rx-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:13px}
+.rx-gc{min-width:0}
+.rx-gt{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.rx-gs{font-size:10px;color:var(--faint);margin-bottom:8px;line-height:1.4}
+.rx-fc{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--mut)}
+.rx-fc b{color:var(--ink);font-family:'IBM Plex Mono',monospace}
+.rx-det{margin-top:11px;border:1px solid var(--line);border-radius:10px;background:var(--raise)}
+.rx-det summary{cursor:pointer;padding:10px 12px;font-size:11.5px;color:var(--mut);list-style:none}
+.rx-det summary::-webkit-details-marker{display:none}
+.rx-det summary::after{content:' ＋';color:var(--faint)}
+.rx-det[open] summary::after{content:' −'}
+.rx-hit{list-style:none;margin:0;padding:0 12px 11px}
+.rx-hit li{display:flex;align-items:baseline;gap:9px;padding:6px 0;
+  border-bottom:1px solid var(--line);font-size:12px}
+.rx-hit li:last-child{border-bottom:0}
+.rx-hit span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint);flex:0 0 72px}
+.rx-hit b{font-family:'IBM Plex Mono',monospace;color:var(--c);flex:0 0 76px;text-align:right}
+.rx-hit em{font-style:normal;color:var(--mut);font-size:11px;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* barras de zonas y de brecha */
+.rx-zrow{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.rx-zl{flex:0 0 96px;font-size:11.5px;font-weight:600;line-height:1.2}
+.rx-zl small{display:block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;
+  color:var(--faint);font-weight:400;margin-top:2px}
+.rx-zb{flex:1;min-width:0;display:flex;height:26px;border-radius:5px;overflow:hidden;
+  background:var(--raise)}
+.rx-zb i{display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;
+  font-size:10px;font-weight:600;color:#07090E;border-right:2px solid var(--surf)}
+.rx-zb i:last-child{border-right:0}
+.rx-zb.one i{justify-content:flex-start;padding-left:9px;border-radius:5px}
+.rx-zp{flex:0 0 46px;text-align:right;font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;font-weight:600}
+.rx-ver{margin-top:14px;border-left:3px solid var(--c);background:var(--raise);
+  border-radius:0 10px 10px 0;padding:11px 13px;font-size:12.5px;line-height:1.5;color:var(--mut)}
+.rx-ver b{color:var(--c)}
+.rx-cortes{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}
+.rx-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 9px;border-radius:20px;
+  border:1px solid var(--line);color:var(--faint)}
+.rx-chip.on{border-color:var(--go);color:var(--go)}
+@media(max-width:430px){
+  .rx-tiles{grid-template-columns:repeat(2,1fr)}
+  .rx-v{font-size:17px}
+  .rx-zl{flex:0 0 74px;font-size:10.5px}
+  .rx-h{font-size:21px}
+}
+/* cinco pestañas: cabe todo si se aprieta un poco */
+.nav-wrap .navbtn{font-size:9.5px;padding-left:2px;padding-right:2px}
 </style>
 </head>
 <body>
@@ -462,7 +545,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1103">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1103</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1200">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1200</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -549,6 +632,11 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   </div>
 
   <!-- ===== RUTA ===== -->
+  <div class="view" id="v-motor">
+    <div class="aurora-bg"></div>
+    <div id="motorBox"></div>
+  </div>
+
   <div class="view" id="v-ruta">
     <div class="aurora-bg"></div>
     <div id="reviewBanner"></div>
@@ -585,6 +673,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <button class="navbtn active" data-v="inicio"><span class="ni">◧</span>Inicio</button>
   <button class="navbtn" data-v="semana"><span class="ni">▦</span>Semana</button>
   <button class="navbtn" data-v="datos"><span class="ni">◱</span>Datos</button>
+  <button class="navbtn" data-v="motor"><span class="ni">◉</span>Motor</button>
   <button class="navbtn" data-v="ruta"><span class="ni">⛰</span>Ruta</button>
 </div></nav>
 <div class="savetoast" id="toast">Guardado ✓</div>
@@ -2645,6 +2734,339 @@ async function renderRiesgos(){
     `<div class="clegend"><span><i class="sw" style="background:var(--go)"></i>bajo</span><span><i class="sw" style="background:var(--caution)"></i>medio</span><span><i class="sw" style="background:var(--stop)"></i>alto</span><span class="cnote">calculado con tus datos de hoy</span></div>`;
 }
 
+// ===================== RADIOGRAFÍA DEL MOTOR =====================
+// No es un informe congelado: se recalcula entero cada vez que abres la pestaña,
+// a partir de TODO tu historial de Intervals.icu. Cuando sincronizas una carrera
+// nueva, aparece aquí sola.
+// Cada 90 días guarda un "corte" — una foto del estado — para poder comparar
+// trimestre contra trimestre sin perder el histórico.
+
+const RX_DIAS = 540;          // ventana de historia que pide la radiografía
+const RX_CORTE_DIAS = 90;     // cada cuánto se guarda una foto
+const RX_CACHE_H = 12;        // horas que vale la historia en caché
+
+async function historiaCompleta(forzar){
+  const ts = await Store.get('historia_ts');
+  const cacheOk = !forzar && ts && (Date.now() - new Date(ts).getTime()) < RX_CACHE_H*3600e3;
+  if(cacheOk){
+    const h = await Store.get('historia');
+    if(h && h.length) return h;
+  }
+  try{
+    const r = await fetch('/api/actividades?dias='+RX_DIAS, {headers:{'Accept':'application/json'}});
+    const j = await r.json().catch(()=>null);
+    if(r.ok && j && Array.isArray(j.actividades) && j.actividades.length){
+      await Store.set('historia', j.actividades);
+      await Store.set('historia_ts', new Date().toISOString());
+      return j.actividades;
+    }
+  }catch(e){}
+  return (await Store.get('historia')) || (await Store.get('strava_sessions')) || [];
+}
+
+
+// Coma decimal y punto de millar, como se escribe en español.
+function rxN(v,dec){ if(v==null||!isFinite(v))return '—';
+  const n=Number(v).toFixed(dec==null?1:dec);
+  const [e,d]=n.split('.');
+  return e.replace(/\B(?=(\d{3})+(?!\d))/g,'.') + (d?','+d:''); }
+const rxMed = v => { if(!v.length) return null; const s=v.slice().sort((a,b)=>a-b),m=s.length>>1;
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2; };
+const rxMes = iso => iso.slice(0,7);
+const MESCORTO = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const rxEtiqMes = m => MESCORTO[+m.slice(5,7)-1] + ' ' + m.slice(2,4);
+
+function calcularRadiografia(acts, well){
+  const A = (acts||[]).filter(a => a && a.date && a.min);
+  const W = (well||[]).slice().sort((a,b)=> a.date<b.date ? -1 : 1);
+  if(!A.length) return null;
+  const meses = [...new Set(A.map(a=>rxMes(a.date)))].sort();
+
+  // --- totales ---
+  const suma = (f,filtro) => A.filter(filtro||(()=>true)).reduce((s,a)=> s + (f(a)||0), 0);
+  const km = sp => suma(a=>a.km, a=>a.sport===sp);
+  const semanas = new Set(A.map(a=>isoWeekKey(parse(a.date))));
+  // semanas transcurridas entre la primera y la última sesión
+  const d0 = parse(A[A.length-1].date), d1 = parse(A[0].date);
+  const semTot = Math.max(1, Math.round((d1-d0)/(7*MS)) + 1);
+
+  const tot = {
+    ses: A.length,
+    h: Math.round(suma(a=>a.min)/60),
+    kmSwim: +km('swim').toFixed(1), kmBike: Math.round(km('bike')), kmRun: Math.round(km('run')),
+    dz: Math.round(suma(a=>a.desnivel)),
+    kcal: Math.round(suma(a=>a.kcal)),
+    semConEntreno: semanas.size, semTot,
+    desde: A[A.length-1].date, hasta: A[0].date
+  };
+
+  // --- cuerpo ---
+  const serie = k => W.filter(x=>x[k]!=null).map(x=>[x.date, x[k]]);
+  const cuerpo = {};
+  for(const k of ['weight','vo2max','restingHR','ctl','hrv','sleep']){
+    const s = serie(k);
+    if(!s.length){ cuerpo[k]=null; continue; }
+    const ini = s.length>=20 ? rxMed(s.slice(0,5).map(x=>x[1])) : s[0][1];
+    cuerpo[k] = {ini:+ini.toFixed(1), fin:+s[s.length-1][1].toFixed(1), serie:s};
+  }
+
+  // --- por deporte ---
+  const MINK = {swim:0.8, bike:8, run:3};
+  const porDeporte = {};
+  for(const sp of ['swim','bike','run']){
+    const S = A.filter(a => a.sport===sp && (a.km||0) >= MINK[sp]);
+    const porM = fn => meses.map(m => {
+      const v = S.filter(a=>rxMes(a.date)===m).map(fn).filter(x=>x!=null && isFinite(x));
+      return v.length ? rxMed(v) : null;
+    });
+    const efi = porM(a => a.fc_media ? (a.km*1000/a.min)/a.fc_media : null);
+    const vivos = efi.map((v,i)=>[meses[i],v]).filter(p=>p[1]!=null);
+    const mejora = vivos.length>1 ? (vivos[vivos.length-1][1]/vivos[0][1]-1)*100 : null;
+    // récord de distancia
+    const orden = S.slice().sort((a,b)=> a.date<b.date ? -1 : 1);
+    let best=0; const hitos=[];
+    for(const a of orden){ const v=a.km||0; if(v>best*1.04){ best=v; hitos.push({d:a.date,v:+v.toFixed(sp==='swim'?2:1),n:a.name||''}); } }
+    porDeporte[sp] = {
+      n: S.length, h: +(S.reduce((s,a)=>s+a.min,0)/60).toFixed(1),
+      efi, efiVivos: vivos, mejora,
+      fc: porM(a=>a.fc_media), dist: porM(a=> sp==='swim' ? a.km*1000 : a.km),
+      ritmo: porM(a => sp==='swim' ? a.min*60/(a.km*10) : sp==='run' ? a.min/a.km : a.km/(a.min/60)),
+      hitos: hitos.slice(-6), record: best
+    };
+  }
+
+  // --- zonas de carrera en tres etapas ---
+  const R = A.filter(a=>a.sport==='run' && a.fc_media && (a.km||0)>=3)
+             .sort((a,b)=> a.date<b.date ? -1 : 1);
+  const ZD = [[0,141],[142,149],[150,157],[158,167],[168,250]];
+  const etapas = [];
+  if(R.length >= 9){
+    const t = Math.ceil(R.length/3);
+    for(let i=0;i<3;i++){
+      const tr = R.slice(i*t, (i+1)*t); if(!tr.length) continue;
+      const totMin = tr.reduce((s,a)=>s+a.min,0) || 1;
+      etapas.push({
+        lab: rxEtiqMes(rxMes(tr[0].date)) + ' – ' + rxEtiqMes(rxMes(tr[tr.length-1].date)),
+        h: +(totMin/60).toFixed(1),
+        v: ZD.map(([lo,hi]) => +(tr.filter(a=>a.fc_media>=lo&&a.fc_media<=hi)
+              .reduce((s,a)=>s+a.min,0)/totMin*100).toFixed(1))
+      });
+    }
+  }
+
+  // --- brecha frente al 70.3 ---
+  const brecha = [
+    {n:'Nado',    sp:'swim', tuyo: porDeporte.swim.record, meta:1.9,  c:'var(--swim)'},
+    {n:'Bici',    sp:'bike', tuyo: porDeporte.bike.record, meta:90,   c:'var(--bike)'},
+    {n:'Carrera', sp:'run',  tuyo: porDeporte.run.record,  meta:21.1, c:'var(--run)'}
+  ];
+
+  return {meses, tot, cuerpo, porDeporte, etapas, brecha, generado: fmtLocal(today())};
+}
+
+// ---- gráfica de línea compacta, con énfasis en el extremo ----
+function rxLinea(serie, color, o){
+  o = o || {};
+  const v = serie.filter(p => p[1]!=null);
+  if(v.length < 2) return '<div class="rx-nodata">Sin datos suficientes todavía</div>';
+  const W=320, H=o.h||118, pL=o.pL||32, pR=o.pR||34, pT=12, pB=20;
+  let mn=Math.min(...v.map(p=>p[1])), mx=Math.max(...v.map(p=>p[1]));
+  const pad=(mx-mn)*0.16 || 1; mn-=pad; mx+=pad;
+  if(o.inv){ const t=mn; mn=mx; mx=t; }
+  const n=v.length;
+  const X=i=>pL+(i/(n-1))*(W-pL-pR), Y=x=>H-pB-((x-mn)/(mx-mn))*(H-pT-pB);
+  let g='';
+  for(let k=0;k<=2;k++){
+    const val=mn+(mx-mn)*k/2, y=Y(val);
+    g+=`<line x1="${pL}" y1="${y.toFixed(1)}" x2="${W-pR}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+    g+=`<text x="${pL-5}" y="${(y+3.5).toFixed(1)}" text-anchor="end" font-size="9" font-family="'IBM Plex Mono',monospace" fill="var(--faint)">${o.fy?o.fy(val):Math.round(val)}</text>`;
+  }
+  const pts=v.map((p,i)=>`${X(i).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(' ');
+  if(o.area){
+    const gid='rx'+Math.random().toString(36).slice(2,8);
+    g=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity=".3"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>`+g;
+    g+=`<path d="M${X(0).toFixed(1)},${H-pB} L${pts} L${X(n-1).toFixed(1)},${H-pB} Z" fill="url(#${gid})"/>`;
+  }
+  g+=`<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const ux=X(n-1), uy=Y(v[n-1][1]);
+  g+=`<circle cx="${ux.toFixed(1)}" cy="${uy.toFixed(1)}" r="4" fill="${color}" stroke="var(--surf)" stroke-width="2"/>`;
+  g+=`<text x="${(ux+7).toFixed(1)}" y="${(uy+3.5).toFixed(1)}" font-size="10.5" font-weight="600" font-family="'IBM Plex Mono',monospace" fill="${color}">${o.fp?o.fp(v[n-1][1]):Math.round(v[n-1][1])}</text>`;
+  g+=`<text x="${pL}" y="${H-6}" font-size="8.5" font-family="'IBM Plex Mono',monospace" fill="var(--faint)">${rxEtiqMes(v[0][0])}</text>`;
+  g+=`<text x="${(W-pR).toFixed(1)}" y="${H-6}" text-anchor="end" font-size="8.5" font-family="'IBM Plex Mono',monospace" fill="var(--faint)">${rxEtiqMes(v[n-1][0])}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block" role="img" aria-label="${o.alt||''}">${g}</svg>`;
+}
+
+// ---- cortes trimestrales ----
+async function cortesTrimestrales(R){
+  let cortes = (await Store.get('radiografia_cortes')) || [];
+  const hoy = fmtLocal(today());
+  const foto = {
+    fecha: hoy, ses: R.tot.ses, h: R.tot.h, dz: R.tot.dz,
+    ctl: R.cuerpo.ctl ? R.cuerpo.ctl.fin : null,
+    peso: R.cuerpo.weight ? R.cuerpo.weight.fin : null,
+    vo2: R.cuerpo.vo2max ? R.cuerpo.vo2max.fin : null,
+    fcrep: R.cuerpo.restingHR ? R.cuerpo.restingHR.fin : null,
+    recSwim: R.porDeporte.swim.record, recBike: R.porDeporte.bike.record, recRun: R.porDeporte.run.record
+  };
+  const ult = cortes[cortes.length-1];
+  const dias = ult ? Math.round((parse(hoy)-parse(ult.fecha))/MS) : 1e9;
+  if(dias >= RX_CORTE_DIAS){
+    cortes = cortes.concat([foto]).slice(-16);
+    await Store.set('radiografia_cortes', cortes);
+  }
+  return {cortes, foto, proximo: ult ? RX_CORTE_DIAS - dias : 0};
+}
+
+let RX_CACHE = null;
+async function renderMotor(forzar){
+  const box = document.getElementById('motorBox'); if(!box) return;
+  if(!RX_CACHE || forzar) box.innerHTML = '<div class="rx-load">Leyendo tu historial completo…</div>';
+  const acts = await historiaCompleta(forzar);
+  const well = wellAsc(await getWell());
+  const R = calcularRadiografia(acts, well);
+  if(!R){ box.innerHTML = '<div class="empty">Aún no hay historial. Pulsa Sync en Datos y vuelve.</div>'; return; }
+  RX_CACHE = R;
+  const {cortes, foto, proximo} = await cortesTrimestrales(R);
+
+  const d = (c, inv) => { if(!c) return ''; const dif=c.fin-c.ini;
+    const bien = inv ? dif<0 : dif>0;
+    return `<span class="rx-d" style="color:${dif===0?'var(--mut)':(bien?'var(--go)':'var(--caution)')}">${dif>0?'+':''}${rxN(dif)}</span>`; };
+
+  const cifra = (v,l,c) => `<div class="rx-t"><div class="rx-v" style="${c?'color:'+c:''}">${v}</div><div class="rx-l">${l}</div></div>`;
+
+  // --- cabecera y totales ---
+  const meses = Math.max(1, Math.round((parse(R.tot.hasta)-parse(R.tot.desde))/MS/30.4));
+  let html = `
+  <div class="rx-head">
+    <div><div class="rx-k">Corte del ${fmtNice(R.generado)}</div>
+      <h3 class="rx-h">Radiografía del Motor</h3>
+      <div class="rx-sub">${meses} meses · ${R.tot.ses} sesiones leídas una por una desde Intervals.icu</div></div>
+    <button class="btn rx-upd" id="rxUpd" title="Recalcular con los datos de ahora">⟳</button>
+  </div>
+  <div class="rx-tiles">
+    ${cifra(R.tot.semConEntreno+'<small>/'+R.tot.semTot+'</small>','semanas con entrenamiento','var(--go)')}
+    ${cifra(R.tot.ses,'sesiones')}
+    ${cifra(R.tot.h+'<small>h</small>','acumuladas')}
+    ${cifra(rxN(R.tot.dz,0)+'<small>m</small>','de desnivel')}
+  </div>
+  <div class="rx-tiles">
+    ${cifra(rxN(R.tot.kmSwim)+'<small>km</small>','nadados','var(--swim)')}
+    ${cifra(rxN(R.tot.kmBike,0)+'<small>km</small>','en bici','var(--bike)')}
+    ${cifra(rxN(R.tot.kmRun,0)+'<small>km</small>','corriendo','var(--run)')}
+    ${cifra(rxN(R.tot.kcal,0),'kilocalorías quemadas')}
+  </div>`;
+
+  // --- cuerpo ---
+  const C = R.cuerpo;
+  html += `<div class="rx-sec"><div class="rx-st">El cuerpo que cambió</div>
+    <div class="rx-tiles">
+      ${C.weight ? cifra(C.weight.fin+'<small>kg</small>'+d(C.weight,true),'peso · desde '+C.weight.ini,'var(--go)') : ''}
+      ${C.vo2max ? cifra(C.vo2max.fin+d(C.vo2max),'VO2max · desde '+C.vo2max.ini,'var(--go)') : ''}
+      ${C.restingHR ? cifra(C.restingHR.fin+d(C.restingHR,true),'FC reposo · desde '+C.restingHR.ini,'var(--go)') : ''}
+      ${C.ctl ? cifra(C.ctl.fin+d(C.ctl),'CTL · desde '+C.ctl.ini,'var(--go)') : ''}
+    </div></div>`;
+
+  // --- un capítulo por deporte ---
+  const CFG = {
+    swim:{t:'Natación', c:'var(--swim)', ic:'🏊', u:'m',
+      fr:v=>Math.floor(v/60)+':'+String(Math.round(v%60)).padStart(2,'0'), rl:'por 100 m',
+      fd:v=>rxN(v,0)+' m', rec:v=>rxN(v*1000,0)+' m'},
+    bike:{t:'Ciclismo', c:'var(--bike)', ic:'🚴', u:'km',
+      fr:v=>rxN(v), rl:'km/h', fd:v=>rxN(v)+' km', rec:v=>rxN(v)+' km'},
+    run:{t:'Carrera', c:'var(--run)', ic:'🏃', u:'km',
+      fr:v=>Math.floor(v)+':'+String(Math.round((v%1)*60)).padStart(2,'0'), rl:'min/km',
+      fd:v=>rxN(v)+' km', rec:v=>rxN(v)+' km'}
+  };
+  for(const sp of ['swim','bike','run']){
+    const P = R.porDeporte[sp], K = CFG[sp];
+    if(!P.n) continue;
+    const mesesEfi = P.efi.map((v,i)=>[R.meses[i], v]);
+    const fcS = P.fc.map((v,i)=>[R.meses[i], v]);
+    const riS = P.ritmo.map((v,i)=>[R.meses[i], v]);
+    const vivFc = fcS.filter(p=>p[1]!=null), vivRi = riS.filter(p=>p[1]!=null);
+    const dFc = vivFc.length>1 ? Math.round(vivFc[vivFc.length-1][1]-vivFc[0][1]) : null;
+    html += `
+    <div class="rx-sport" style="--c:${K.c}">
+      <div class="rx-sh"><span class="rx-si">${K.ic}</span>
+        <div><div class="rx-sn">${K.t}</div>
+          <div class="rx-sm">${P.n} sesiones · ${rxN(P.h)} h${P.mejora!=null?' · eficiencia '+(P.mejora>0?'+':'')+rxN(P.mejora)+'%':''}</div></div>
+        <div class="rx-rec">${K.rec(P.record)}<small>récord</small></div></div>
+      <div class="rx-g">
+        <div class="rx-gc"><div class="rx-gt">Eficiencia aeróbica</div>
+          <div class="rx-gs">metros por minuto ÷ pulso · sube = mejor</div>
+          ${rxLinea(mesesEfi, K.c, {area:true, pR:48, fy:v=>rxN(v,sp==='bike'?1:2), fp:v=>rxN(v,sp==='bike'?2:3), alt:'Eficiencia aeróbica en '+K.t})}</div>
+        <div class="rx-gc"><div class="rx-gt">${sp==='bike'?'Velocidad media':(sp==='run'?'Ritmo medio':'Ritmo por 100 m')}</div>
+          <div class="rx-gs">mediana mensual · ${K.rl}</div>
+          ${rxLinea(riS, K.c, {inv:sp!=='bike', pR:44, fy:K.fr, fp:K.fr, alt:'Ritmo en '+K.t})}</div>
+      </div>
+      <div class="rx-fc">Pulso medio: <b>${vivFc.length?Math.round(vivFc[vivFc.length-1][1]):'—'} ppm</b>${dFc!=null?` <span style="color:${dFc<0?'var(--go)':'var(--mut)'}">${dFc>0?'+':''}${dFc} desde el inicio</span>`:''}</div>
+      ${P.hitos.length>1?`<details class="rx-det"><summary>Progresión de tu distancia máxima</summary>
+        <ul class="rx-hit">${P.hitos.map(h=>`<li><span>${fmtNice(h.d)}</span><b>${K.rec(h.v)}</b><em>${h.n}</em></li>`).join('')}</ul></details>`:''}
+    </div>`;
+  }
+
+  // --- zonas ---
+  if(R.etapas.length===3){
+    const ZC=['#5A6980','var(--go)','var(--bike)','var(--caution)','var(--run)'];
+    const ZN=['Z1 bajo 142','Z2 142-149','Z3 150-157','Z4 158-167','Z5 168+'];
+    const z3 = R.etapas[2].v[2];
+    html += `<div class="rx-sec"><div class="rx-st">Dónde pasas el tiempo cuando corres</div>
+      <div class="rx-sub2">Tus sesiones de carrera divididas en tres tercios iguales, del más antiguo al más reciente. La Z3 es la zona gris: demasiado dura para recuperar, demasiado suave para subir el umbral. Un plan sano la mantiene por debajo del 15 %.</div>
+      ${R.etapas.map(e=>`<div class="rx-zrow"><div class="rx-zl">${e.lab}<small>${rxN(e.h)} h</small></div>
+        <div class="rx-zb">${e.v.map((v,k)=>v<0.5?'':`<i style="width:${v}%;background:${ZC[k]}" title="${ZN[k]}: ${v}%">${v>=11?v.toFixed(0)+'%':''}</i>`).join('')}</div></div>`).join('')}
+      <div class="clegend">${ZN.map((n,k)=>`<span><i class="sw" style="background:${ZC[k]}"></i>${n}</span>`).join('')}<span class="cnote">% del tiempo</span></div>
+      <div class="rx-ver" style="--c:${z3>20?'var(--caution)':'var(--go)'}">${z3>20
+        ? `<b>Atención:</b> la Z3 está en ${z3.toFixed(0)} %. Los días suaves tienen que ser suaves de verdad para que los duros puedan serlo.`
+        : `<b>Bien:</b> la Z3 está en ${z3.toFixed(0)} %. El reparto de intensidad es el correcto.`}</div>
+    </div>`;
+  }
+
+  // --- brecha 70.3 ---
+  html += `<div class="rx-sec"><div class="rx-st">Dónde estás frente al 70.3 de Victoria</div>
+    <div class="rx-sub2">Lo que ya cubriste en entrenamiento frente a lo que exige cada segmento.</div>
+    ${R.brecha.map(b=>{
+      const pct=Math.min(100, b.tuyo/b.meta*100), ok=b.tuyo>=b.meta;
+      const ft=v=>b.sp==='swim'?rxN(v*1000,0)+' m':rxN(v)+' km';
+      return `<div class="rx-zrow"><div class="rx-zl">${b.n}<small>exige ${ft(b.meta)}</small></div>
+        <div class="rx-zb one"><i style="width:${pct}%;background:${b.c}">${ft(b.tuyo)}</i></div>
+        <div class="rx-zp" style="color:${ok?'var(--go)':'var(--caution)'}">${ok?'+'+Math.round(b.tuyo/b.meta*100-100)+'%':Math.round(pct)+'%'}</div></div>`;
+    }).join('')}
+    ${R.brecha.every(b=>b.tuyo>=b.meta)
+      ? `<div class="rx-ver" style="--c:var(--go)"><b>Ya tienes las tres distancias.</b> Lo que falta no es capacidad, es encadenarlas — y eso lo construye el brick del domingo.</div>`
+      : `<div class="rx-ver" style="--c:var(--caution)">Falta cubrir alguna de las tres distancias en entrenamiento.</div>`}
+  </div>`;
+
+  // --- cortes trimestrales ---
+  html += `<div class="rx-sec"><div class="rx-st">Cortes trimestrales</div>
+    <div class="rx-sub2">Cada 90 días la app guarda una foto de este estado. Así ves el avance entre informes, no solo el acumulado.</div>`;
+  if(cortes.length < 2){
+    const falta = Math.max(0, proximo);
+    html += `<div class="rx-ver" style="--c:var(--str)">Primer corte guardado hoy (${fmtNice(foto.fecha)}).
+      El siguiente se guardará solo ${falta>0?'en '+falta+' días':'dentro de 90 días'} y aquí aparecerá la comparación.</div>`;
+  } else {
+    const a=cortes[cortes.length-2], b=cortes[cortes.length-1];
+    const fila=(l,ka,u,inv)=>{
+      if(a[ka]==null||b[ka]==null) return '';
+      const dif=+(b[ka]-a[ka]).toFixed(1), bien=inv?dif<0:dif>0;
+      return `<tr><td>${l}</td><td>${a[ka]}${u}</td><td>${b[ka]}${u}</td>
+        <td style="color:${dif===0?'var(--mut)':(bien?'var(--go)':'var(--caution)')}">${dif>0?'+':''}${dif}</td></tr>`;
+    };
+    html += `<div class="tw"><table><thead><tr><th>Indicador</th><th>${fmtNice(a.fecha)}</th><th>${fmtNice(b.fecha)}</th><th>Δ</th></tr></thead><tbody>
+      ${fila('Sesiones','ses','')}${fila('Horas','h',' h')}${fila('Desnivel','dz',' m')}
+      ${fila('CTL','ctl','')}${fila('Peso','peso',' kg',true)}${fila('VO2max','vo2','')}
+      ${fila('FC reposo','fcrep','',true)}${fila('Récord bici','recBike',' km')}${fila('Récord carrera','recRun',' km')}
+    </tbody></table></div>`;
+  }
+  html += `<div class="rx-cortes">${cortes.map((c,i)=>`<span class="rx-chip ${i===cortes.length-1?'on':''}">${fmtNice(c.fecha)}</span>`).join('')}</div></div>`;
+
+  box.innerHTML = html;
+  const b = document.getElementById('rxUpd');
+  if(b) b.onclick = async () => { b.disabled=true; b.textContent='…';
+    await renderMotor(true); toast('Radiografía actualizada ✓'); };
+}
+
 async function renderRuta(){
   await renderMontana();
   await renderMission();
@@ -3356,7 +3778,9 @@ async function renderChecks(){
   document.querySelectorAll('.checkitem').forEach(el=>el.onclick=async()=>{const s=await Store.get('checks')||{};const id=el.dataset.id;const cur=(id in s)?s[id]:!!(CHECKS.find(c=>c.id===id)||{}).done;s[id]=!cur;await Store.set('checks',s);el.classList.toggle('on');});
 }
 
-function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));const t=document.getElementById('v-'+v);if(t)t.classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));window.scrollTo({top:0,behavior:'smooth'});}
+function go(v){
+  if(v==='motor') setTimeout(()=>{try{renderMotor(false);}catch(e){}},30);
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));const t=document.getElementById('v-'+v);if(t)t.classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
 
 // ===================== ACTUALIZACION DE VERSION =====================
