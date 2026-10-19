@@ -13,9 +13,46 @@ export default async function handler(req, res) {
 
     let id = String((req.query && req.query.id) || '').trim();
     if (!id) return res.status(400).json({ error: 'Falta el parámetro id.' });
-    if (id.startsWith('s')) return res.status(400).json({ error: 'Ese id es de Strava. Esta ruta solo lee actividades de Intervals.icu.' });
-    if (!id.startsWith('i')) id = 'i' + id;
+    // Un id que empieza por 's' viene de Strava: se lee de allí.
+    // Pasa cuando Intervals aún no ha terminado de importar la sesión.
+    const esStrava = id.startsWith('s');
 
+    let resumen = null, S = {};
+
+    if (esStrava) {
+      const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } = process.env;
+      if (!STRAVA_CLIENT_ID) return res.status(500).json({ error: 'Faltan credenciales de Strava.' });
+      const tk = await fetch('https://www.strava.com/oauth/token', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: STRAVA_CLIENT_ID, client_secret: STRAVA_CLIENT_SECRET,
+          grant_type: 'refresh_token', refresh_token: STRAVA_REFRESH_TOKEN })
+      });
+      const t = await tk.json();
+      if (!t.access_token) return res.status(502).json({ error: 'No se pudo autenticar con Strava.' });
+      const H = { Authorization: 'Bearer ' + t.access_token };
+      const sid = id.slice(1);
+      const [ra, rs] = await Promise.all([
+        fetch('https://www.strava.com/api/v3/activities/' + sid, { headers: H }),
+        fetch('https://www.strava.com/api/v3/activities/' + sid +
+              '/streams?keys=time,distance,heartrate,altitude,cadence&key_by_type=true', { headers: H })
+      ]);
+      if (!ra.ok) return res.status(404).json({ error: 'Strava no encontró esa actividad.' });
+      const a = await ra.json();
+      resumen = {
+        name: a.name, start_date_local: a.start_date_local, type: a.sport_type || a.type,
+        distance: a.distance, moving_time: a.moving_time,
+        average_heartrate: a.average_heartrate, max_heartrate: a.max_heartrate,
+        icu_training_load: a.suffer_score, total_elevation_gain: a.total_elevation_gain,
+        average_cadence: a.average_cadence
+      };
+      if (rs.ok) {
+        const st = await rs.json();
+        for (const k of Object.keys(st || {})) if (st[k] && st[k].data) S[k] = st[k].data;
+      }
+      return res.status(200).json(armar(id, resumen, S, 'strava'));
+    }
+
+    if (!id.startsWith('i')) id = 'i' + id;
     const auth = 'Basic ' + Buffer.from('API_KEY:' + INTERVALS_API_KEY).toString('base64');
     const base = 'https://intervals.icu/api/v1/activity/' + encodeURIComponent(id);
     const pedir = async (ruta) => {
@@ -26,15 +63,24 @@ export default async function handler(req, res) {
       } catch (e) { return null; }
     };
 
-    const [resumen, streams] = await Promise.all([
+    const [resumenI, streams] = await Promise.all([
       pedir(''),
       pedir('/streams?types=time,distance,heartrate,altitude,cadence,velocity_smooth')
     ]);
-    if (!resumen) return res.status(404).json({ error: 'Intervals.icu no encontró esa actividad.' });
+    if (!resumenI) return res.status(404).json({ error: 'Intervals.icu no encontró esa actividad.' });
 
-    // Los streams llegan como lista de objetos {type, data}
-    const S = {};
+    // Los streams de Intervals llegan como lista de objetos {type, data}
     if (Array.isArray(streams)) for (const s of streams) if (s && s.type) S[s.type] = s.data;
+
+    return res.status(200).json(armar(id, resumenI, S, 'intervals'));
+  } catch (e) {
+    return res.status(500).json({ error: 'Error leyendo la actividad.', detail: String(e) });
+  }
+}
+
+// Mismos cálculos para las dos fuentes: parciales, mitades, deriva y zonas.
+function armar(id, resumen, S, fuente) {
+  try {
 
     // --- Parciales por kilómetro, calculados desde el stream ---
     let km = [];
@@ -98,8 +144,8 @@ export default async function handler(req, res) {
       zonas = Z.map(([n], i) => ({ zona: n, seg: Math.round(conteo[i]), pct: +(conteo[i] / tot * 100).toFixed(1) }));
     }
 
-    return res.status(200).json({
-      id,
+    return {
+      id, fuente,
       nombre: resumen.name || '',
       fecha: (resumen.start_date_local || '').slice(0, 19),
       tipo: resumen.type || '',
@@ -114,8 +160,8 @@ export default async function handler(req, res) {
       mitades,
       zonas,
       _streams: Object.keys(S)
-    });
+    };
   } catch (e) {
-    return res.status(500).json({ error: 'Error leyendo la actividad.', detail: String(e) });
+    return { id, fuente, error: 'No se pudieron calcular los parciales.', detail: String(e) };
   }
 }
