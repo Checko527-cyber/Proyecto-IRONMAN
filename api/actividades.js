@@ -122,7 +122,14 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'Respuesta inesperada de Intervals.icu.' });
     }
 
-    const muestra = crudas[0] || {};
+    // Una sola actividad no basta como muestra: una recien importada puede llegar
+    // sin campos y dejar la deteccion en nulo para todas las demas. Se unen las
+    // claves de un buen puñado de registros.
+    const muestra = {};
+    for (const a of crudas.slice(0, 60)) {
+      if (!a || typeof a !== 'object') continue;
+      for (const k of Object.keys(a)) if (a[k] != null && !(k in muestra)) muestra[k] = a[k];
+    }
     const kDur  = clave(muestra, ['moving_time', 'elapsed_time', 'duration']);
     const kDist = clave(muestra, ['distance']);
     const kDesn = clave(muestra, ['total_elevation_gain', 'elevation_gain']);
@@ -156,12 +163,45 @@ export default async function handler(req, res) {
 
     // --- Fusión con Strava: solo rellena lo que Intervals no tiene ---
     const deStrava = await traerStrava(dias);
-    const yaEsta = (a, b) => a.date === b.date && a.sport === b.sport &&
-      Math.abs((a.min || 0) - (b.min || 0)) <= Math.max(4, (a.min || 0) * 0.25);
-    const rellenadas = deStrava.filter(s2 => s2.date >= desde && !actividades.some(i => yaEsta(i, s2)));
-    const fusionadas = actividades.concat(rellenadas).sort((a, b) => a.date < b.date ? 1 : -1);
+    const CAMPOS = ['min', 'km', 'fc_media', 'fc_max', 'carga', 'kcal', 'desnivel'];
+    const completitud = a => CAMPOS.filter(k => a[k] != null).length;
+    // Dos registros son la misma sesion si coinciden fecha y deporte y, ademas,
+    // el nombre, la duracion o la distancia. Con tres criterios basta que uno
+    // acierte, asi que un campo vacio ya no rompe el emparejamiento.
+    const mismaSesion = (a, b) => a.date === b.date && a.sport === b.sport && (
+      (a.name && b.name && a.name === b.name) ||
+      (a.min != null && b.min != null && Math.abs(a.min - b.min) <= Math.max(4, a.min * 0.25)) ||
+      (a.km != null && b.km != null && a.km > 0 && Math.abs(a.km - b.km) <= Math.max(0.3, a.km * 0.1))
+    );
 
-    const ultIntervals = actividades.length ? actividades[0].date : null;
+    const fusionadas = actividades.slice();
+    let rellenadas = 0, mejoradas = 0;
+    for (const sv of deStrava) {
+      if (sv.date < desde) continue;
+      const i = fusionadas.findIndex(x => mismaSesion(x, sv));
+      if (i < 0) { fusionadas.push(sv); rellenadas++; continue; }
+      // Misma sesion por dos vias: gana la version con mas datos, conservando
+      // de la otra cualquier campo que a la ganadora le falte.
+      if (completitud(sv) > completitud(fusionadas[i])) {
+        const perdedor = fusionadas[i];
+        const ganador = Object.assign({}, sv);
+        for (const k of CAMPOS) if (ganador[k] == null && perdedor[k] != null) ganador[k] = perdedor[k];
+        if (!ganador.name && perdedor.name) ganador.name = perdedor.name;
+        ganador.fuente = sv.fuente + '+' + perdedor.fuente;
+        fusionadas[i] = ganador;
+        mejoradas++;
+      } else {
+        for (const k of CAMPOS) if (fusionadas[i][k] == null && sv[k] != null) fusionadas[i][k] = sv[k];
+      }
+    }
+    // Un registro sin duración no es una sesión: es una importación a medias.
+    // Se descarta DESPUÉS de fusionar, para no tirar uno que Strava sí completó.
+    const descartadas = fusionadas.filter(a => a.min == null).length;
+    const limpias = fusionadas.filter(a => a.min != null);
+    limpias.sort((a, b) => a.date < b.date ? 1 : -1);
+
+    const conDatos = actividades.filter(a => a.min != null);
+    const ultIntervals = conDatos.length ? conDatos[0].date : null;
     const hoyStr = fmt(new Date());
     const desfase = ultIntervals
       ? Math.round((new Date(hoyStr) - new Date(ultIntervals)) / 86400000) : null;
@@ -175,7 +215,7 @@ export default async function handler(req, res) {
       return dt.toISOString().slice(0, 10);
     };
     const semanas = {};
-    for (const a of fusionadas) {
+    for (const a of limpias) {
       const k = semanaDe(a.date);
       const s = semanas[k] || (semanas[k] = { lunes: k, min: 0, carga: 0, sesiones: 0, desnivel: 0, por_deporte: {} });
       s.min += a.min || 0;
@@ -189,10 +229,10 @@ export default async function handler(req, res) {
       .sort((a, b) => a.lunes < b.lunes ? -1 : 1);
 
     return res.status(200).json({
-      actividades: fusionadas,
+      actividades: limpias,
       por_semana,
-      count: fusionadas.length,
-      fuentes: { intervals: actividades.length, strava_rellenadas: rellenadas.length },
+      count: limpias.length,
+      fuentes: { intervals: actividades.length, strava_rellenadas: rellenadas, completadas_con_strava: mejoradas, incompletas_descartadas: descartadas },
       sincronizacion: {
         ultima_de_intervals: ultIntervals,
         dias_de_desfase: desfase,
