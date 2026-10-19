@@ -132,7 +132,8 @@ function armar(id, resumen, S, fuente) {
     // --- Tiempo por zona de pulso (zonas de carrera calibradas) ---
     let zonas = null;
     if (S.heartrate && S.time) {
-      const Z = [['Z1', 0, 141], ['Z2', 142, 149], ['Z3', 150, 157], ['Z4', 158, 167], ['Z5', 168, 250]];
+      // Zonas medidas en el Allianz 15K del 18/10/2026: LTHR de carrera 165.
+      const Z = [['Z1', 0, 139], ['Z2', 140, 147], ['Z3', 148, 155], ['Z4', 156, 164], ['Z5', 165, 250]];
       const conteo = Z.map(() => 0);
       for (let i = 1; i < S.heartrate.length; i++) {
         const h = S.heartrate[i]; if (!h) continue;

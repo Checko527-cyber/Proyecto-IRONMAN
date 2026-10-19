@@ -546,7 +546,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1201">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1201</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1210">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1210</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -735,27 +735,32 @@ const PHASES=[
    focus:['<span class="tag t-swim">10K nado</span>','<span class="tag t-bike">421K bici</span>','<span class="tag t-run">84K carrera</span>']}
 ];
 
-// ===== ZONAS CALIBRADAS (oct 2026) =====
+// ===== ZONAS MEDIDAS (18 oct 2026, Allianz 15K) =====
+// Ya no son una estimacion. En el 15K sostuvo 80 min con el 81% del tiempo en
+// Z4-Z5 y remato el ultimo kilometro en 5:03 con FC 168 — una carrera a tope.
+// La FC media de los ultimos 20 min, que es el protocolo del test de umbral,
+// fue 165. Ese es el LTHR real: el 168 estimado estaba alto y el 163 de Garmin,
+// bajo. Mitades de 5:21 y 5:21, deriva de +9 ppm.
 // FC max 188 de Garmin: validada contra la Media Maraton (pico 176 = 93,6%).
 // Umbral 168: el 163 de Garmin esta subestimado — sostuvo FC media 163
 // durante 2h14 en la media maraton, y el umbral solo se sostiene ~1h.
 // Bici: umbral 8 ppm por debajo del de carrera (menor masa muscular implicada).
 // Natacion: el sensor optico falla en agua (marca FC mas alta que en carrera,
 // fisiologicamente imposible) — no prescribir nado por pulso.
-const FCMAX=188, LTHR_RUN=168, LTHR_BIKE=160;
+const FCMAX=188, LTHR_RUN=165, LTHR_BIKE=157;
 const ZONAS={
   run:{umbral:LTHR_RUN,z:[
-    {n:'Z1',lbl:'Recuperación',lo:0,hi:141,c:'var(--rest)',uso:'Trote regenerativo'},
-    {n:'Z2',lbl:'Base aeróbica',lo:142,hi:149,c:'var(--go)',uso:'El motor del Ironman'},
-    {n:'Z3',lbl:'Tempo',lo:150,hi:157,c:'var(--bike)',uso:'Ritmo sostenido'},
-    {n:'Z4',lbl:'Umbral',lo:158,hi:167,c:'var(--caution)',uso:'Series largas'},
-    {n:'Z5',lbl:'VO2max',lo:168,hi:188,c:'var(--stop)',uso:'Intervalos cortos'}]},
+    {n:'Z1',lbl:'Recuperación',lo:0,hi:139,c:'var(--rest)',uso:'Trote regenerativo'},
+    {n:'Z2',lbl:'Base aeróbica',lo:140,hi:147,c:'var(--go)',uso:'El motor del Ironman'},
+    {n:'Z3',lbl:'Tempo',lo:148,hi:155,c:'var(--bike)',uso:'Ritmo sostenido'},
+    {n:'Z4',lbl:'Umbral',lo:156,hi:164,c:'var(--caution)',uso:'Series largas · tu ritmo del 15K'},
+    {n:'Z5',lbl:'VO2max',lo:165,hi:188,c:'var(--stop)',uso:'Intervalos cortos'}]},
   bike:{umbral:LTHR_BIKE,z:[
-    {n:'Z1',lbl:'Recuperación',lo:0,hi:135,c:'var(--rest)',uso:'Rodillo suave'},
-    {n:'Z2',lbl:'Base aeróbica',lo:136,hi:142,c:'var(--go)',uso:'Fondos largos'},
-    {n:'Z3',lbl:'Tempo',lo:143,hi:150,c:'var(--bike)',uso:'Ritmo de 70.3'},
-    {n:'Z4',lbl:'Umbral',lo:151,hi:159,c:'var(--caution)',uso:'Bloques de fuerza'},
-    {n:'Z5',lbl:'VO2max',lo:160,hi:188,c:'var(--stop)',uso:'Repechos'}]}
+    {n:'Z1',lbl:'Recuperación',lo:0,hi:132,c:'var(--rest)',uso:'Rodillo suave'},
+    {n:'Z2',lbl:'Base aeróbica',lo:133,hi:139,c:'var(--go)',uso:'Fondos largos'},
+    {n:'Z3',lbl:'Tempo',lo:140,hi:147,c:'var(--bike)',uso:'Ritmo de 70.3'},
+    {n:'Z4',lbl:'Umbral',lo:148,hi:156,c:'var(--caution)',uso:'Bloques de fuerza'},
+    {n:'Z5',lbl:'VO2max',lo:157,hi:188,c:'var(--stop)',uso:'Repechos'}]}
 };
 function zonaDe(fc,dep){
   const set=(dep==='bike'||dep==='bici')?ZONAS.bike:ZONAS.run;
@@ -2516,7 +2521,7 @@ function renderZonas(){
   });
 
   const _zb=document.getElementById('zonasBox');
-  if(_zb) _zb.insertAdjacentHTML('beforeend', `<div class="mt-det zwarn"><details><summary>Dos ajustes pendientes en Intervals.icu</summary><p>Intervals.icu sigue con <b>LTHR 171</b> y <b>FTP 250 W</b> en sus propios ajustes, y con eso calcula tu CTL, ATL y la carga de cada sesión. Las dos cifras están infladas: no tienes potenciómetro, así que ese FTP es una estimación. Cámbialos a <b>LTHR 168</b> en carrera y quita o baja el FTP a ~200 W hasta tener un test real. El <b>15K del 18 de octubre</b> es ese test: la FC media de la carrera te da el umbral verdadero.</p></details></div>`);
+  if(_zb) _zb.insertAdjacentHTML('beforeend', `<div class="mt-det zwarn"><details><summary>Dos ajustes pendientes en Intervals.icu</summary><p>Intervals.icu sigue con <b>LTHR 171</b> y <b>FTP 250 W</b> en sus propios ajustes, y con eso calcula tu CTL, ATL y la carga de cada sesión. Las dos están mal: el umbral ya se midió en el Allianz 15K del 18 de octubre y es <b>165</b>, no 171. Cámbialo allá, y quita o baja el FTP a ~200 W hasta tener un test de potencia real — sin potenciómetro ese número nadie lo midió.</p></details></div>`);
 
 }
 
@@ -2840,7 +2845,7 @@ function calcularRadiografia(acts, well){
   // --- zonas de carrera en tres etapas ---
   const R = A.filter(a=>a.sport==='run' && a.fc_media && (a.km||0)>=3)
              .sort((a,b)=> a.date<b.date ? -1 : 1);
-  const ZD = [[0,141],[142,149],[150,157],[158,167],[168,250]];
+  const ZD = [[0,139],[140,147],[148,155],[156,164],[165,250]];
   const etapas = [];
   if(R.length >= 9){
     const t = Math.ceil(R.length/3);
@@ -3019,7 +3024,7 @@ async function renderMotor(forzar){
   // --- zonas ---
   if(R.etapas.length===3){
     const ZC=['#5A6980','var(--go)','var(--bike)','var(--caution)','var(--run)'];
-    const ZN=['Z1 bajo 142','Z2 142-149','Z3 150-157','Z4 158-167','Z5 168+'];
+    const ZN=['Z1 bajo 140','Z2 140-147','Z3 148-155','Z4 156-164','Z5 165+'];
     const z3 = R.etapas[2].v[2];
     html += `<div class="rx-sec"><div class="rx-st">Dónde pasas el tiempo cuando corres</div>
       <div class="rx-sub2">Tus sesiones de carrera divididas en tres tercios iguales, del más antiguo al más reciente. La Z3 es la zona gris: demasiado dura para recuperar, demasiado suave para subir el umbral. Un plan sano la mantiene por debajo del 15 %.</div>
