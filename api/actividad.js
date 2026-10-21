@@ -99,7 +99,8 @@ function armar(id, resumen, S, fuente) {
           km.push({
             km: km.length + 1,
             metros: tramo * (km.length + 1),
-            por_100m: esNado ? Math.floor(seg / 10 / 60) + ':' + String(Math.round((seg / (tramo / 100)) % 60)).padStart(2, '0') : null,
+            por_100m: esNado ? (() => { const s100 = seg / (tramo / 100);
+              return Math.floor(s100 / 60) + ':' + String(Math.round(s100 % 60)).padStart(2, '0'); })() : null,
             seg: Math.round(seg),
             ritmo: Math.floor(seg / 60) + ':' + String(Math.round(seg % 60)).padStart(2, '0'),
             fc_media: hrTramo.length ? Math.round(hrTramo.reduce((a, b) => a + b, 0) / hrTramo.length) : null,
