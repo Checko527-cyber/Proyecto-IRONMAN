@@ -86,7 +86,9 @@ function armar(id, resumen, S, fuente) {
     let km = [];
     if (S.distance && S.time && S.distance.length === S.time.length) {
       const d = S.distance, t = S.time, hr = S.heartrate || [], alt = S.altitude || [];
-      let marca = 1000, iniT = t[0], iniI = 0;
+      const esNado = (resumen.type || '').toLowerCase().includes('swim');
+      const tramo = esNado ? 500 : 1000;   // en natación, 500 m dice más que 1 km
+      let marca = tramo, iniT = t[0], iniI = 0;
       for (let i = 1; i < d.length; i++) {
         if (d[i] >= marca) {
           const seg = t[i] - iniT;
@@ -96,13 +98,15 @@ function armar(id, resumen, S, fuente) {
           for (let k = 1; k < altTramo.length; k++) { const dz = altTramo[k] - altTramo[k-1]; if (dz > 0) subida += dz; }
           km.push({
             km: km.length + 1,
+            metros: tramo * (km.length + 1),
+            por_100m: esNado ? Math.floor(seg / 10 / 60) + ':' + String(Math.round((seg / (tramo / 100)) % 60)).padStart(2, '0') : null,
             seg: Math.round(seg),
             ritmo: Math.floor(seg / 60) + ':' + String(Math.round(seg % 60)).padStart(2, '0'),
             fc_media: hrTramo.length ? Math.round(hrTramo.reduce((a, b) => a + b, 0) / hrTramo.length) : null,
             fc_max: hrTramo.length ? Math.max(...hrTramo) : null,
             desnivel: Math.round(subida)
           });
-          iniT = t[i]; iniI = i; marca += 1000;
+          iniT = t[i]; iniI = i; marca += tramo;
         }
       }
     }
@@ -132,8 +136,15 @@ function armar(id, resumen, S, fuente) {
     // --- Tiempo por zona de pulso (zonas de carrera calibradas) ---
     let zonas = null;
     if (S.heartrate && S.time) {
-      // Zonas medidas en el Allianz 15K del 18/10/2026: LTHR de carrera 165.
-      const Z = [['Z1', 0, 139], ['Z2', 140, 147], ['Z3', 148, 155], ['Z4', 156, 164], ['Z5', 165, 250]];
+      // Cada deporte con sus zonas: usar las de carrera para medir una natación
+      // da un reparto sin sentido, porque el pulso en el agua corre más bajo.
+      // Carrera medida en el Allianz 15K (umbral 165); bici 157; nado 158.
+      const t = (resumen.type || '').toLowerCase();
+      const Z = t.includes('swim')
+        ? [['Z1', 0, 133], ['Z2', 134, 141], ['Z3', 142, 149], ['Z4', 150, 156], ['Z5', 157, 250]]
+        : (t.includes('ride') || t.includes('bike') || t.includes('cycl'))
+        ? [['Z1', 0, 132], ['Z2', 133, 139], ['Z3', 140, 147], ['Z4', 148, 156], ['Z5', 157, 250]]
+        : [['Z1', 0, 139], ['Z2', 140, 147], ['Z3', 148, 155], ['Z4', 156, 164], ['Z5', 165, 250]];
       const conteo = Z.map(() => 0);
       for (let i = 1; i < S.heartrate.length; i++) {
         const h = S.heartrate[i]; if (!h) continue;

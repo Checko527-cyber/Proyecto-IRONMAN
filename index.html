@@ -546,7 +546,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1210">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1210</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1220">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1220</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -747,7 +747,14 @@ const PHASES=[
 // Bici: umbral 8 ppm por debajo del de carrera (menor masa muscular implicada).
 // Natacion: el sensor optico falla en agua (marca FC mas alta que en carrera,
 // fisiologicamente imposible) — no prescribir nado por pulso.
-const FCMAX=188, LTHR_RUN=165, LTHR_BIKE=157;
+const FCMAX=188, LTHR_RUN=165, LTHR_BIKE=157, LTHR_SWIM=158;
+// Natacion (20 oct 2026): primera sesion con sensor de pecho bajo el gorro.
+// FC media 144 y pico 169 — casi identicos a los del sensor optico de muñeca,
+// asi que aquellos datos eran validos en la media y solo fallaban en picos
+// sueltos. El pico de 169 queda 4 ppm por debajo del de carrera (173), que es
+// lo que predice la fisiologia: en horizontal y con inmersion el corazon da
+// menos pulsaciones para el mismo esfuerzo. Umbral provisional 158; se afina
+// con un test de 1.000 m contrarreloj.
 const ZONAS={
   run:{umbral:LTHR_RUN,z:[
     {n:'Z1',lbl:'Recuperación',lo:0,hi:139,c:'var(--rest)',uso:'Trote regenerativo'},
@@ -760,10 +767,17 @@ const ZONAS={
     {n:'Z2',lbl:'Base aeróbica',lo:133,hi:139,c:'var(--go)',uso:'Fondos largos'},
     {n:'Z3',lbl:'Tempo',lo:140,hi:147,c:'var(--bike)',uso:'Ritmo de 70.3'},
     {n:'Z4',lbl:'Umbral',lo:148,hi:156,c:'var(--caution)',uso:'Bloques de fuerza'},
-    {n:'Z5',lbl:'VO2max',lo:157,hi:188,c:'var(--stop)',uso:'Repechos'}]}
+    {n:'Z5',lbl:'VO2max',lo:157,hi:188,c:'var(--stop)',uso:'Repechos'}]},
+  swim:{umbral:LTHR_SWIM,z:[
+    {n:'Z1',lbl:'Recuperación',lo:0,hi:133,c:'var(--rest)',uso:'Técnica y soltura'},
+    {n:'Z2',lbl:'Base aeróbica',lo:134,hi:141,c:'var(--go)',uso:'Continuos largos'},
+    {n:'Z3',lbl:'Tempo',lo:142,hi:149,c:'var(--bike)',uso:'Ritmo de 70.3'},
+    {n:'Z4',lbl:'Umbral',lo:150,hi:156,c:'var(--caution)',uso:'Series de 100 y 200'},
+    {n:'Z5',lbl:'VO2max',lo:157,hi:188,c:'var(--stop)',uso:'Series cortas a tope'}]}
 };
 function zonaDe(fc,dep){
-  const set=(dep==='bike'||dep==='bici')?ZONAS.bike:ZONAS.run;
+  const set=(dep==='bike'||dep==='bici')?ZONAS.bike
+           :(dep==='swim'||dep==='nado')?ZONAS.swim:ZONAS.run;
   if(fc==null)return null;
   return set.z.find(x=>fc>=x.lo&&fc<=x.hi)||set.z[set.z.length-1];
 }
@@ -817,7 +831,8 @@ function lunesDe(d){const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7)
 function durTxt(m){const h=Math.floor(m/60),r=m%60;return h?(r?h+"h"+(r<10?"0":"")+r:h+"h"):r+" min";}
 function r5(x){return Math.max(15,Math.round(x/5)*5);}
 // Rango de pulso de una zona, listo para leer: "Z2 · 142-149 ppm"
-function zr(dep,i){const s=(dep==="bike")?ZONAS.bike:ZONAS.run;const z=s.z[i-1];return z.n+" · "+z.lo+"-"+z.hi+" ppm";}
+function zr(dep,i){const s=(dep==="bike")?ZONAS.bike:(dep==="swim")?ZONAS.swim:ZONAS.run;
+  const z=s.z[i-1];return z.n+" · "+z.lo+"-"+z.hi+" ppm";}
 
 // ---- Sesiones tipo. Cada una devuelve el objeto de dia que ya consume renderWeek(). ----
 function sNado(dia,min,modo,str){
@@ -829,8 +844,8 @@ function sNado(dia,min,modo,str){
     : "Nado continuo y relajado con movilidad de hombros. Sin series.";
   return {d:dia,t:"Natación "+durTxt(min),tag:'<span class="tag t-swim">Nado</span>',dmin:min,
     detail:cuerpo,
-    obj:modo==="fondo"?"Resistencia específica de nado. Ya cubres 1.900 m seguidos: aquí se trabaja ritmo y eficiencia.":"Recuperación activa y técnica. El agua descarga las piernas sin impacto.",
-    tip:"Sin pulsómetro en el agua: el sensor óptico marca mal. Guíate por sensación y por el reloj de pared.",
+    obj:modo==="fondo"?"Resistencia específica de nado en "+zr("swim",3)+", el ritmo del 70.3. Ya cubres 1.900 m seguidos: aquí se trabaja eficiencia.":"Recuperación activa y técnica en "+zr("swim",1)+". El agua descarga las piernas sin impacto.",
+    tip:"Ahora el pulso en el agua sí sirve: "+zr("swim",2)+" en los continuos, "+zr("swim",4)+" en las series. Con el sensor bajo el gorro el dato es limpio.",
     str:str||undefined};
 }
 function sCorreCalidad(dia,min,fase,tipo){
@@ -2511,13 +2526,19 @@ function renderZonas(){
     <span class="zrng">${z.lo?z.lo+'-'+z.hi:'<'+z.hi}</span>
     <span class="zuso">${z.uso}</span></div>`;
   box.innerHTML=`
-    <div class="zhead">Calibradas con tus datos · FC máx ${FCMAX} · umbral ${LTHR_RUN} corriendo / ${LTHR_BIKE} en bici</div>
-    <div class="ztabs"><button class="ztab on" data-d="run">🏃 Carrera</button><button class="ztab" data-d="bike">🚴 Bici</button></div>
+    <div class="zhead">Medidas con tus datos · umbral ${LTHR_RUN} corriendo · ${LTHR_BIKE} en bici · ${LTHR_SWIM} nadando</div>
+    <div class="ztabs"><button class="ztab on" data-d="run">🏃 Carrera</button><button class="ztab" data-d="bike">🚴 Bici</button><button class="ztab" data-d="swim">🏊 Nado</button></div>
     <div id="zbody">${ZONAS.run.z.map(z=>fila(z,'run')).join('')}</div>
-    <div class="znote">El nado no se prescribe por pulso: el sensor óptico falla en el agua. Usa ritmo por 100 m.</div>`;
+    <div class="znote" id="znote">El umbral de carrera se midió en el Allianz 15K: FC media de 165 en los últimos 20 minutos.</div>`;
+  const NOTAS={
+    run:'El umbral de carrera se midió en el Allianz 15K: FC media de 165 en los últimos 20 minutos.',
+    bike:'Umbral de bici 8 ppm por debajo del de carrera: en bici se implica menos masa muscular. Sin potenciómetro, el pulso es la única guía.',
+    swim:'Provisional. Sale de tu primera sesión con sensor de pecho (20 oct): pico 169, cuatro latidos bajo el de carrera. Un test de 1.000 m contrarreloj lo deja clavado.'
+  };
   box.querySelectorAll('.ztab').forEach(b=>b.onclick=()=>{
     box.querySelectorAll('.ztab').forEach(x=>x.classList.toggle('on',x===b));
     document.getElementById('zbody').innerHTML=ZONAS[b.dataset.d].z.map(z=>fila(z,b.dataset.d)).join('');
+    const n=document.getElementById('znote'); if(n)n.textContent=NOTAS[b.dataset.d]||'';
   });
 
   const _zb=document.getElementById('zonasBox');
