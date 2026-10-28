@@ -28,8 +28,8 @@ export default async function handler(req, res) {
       })
     });
     const token = await tokenResp.json();
-    if (!token.access_token) {
-      return res.status(502).json({ error: 'No se pudo autenticar con Strava.', detail: token });
+    if (!tokenResp.ok || !token.access_token) {
+      return res.status(502).json({ error: 'No se pudo autenticar con Strava. Revisa la autorización y el token de actualización.' });
     }
     const access = token.access_token;
 
@@ -40,8 +40,14 @@ export default async function handler(req, res) {
       const resp = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=200&page=${page}`, {
         headers: { Authorization: `Bearer ${access}` }
       });
+      if (!resp.ok) {
+        return res.status(502).json({ error: 'Strava no pudo entregar las actividades.', status: resp.status });
+      }
       const batch = await resp.json();
-      if (!Array.isArray(batch) || batch.length === 0) break;
+      if (!Array.isArray(batch)) {
+        return res.status(502).json({ error: 'Formato de actividades inesperado en Strava.' });
+      }
+      if (batch.length === 0) break;
       all = all.concat(batch);
       if (batch.length < 200) break;
       page++;
@@ -61,7 +67,8 @@ export default async function handler(req, res) {
       name: a.name || mapSport(a.sport_type || a.type),
       km: +(((a.distance || 0) / 1000).toFixed(1)),
       min: Math.round((a.moving_time || 0) / 60),
-      kcal: Math.round(a.calories || a.kilojoules || 0),
+      // Los kilojulios de ciclismo no son equivalentes a kilocalorías.
+      kcal: a.calories != null ? Math.round(a.calories) : null,
       elev: Math.round(a.total_elevation_gain || 0),
       avgHr: a.average_heartrate ? Math.round(a.average_heartrate) : null,
       maxHr: a.max_heartrate ? Math.round(a.max_heartrate) : null,

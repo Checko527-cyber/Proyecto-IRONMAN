@@ -1,3 +1,5 @@
+import { mismaSesion } from '../lib/misma-sesion.js';
+
 // api/actividades.js — Actividades reales desde Intervals.icu (que las recibe de tu Garmin).
 //
 // Alimenta dos cosas en la app:
@@ -73,6 +75,7 @@ async function traerStrava(dias) {
     return todas.map(a => ({
       id: a.id ? 's' + a.id : null,
       date: (a.start_date_local || a.start_date || '').slice(0, 10),
+      startedAt: a.start_date || a.start_date_local || null,
       sport: dep(a.sport_type || a.type),
       tipo_crudo: a.sport_type || a.type || '',
       name: a.name || '',
@@ -146,6 +149,7 @@ export default async function handler(req, res) {
       return {
         id: a.id || null,
         date: (a.start_date_local || a.start_date || '').slice(0, 10),
+        startedAt: a.start_date || a.start_date_local || null,
         sport: DEPORTE[tipo] || 'other',
         tipo_crudo: tipo,
         name: a.name || tipo,
@@ -168,12 +172,6 @@ export default async function handler(req, res) {
     // Dos registros son la misma sesion si coinciden fecha y deporte y, ademas,
     // el nombre, la duracion o la distancia. Con tres criterios basta que uno
     // acierte, asi que un campo vacio ya no rompe el emparejamiento.
-    const mismaSesion = (a, b) => a.date === b.date && a.sport === b.sport && (
-      (a.name && b.name && a.name === b.name) ||
-      (a.min != null && b.min != null && Math.abs(a.min - b.min) <= Math.max(4, a.min * 0.25)) ||
-      (a.km != null && b.km != null && a.km > 0 && Math.abs(a.km - b.km) <= Math.max(0.3, a.km * 0.1))
-    );
-
     const fusionadas = actividades.slice();
     let rellenadas = 0, mejoradas = 0;
     for (const sv of deStrava) {
