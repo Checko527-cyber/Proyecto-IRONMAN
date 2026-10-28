@@ -73,6 +73,7 @@ async function traerStrava(dias) {
     return todas.map(a => ({
       id: a.id ? 's' + a.id : null,
       date: (a.start_date_local || a.start_date || '').slice(0, 10),
+      startedAt: a.start_date || a.start_date_local || null,
       sport: dep(a.sport_type || a.type),
       tipo_crudo: a.sport_type || a.type || '',
       name: a.name || '',
@@ -146,6 +147,7 @@ export default async function handler(req, res) {
       return {
         id: a.id || null,
         date: (a.start_date_local || a.start_date || '').slice(0, 10),
+        startedAt: a.start_date || a.start_date_local || null,
         sport: DEPORTE[tipo] || 'other',
         tipo_crudo: tipo,
         name: a.name || tipo,
@@ -168,11 +170,23 @@ export default async function handler(req, res) {
     // Dos registros son la misma sesion si coinciden fecha y deporte y, ademas,
     // el nombre, la duracion o la distancia. Con tres criterios basta que uno
     // acierte, asi que un campo vacio ya no rompe el emparejamiento.
-    const mismaSesion = (a, b) => a.date === b.date && a.sport === b.sport && (
-      (a.name && b.name && a.name === b.name) ||
-      (a.min != null && b.min != null && Math.abs(a.min - b.min) <= Math.max(4, a.min * 0.25)) ||
-      (a.km != null && b.km != null && a.km > 0 && Math.abs(a.km - b.km) <= Math.max(0.3, a.km * 0.1))
-    );
+    const mismaSesion = (a, b) => {
+      if (a.date !== b.date || a.sport !== b.sport) return false;
+      // La hora de inicio identifica mejor una sesión que el nombre o el volumen:
+      // dos rodajes en un mismo día pueden durar y medir prácticamente lo mismo.
+      const ta = Date.parse(a.startedAt || '');
+      const tb = Date.parse(b.startedAt || '');
+      if (Number.isFinite(ta) && Number.isFinite(tb)) {
+        return Math.abs(ta - tb) <= 20 * 60 * 1000;
+      }
+      // Para registros históricos sin hora, exigir dos indicios independientes.
+      const nombre = !!(a.name && b.name && a.name.trim().toLowerCase() === b.name.trim().toLowerCase());
+      const duracion = a.min != null && b.min != null &&
+        Math.abs(a.min - b.min) <= Math.max(3, a.min * 0.08);
+      const distancia = a.km != null && b.km != null && a.km > 0 && b.km > 0 &&
+        Math.abs(a.km - b.km) <= Math.max(0.15, a.km * 0.04);
+      return Number(nombre) + Number(duracion) + Number(distancia) >= 2;
+    };
 
     const fusionadas = actividades.slice();
     let rellenadas = 0, mejoradas = 0;
