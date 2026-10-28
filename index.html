@@ -546,7 +546,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1220">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1220</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1221">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1221</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -2958,6 +2958,28 @@ async function renderMotor(forzar){
   RX_CACHE = R;
   const {cortes, foto, proximo} = await cortesTrimestrales(R);
 
+  // La recomendación usa datos recién consultados; la Radiografía conserva su historial.
+  let consejo = null;
+  try {
+    const r = await fetch('/api/recomendacion', {cache:'no-store',headers:{Accept:'application/json'}});
+    if(r.ok) consejo = await r.json();
+  } catch(_e) {}
+  const seguro = x => String(x==null?'':x).replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+  const cColor = consejo && consejo.estado==='reducir' ? 'var(--stop)' :
+    consejo && consejo.estado==='moderar' ? 'var(--caution)' : 'var(--go)';
+  const cPct = consejo && consejo.estado!=='sin_datos' ? Math.round(consejo.factor*100)+' % del volumen previsto' : 'Sin ajuste automático';
+  const cRazon = consejo && consejo.razones && consejo.razones.length ? consejo.razones[0] : '';
+  const cPanel = consejo
+    ? `<div class="rx-ver" style="--c:${cColor};margin:0 0 14px" role="status">
+        <b>Recomendación de hoy · ${seguro(consejo.titular)}</b>
+        <div style="color:var(--ink);font-size:15px;font-weight:700;margin-top:4px">${seguro(cPct)} · ${seguro(consejo.intensidad)}</div>
+        <div>${seguro(cRazon)} ${seguro(consejo.porQue)}</div>
+        <small>Datos: ${seguro(consejo.evidencia?.bienestar)} · ${seguro(consejo.evidencia?.ultimaFecha || 'sin fecha')} · criterio conservador, no diagnóstico.</small>
+      </div>`
+    : '<div class="rx-ver" style="--c:var(--caution);margin:0 0 14px">Recomendación diaria no disponible. El plan original no ha sido alterado.</div>';
+
   const d = (c, inv) => { if(!c) return ''; const dif=c.fin-c.ini;
     const bien = inv ? dif<0 : dif>0;
     return `<span class="rx-d" style="color:${dif===0?'var(--mut)':(bien?'var(--go)':'var(--caution)')}">${dif>0?'+':''}${rxN(dif)}</span>`; };
@@ -2980,6 +3002,7 @@ async function renderMotor(forzar){
     <button class="btn rx-upd" id="rxUpd" title="Recalcular con los datos de ahora">⟳</button>
   </div>
   ${avisoSync}
+  ${cPanel}
   <div class="rx-tiles">
     ${cifra(R.tot.semConEntreno+'<small>/'+R.tot.semTot+'</small>','semanas con entrenamiento','var(--go)')}
     ${cifra(R.tot.ses,'sesiones')}
