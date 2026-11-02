@@ -539,6 +539,16 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 /* cinco pestañas: cabe todo si se aprieta un poco */
 .nav-wrap .navbtn{font-size:9.5px;padding-left:2px;padding-right:2px}
 .rx-aviso{margin:0 0 14px}
+/* Motor adaptativo: lectura rápida, accesibilidad y diseño móvil */
+.coach-day{--coach-accent:var(--mut);margin:0 0 18px;padding:19px;background:linear-gradient(120deg,rgba(255,255,255,.035),transparent 67%),var(--surf);border:1px solid var(--line2);border-left:4px solid var(--coach-accent);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.coach-day--mantener{--coach-accent:var(--go)}.coach-day--moderar{--coach-accent:var(--caution)}.coach-day--reducir{--coach-accent:var(--stop)}
+.coach-day__top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.coach-day__eyebrow{font:600 10px 'IBM Plex Mono',monospace;letter-spacing:.13em;color:var(--mut);margin-bottom:5px}.coach-day h4{font-size:clamp(21px,5vw,29px);line-height:1.13;color:var(--ink);margin:0;font-weight:800;letter-spacing:-.04em}.coach-day__status{flex-shrink:0;border:1px solid var(--coach-accent);color:var(--coach-accent);border-radius:999px;font-size:11px;font-weight:800;padding:5px 9px;line-height:1.2}
+.coach-day__prescription{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin:17px 0 12px}.coach-day__prescription>div{background:var(--raise);padding:12px 13px;border:1px solid var(--line);border-radius:11px;min-width:0}.coach-day__hint{font-size:11px;color:var(--mut);display:block;margin-bottom:4px}.coach-day__prescription strong{color:var(--ink);font:700 27px 'IBM Plex Mono',monospace;letter-spacing:-.04em;line-height:1.2}.coach-day__prescription .coach-day__intensity{font:700 17px 'Archivo',sans-serif;letter-spacing:0;overflow-wrap:anywhere}
+.coach-day__metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.coach-day__metrics>div{padding:8px 4px;border-top:1px solid var(--line);min-width:0}.coach-day__metrics span{display:block;font-size:10px;color:var(--mut)}.coach-day__metrics strong{font:600 16px 'IBM Plex Mono',monospace;color:var(--ink)}.coach-day__metrics small{font-size:10px;font-weight:400;color:var(--mut)}
+.coach-day__reasons{margin:10px 0 5px;padding-left:17px;font-size:12px;color:var(--ink)}.coach-day__reasons li+li{margin-top:4px}.coach-day__why{font-size:12px;color:var(--mut);margin:8px 0 12px;line-height:1.5}.coach-day__foot{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-wrap:wrap;gap:4px 15px;justify-content:space-between;color:var(--mut);font:500 10px 'IBM Plex Mono',monospace}
+@media(max-width:440px){.coach-day{padding:14px}.coach-day__top{align-items:flex-start}.coach-day__status{font-size:10px}.coach-day__prescription{grid-template-columns:1fr 1fr}.coach-day__prescription strong{font-size:23px}.coach-day__metrics{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}.coach-day__metrics strong{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.coach-day *{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -546,7 +556,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1220">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1220</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1222">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1222</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -2958,6 +2968,42 @@ async function renderMotor(forzar){
   RX_CACHE = R;
   const {cortes, foto, proximo} = await cortesTrimestrales(R);
 
+  // La recomendación usa datos recién consultados; la Radiografía conserva su historial.
+  let consejo = null;
+  try {
+    const r = await fetch('/api/recomendacion', {cache:'no-store',headers:{Accept:'application/json'}});
+    if(r.ok) consejo = await r.json();
+  } catch(_e) {}
+  const seguro = x => String(x==null?'':x).replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+  const cEstado = consejo?.estado || 'sin_datos';
+  const cFactor = consejo && cEstado!=='sin_datos' ? Math.round(consejo.factor*100) : null;
+  const cFecha = consejo?.evidencia?.ultimaFecha || 'Sin fecha';
+  const cValor = x => x == null ? '—' : Number(x).toLocaleString('es-CO',{maximumFractionDigits:1});
+  const cKpis = consejo?.evidencia || {};
+  const cRazones = (consejo?.razones || []).slice(0,3).map(x=>'<li>'+seguro(x)+'</li>').join('');
+  const cPanel = `<section class="coach-day coach-day--${seguro(cEstado)}" aria-labelledby="coach-day-title">
+    <div class="coach-day__top">
+      <div><div class="coach-day__eyebrow">MOTOR ADAPTATIVO · HOY</div>
+        <h4 id="coach-day-title">${seguro(consejo?.titular || 'Datos no disponibles')}</h4></div>
+      <span class="coach-day__status">${seguro(cEstado==='reducir'?'Recuperar':cEstado==='moderar'?'Moderar':cEstado==='mantener'?'Mantener':'Sin datos')}</span>
+    </div>
+    <div class="coach-day__prescription">
+      <div><span class="coach-day__hint">Volumen sugerido</span><strong>${cFactor == null ? '—' : cFactor+' %'}</strong></div>
+      <div><span class="coach-day__hint">Intensidad</span><strong class="coach-day__intensity">${seguro(consejo?.intensidad || 'No intensificar')}</strong></div>
+    </div>
+    <div class="coach-day__metrics" aria-label="Datos de recuperación">
+      <div><span>Sueño</span><strong>${cValor(cKpis.suenoH)} <small>h</small></strong></div>
+      <div><span>HRV</span><strong>${cValor(cKpis.hrv)}</strong></div>
+      <div><span>FC reposo</span><strong>${cValor(cKpis.fcReposo)} <small>ppm</small></strong></div>
+      <div><span>Forma</span><strong>${cValor(cKpis.forma)}</strong></div>
+    </div>
+    ${cRazones?'<ul class="coach-day__reasons">'+cRazones+'</ul>':'<p class="coach-day__reasons">Sin lectura reciente. Conserva el plan base sin intensificar.</p>'}
+    <p class="coach-day__why">${seguro(consejo?.porQue || 'La recomendación automática no está disponible. El plan original sigue intacto.')}</p>
+    <div class="coach-day__foot"><span>Datos: ${seguro(cFecha)} · ${seguro(cKpis.bienestar || 'no disponibles')}</span><span>Orientativo · No es diagnóstico</span></div>
+  </section>`;
+
   const d = (c, inv) => { if(!c) return ''; const dif=c.fin-c.ini;
     const bien = inv ? dif<0 : dif>0;
     return `<span class="rx-d" style="color:${dif===0?'var(--mut)':(bien?'var(--go)':'var(--caution)')}">${dif>0?'+':''}${rxN(dif)}</span>`; };
@@ -2980,6 +3026,7 @@ async function renderMotor(forzar){
     <button class="btn rx-upd" id="rxUpd" title="Recalcular con los datos de ahora">⟳</button>
   </div>
   ${avisoSync}
+  ${cPanel}
   <div class="rx-tiles">
     ${cifra(R.tot.semConEntreno+'<small>/'+R.tot.semTot+'</small>','semanas con entrenamiento','var(--go)')}
     ${cifra(R.tot.ses,'sesiones')}
