@@ -10,7 +10,7 @@ export default async function handler(req,res){
    method:'POST',headers:{Authorization:'ApiKey '+key},signal:AbortSignal.timeout(12000)});
   if(!r.ok)return res.status(200).json({stage:'token',authenticated:false,upstreamStatus:r.status});
   const t=(await r.text()).trim();
-  if(!/^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/.test(t))return res.status(502).json({stage:'token',authenticated:false,format:'unexpected',characters:t.length,dotCount:(t.match(/\\./g)||[]).length,leadingQuote:t.startsWith('"'),leadingBrace:t.startsWith('{'),leadingE:t.startsWith('eyJ'),contentType:r.headers.get('content-type')?.slice(0,60)||null});
+  if(!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(t))return res.status(502).json({stage:'token',authenticated:false,format:'unexpected',characters:t.length,dotCount:(t.match(/\./g)||[]).length,leadingQuote:t.startsWith('"'),leadingBrace:t.startsWith('{'),leadingE:t.startsWith('eyJ'),contentType:r.headers.get('content-type')?.slice(0,60)||null});
   const a=await fetch('https://personal.connectapi.garmin.com/activitylist-service/activities/search/activities?start=0&limit=20&startDate=2026-11-01&endDate=2026-11-02',{
     headers:{Authorization:'Bearer '+t,Accept:'application/json'},signal:AbortSignal.timeout(15000)});
   if(!a.ok)return res.status(200).json({stage:'activities',authenticated:true,upstreamStatus:a.status});
