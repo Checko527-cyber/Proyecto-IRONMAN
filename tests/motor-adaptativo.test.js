@@ -41,3 +41,8 @@ test('el motor no inventa zonas ni modifica el plan sin datos',()=>{
   assert.equal(r.factor,1);
   assert.equal(r.evidencia.bienestar,'desactualizados');
 });
+
+test('una mediana de sueño próxima a siete horas no fuerza reducción de carga',()=>{
+  const w=base.map(x=>({...x})); w[0].sleep=7.6; w[1].sleep=6.37; w[2].sleep=7.6;
+  assert.equal(evaluarMotor(w,[],{hoy}).estado,'mantener');
+});
