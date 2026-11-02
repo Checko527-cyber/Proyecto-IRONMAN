@@ -30,7 +30,7 @@ test('consulta Garmin y devuelve campos de actividad sin tokens',async()=>{
  const calls=[];
  global.fetch=async (url,opts)=>{
    calls.push({url:String(url),authorization:opts.headers.Authorization});
-   if(calls.length===1)return {ok:true,json:async()=>({access_token:'simulated-bearer-token'})};
+   if(calls.length===1)return {ok:true,text:async()=>('eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjk5OTk5OTk5OTl9.c2lnbmF0dXJl')};
    return {ok:true,json:async()=>[{activityId:123,activityName:'Brick bike',startTimeLocal:'2026-11-01 07:00:00',activityType:{typeKey:'cycling'},duration:3600,distance:30000,averageHR:142,maxHR:168,averageBikingCadenceInRevPerMinute:76}]};
  };
  const res=mockRes();
@@ -39,13 +39,13 @@ test('consulta Garmin y devuelve campos de actividad sin tokens',async()=>{
  assert.equal(res.body.total,1);
  assert.equal(res.body.actividades[0].cadencia,76);
  assert.equal(calls.length,2);
- assert.ok(!JSON.stringify(res.body).includes('simulated-bearer-token'));
+ assert.ok(!JSON.stringify(res.body).includes('eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjk5OTk5OTk5OTl9.c2lnbmF0dXJl'));
  assert.ok(!JSON.stringify(res.body).includes('mock-value'));
 });
 
 test('consulta el detalle de una actividad Garmin con ID válido',async()=>{
  process.env.COACH_TOKEN='test-only';process.env.GARMIN_PERSONAL_API_KEY='mock-value';
- global.fetch=async(url)=>String(url).includes('/token')?{ok:true,json:async()=>({access_token:'simulated-bearer-token'})}:{ok:true,json:async()=>({activityId:456,activityName:'Bici con series'})};
+ global.fetch=async(url)=>String(url).includes('/token')?{ok:true,text:async()=>('eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjk5OTk5OTk5OTl9.c2lnbmF0dXJl')}:{ok:true,json:async()=>({activityId:456,activityName:'Bici con series'})};
  const res=mockRes();
  await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{activityId:'456'}},res);
  assert.equal(res.statusCode,200);
@@ -56,4 +56,13 @@ test('rechaza identificadores Garmin maliciosos antes de consultar API',async()=
  const res=mockRes();
  await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{activityId:'../../../secrets'}},res);
  assert.equal(res.statusCode,400);
+});
+
+test('rechaza token de Garmin que no sea JWT',async()=>{
+ process.env.COACH_TOKEN='test-only';process.env.GARMIN_PERSONAL_API_KEY='mock-value';
+ global.fetch=async()=>({ok:true,text:async()=>'<html>error</html>'});
+ const res=mockRes();
+ await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{activityId:'456'}},res);
+ assert.equal(res.statusCode,502);
+ assert.match(res.body.error,/JWT/);
 });
