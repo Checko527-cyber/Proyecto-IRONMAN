@@ -18,7 +18,7 @@ export default async function handler(req,res) {
     return res.status(400).json({error:'Identificador de actividad inválido.'});
   const start=String(req.query?.startDate||'');
   const end=String(req.query?.endDate||'');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end) ||
+  if (!details && (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end) ||
       !Number.isFinite(Date.parse(start)) || !Number.isFinite(Date.parse(end)) ||
       Date.parse(end)<Date.parse(start) || Date.parse(end)-Date.parse(start)>7*86400000))
     return res.status(400).json({error:'Se requieren fechas válidas startDate/endDate (máximo 7 días).'});
