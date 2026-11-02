@@ -3,6 +3,9 @@
 export default async function handler(req,res){
  res.setHeader('Cache-Control','private, no-store');
  if(req.method!=='GET')return res.status(405).json({error:'Método no permitido'});
+ const expected=process.env.COACH_TOKEN;
+ const supplied=String(req.headers.authorization||'').replace(/^Bearer +/i,'');
+ if(!expected||!supplied||supplied!==expected)return res.status(401).json({error:'Acceso no autorizado'});
  const key=process.env.INTERVALS_API_KEY,id=process.env.INTERVALS_ATHLETE_ID||'0';
  if(!key)return res.status(503).json({error:'Intervals.icu sin configurar'});
  const oldest=String(req.query?.oldest||new Date().toISOString().slice(0,10));
