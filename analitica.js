@@ -6,7 +6,7 @@ const fmt=v=>Number.isFinite(v)?v.toLocaleString('es-CO',{maximumFractionDigits:
 const day=s=>String(s||'').slice(0,10);
 const type=s=>/swim|nat/i.test(s)?'Natación':/run|corr/i.test(s)?'Carrera':/ride|bik|cycl|cicl/i.test(s)?'Bicicleta':/weight|strength|fuerza/i.test(s)?'Fuerza':'Otros';
 const week=s=>{const d=new Date(day(s)+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d.toISOString().slice(0,10)};
-const n=(v,fallback=0)=>Number.isFinite(+v)?+v:fallback;
+const n=(v,fallback=0)=>v===null||v===undefined||v===''?fallback:(Number.isFinite(+v)?+v:fallback);
 const metric=(e,k)=>n(e[k]??e[{min:'moving_time',carga:'icu_training_load',km:'distance'}[k]]);
 function plot(values,labels){
  const max=Math.max(1,...values),w=650,h=175,g=8,bw=Math.max(8,(w-44)/values.length-g);
@@ -15,7 +15,8 @@ function plot(values,labels){
 }
 async function draw(){
  const root=$('atlasAnalytics');if(!root)return;
- const raw=await Store.get('historia')||await Store.get('strava_sessions')||[];
+ const historico=await Store.get('historia');
+ const raw=Array.isArray(historico)&&historico.length?historico:((await Store.get('strava_sessions'))||[]);
  const data=raw.map(x=>({fecha:day(x.date||x.start_date_local||x.fecha),deporte:type(x.sport||x.type||x.deporte),
  horas:n(x.min??(x.moving_time?x.moving_time/60:null)??(x.duration?x.duration/60:null))/60,
  km:n(x.km??(x.distance?x.distance/1000:null)),
@@ -27,22 +28,30 @@ async function draw(){
   const s=sports.get(a.deporte)||{ses:0,horas:0,km:0,carga:0};s.ses++;s.horas+=a.horas;s.km+=a.km;s.carga+=a.carga;sports.set(a.deporte,s);}
  const keys=[...weeks.keys()].sort().slice(-12),weekly=keys.map(k=>+(weeks.get(k)||0).toFixed(1));
  const plan=(await Store.get('planned_workouts'))||[];
+ const recovery=await fetch('/api/recomendacion',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null);
+ const readiness=recovery?.estado||'sin_datos';
+ const tpHistory=(await Store.get('tp_historical'))||[];
  const today=new Date().toISOString().slice(0,10);
  const dates=Array.from({length:7},(_,i)=>new Date(Date.parse(today+'T12:00:00Z')+i*86400000).toISOString().slice(0,10));
- const proposals=dates.filter(d=>[4,6].includes(new Date(d+'T12:00:00Z').getUTCDay())).map(d=>{
+ const proposals=dates.filter(d=>[3,4,6].includes(new Date(d+'T12:00:00Z').getUTCDay())).map(d=>{
    const own=plan.filter(x=>day(x.date||x.fecha)===d),busy=own.some(x=>type(x.sport||x.deporte)==='Bicicleta');
-   const hard=own.some(x=>['Carrera','Fuerza'].includes(type(x.sport||x.deporte)) && /tempo|interval|serie|umbral|largo|long/i.test((x.name||x.nombre||'')+' '+(x.description||'')));
+   const hard=own.some(x=>['Carrera','Fuerza'].includes(type(x.sport||x.deporte)) && (/tempo|interval|serie|umbral|largo|long|fartlek/i.test((x.name||x.nombre||'')+' '+(x.description||''))||Number(x.minutos||x.min||0)>=65));
    return {date:d,busy,hard,minutes:new Date(d+'T12:00:00Z').getUTCDay()===6?90:45};
  });
+ const grouped=new Map();for(const a of data){const k=a.deporte+'|'+week(a.fecha),v=grouped.get(k)||{deporte:a.deporte,week:week(a.fecha),km:0,horas:0,carga:0,fcWeighted:0,fcMinutes:0,cadWeighted:0,cadMinutes:0};v.km+=a.km;v.horas+=a.horas;v.carga+=a.carga;if(a.fc>0&&a.horas>0){v.fcWeighted+=a.fc*a.horas;v.fcMinutes+=a.horas;}if(a.cadence>0&&a.horas>0){v.cadWeighted+=a.cadence*a.horas;v.cadMinutes+=a.horas;}grouped.set(k,v);}
+ const trend=Array.from(grouped.values()).sort((a,b)=>b.week.localeCompare(a.week));
  const card=(body)=>'<div class="atlas-panel">'+body+'</div>';
  root.innerHTML='<p class="eyebrow">◈ Analítica multidisciplinaria</p><h2>Tu evolución con datos de entrenamiento</h2><p class="atlas-muted">Historial sincronizado · cifras observadas, no estimaciones de potencia.</p>'+
  '<div class="atlas-kpis">'+[['Sesiones',data.length],['Horas registradas',fmt(data.reduce((a,b)=>a+b.horas,0))],['Semanas con datos',weeks.size],['Carga registrada',fmt(data.reduce((a,b)=>a+b.carga,0))]].map(([k,v])=>card('<small>'+k+'</small><strong>'+v+'</strong>')).join('')+'</div>'+
  card('<h3>Horas por semana · últimas 12 semanas con datos</h3>'+(keys.length?plot(weekly,keys):'<p>No hay historial sincronizado.</p>'))+
+ card('<h3>Carga por semana · últimas 12 semanas</h3>'+plot(keys.map(k=>Math.round(data.filter(x=>week(x.fecha)===k).reduce((a,b)=>a+b.carga,0))),keys)+'<p class="atlas-muted">Carga registrada por la fuente; no equivale necesariamente a TSS de potencia.</p>')+
  card('<h3>Distribución por deporte</h3><div class="atlas-scroll"><table><thead><tr><th>Deporte</th><th>Sesiones</th><th>Horas</th><th>Km</th><th>Carga</th></tr></thead><tbody>'+
  [...sports.entries()].map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+v.ses+'</td><td>'+fmt(v.horas)+'</td><td>'+fmt(v.km)+'</td><td>'+fmt(v.carga)+'</td></tr>').join('')+'</tbody></table></div>')+
- card('<h3>Bicicleta complementaria · próximos 7 días</h3><p class="atlas-muted">Propuestas, nunca alteraciones del plan original. El calendario de TrainingPeaks no está conectado directamente.</p>'+
+ card('<h3>Eficiencia cardiovascular · medias ponderadas por tiempo</h3><p class="atlas-muted">Estas medias permiten observar tendencias, pero no deben interpretarse como eficiencia sin comparar intensidad, terreno y condiciones.</p><div class="atlas-scroll"><table><thead><tr><th>Semana</th><th>Deporte</th><th>FC media</th><th>Cadencia media</th><th>Carga</th></tr></thead><tbody>'+trend.slice(0,24).map(v=>'<tr><td>'+esc(v.week)+'</td><td>'+esc(v.deporte)+'</td><td>'+fmt(v.fcMinutes?v.fcWeighted/v.fcMinutes:NaN)+'</td><td>'+fmt(v.cadMinutes?v.cadWeighted/v.cadMinutes:NaN)+'</td><td>'+fmt(v.carga)+'</td></tr>').join('')+'</tbody></table></div>')+
+ card('<h3>Bicicleta complementaria · próximos 7 días</h3><p class="atlas-muted">Estado de recuperación: '+esc(readiness)+' · entrenamiento del entrenador siempre tiene prioridad.</p><p class="atlas-muted">Propuestas, nunca alteraciones del plan original. El calendario de TrainingPeaks no está conectado directamente.</p>'+
  (!plan.length?'<p>Sin plan importado: no se prescribirá intensidad hasta conocer las sesiones de carrera y fuerza.</p>':
- proposals.map(p=>'<div class="atlas-suggestion"><b>'+p.date+'</b><span>'+(p.busy?'Ya existe bicicleta':p.hard?'Omitir: entrenamiento intenso del entrenador':p.minutes+' min Z1–Z2 sugeridos · pendiente de confirmar')+'</span></div>').join(''))+
+ proposals.map(p=>'<div class="atlas-suggestion"><b>'+p.date+'</b><span>'+(p.busy?'Ya existe bicicleta':p.hard?'Omitir: entrenamiento intenso del entrenador':readiness==='reducir'?'25 min Z1 opcional, o descanso':readiness==='sin_datos'?'Sin recomendación: faltan datos de recuperación':(readiness==='moderar'?Math.round(p.minutes*.65):p.minutes)+' min Z1–Z2 sugeridos · requiere revisión')+'</span></div>').join(''))+
+ card('<h3>Memoria histórica del entrenador</h3><p>'+tpHistory.length+' sesiones TrainingPeaks importadas localmente.</p><p class="atlas-muted">Pendiente vincular cada prescripción con su ejecución real. Los CSV importados no se convierten automáticamente en nuevos entrenamientos.</p>')+
  '<div class="atlas-suggestion"><label for="tpCsvFile"><b>Importar historial TrainingPeaks (CSV)</b></label><input id="tpCsvFile" type="file" accept=".csv,text/csv" aria-label="Importar exportación CSV de TrainingPeaks"/></div><p id="tpCsvStatus" class="atlas-muted">Se guarda en tu dispositivo y no se envía a terceros. No reemplaza el plan vigente.</p>'+
  '<p class="atlas-muted">Aprendizaje: se conserva el historial para análisis de carga y cumplimiento. No hay entrenamiento automático de modelos con estos datos.</p>');
   const input=$('tpCsvFile');
