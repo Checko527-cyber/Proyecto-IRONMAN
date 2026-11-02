@@ -14,6 +14,8 @@ export default async function handler(req,res) {
   if (!key) return res.status(503).json({error:'La conexión personal de Garmin aún no está configurada.'});
   const activityId=String(req.query?.activityId||'');
   const details=activityId !== '';
+  const download=req.query?.download==='fit';
+  if(download&&!details)return res.status(400).json({error:'Se necesita activityId para descargar la actividad.'});
   if (details && !/^[1-9][0-9]{0,19}$/.test(activityId))
     return res.status(400).json({error:'Identificador de actividad inválido.'});
   const start=String(req.query?.startDate||'');
@@ -31,6 +33,23 @@ export default async function handler(req,res) {
     const token=(await t.text()).trim();
     if (!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token))
       return res.status(502).json({error:'Garmin no devolvió un JWT válido.'});
+    if(details&&download){
+      const file=await fetch('https://personal.connectapi.garmin.com/download-service/files/activity/'+activityId,{
+        headers:{Authorization:'Bearer '+token,Accept:'application/zip'},signal:AbortSignal.timeout(20000)
+      });
+      if(!file.ok)return res.status(502).json({error:'Garmin no devolvió el archivo de actividad.',estado:file.status});
+      const maxBytes=32*1024*1024;
+      const announced=Number(file.headers.get('content-length')||0);
+      if(announced>maxBytes)return res.status(413).json({error:'El archivo supera el límite de tamaño.'});
+      const buffer=Buffer.from(await file.arrayBuffer());
+      if(buffer.length>maxBytes)return res.status(413).json({error:'El archivo supera el límite de tamaño.'});
+      // Garmin entrega ZIP que contiene un archivo FIT; verificar cabecera ZIP.
+      if(buffer.length<4||buffer[0]!==0x50||buffer[1]!==0x4b)
+        return res.status(502).json({error:'Garmin devolvió un archivo no válido.'});
+      res.setHeader('Content-Type','application/zip');
+      res.setHeader('Content-Disposition','attachment; filename="garmin-actividad-'+activityId+'.zip"');
+      return res.status(200).send(buffer);
+    }
     if(details){
       const detail=await fetch('https://personal.connectapi.garmin.com/activity-service/activity/'+activityId,{
         headers:{Authorization:'Bearer '+token,Accept:'application/json'},signal:AbortSignal.timeout(15000)

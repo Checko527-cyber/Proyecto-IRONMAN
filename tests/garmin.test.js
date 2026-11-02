@@ -4,7 +4,7 @@ import handler from '../api/garmin.js';
 
 function mockRes(){
   return {statusCode:200,headers:{},setHeader(k,v){this.headers[k]=v;return this;},
-    status(n){this.statusCode=n;return this;},json(data){this.body=data;return this;}};
+    status(n){this.statusCode=n;return this;},json(data){this.body=data;return this;},send(data){this.body=data;return this;}};
 }
 const oldKey=process.env.GARMIN_PERSONAL_API_KEY,oldCoach=process.env.COACH_TOKEN,oldFetch=global.fetch;
 test.after(()=>{
@@ -65,4 +65,24 @@ test('rechaza token de Garmin que no sea JWT',async()=>{
  await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{activityId:'456'}},res);
  assert.equal(res.statusCode,502);
  assert.match(res.body.error,/JWT/);
+});
+
+test('descarga el ZIP Garmin sin revelar el JWT',async()=>{
+ process.env.COACH_TOKEN='test-only';process.env.GARMIN_PERSONAL_API_KEY='mock-value';
+ const zip=Uint8Array.from([80,75,3,4,0,0,0,0]);
+ global.fetch=async(url)=>String(url).includes('/token')?{ok:true,text:async()=>('eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjk5OTk5OTk5OTl9.c2lnbmF0dXJl')}:
+ {ok:true,headers:{get:()=>String(zip.length)},arrayBuffer:async()=>zip.buffer};
+ const res=mockRes();
+ await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{activityId:'24929713327',download:'fit'}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.headers['Content-Type'],'application/zip');
+ assert.equal(res.body[0],80);
+ assert.ok(!JSON.stringify(res.headers).includes('eyJhbGci'));
+});
+
+test('rechaza descarga sin identificador',async()=>{
+ process.env.COACH_TOKEN='test-only';process.env.GARMIN_PERSONAL_API_KEY='mock-value';
+ const res=mockRes();
+ await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{download:'fit'}},res);
+ assert.equal(res.statusCode,400);
 });
