@@ -14,7 +14,7 @@ export default async function handler(req,res) {
   if (!key) return res.status(503).json({error:'La conexión personal de Garmin aún no está configurada.'});
   const activityId=String(req.query?.activityId||'');
   const details=activityId !== '';
-  if (details && !/^[1-9]\\d{0,19}$/.test(activityId))
+  if (details && !/^[1-9][0-9]{0,19}$/.test(activityId))
     return res.status(400).json({error:'Identificador de actividad inválido.'});
   const start=String(req.query?.startDate||'');
   const end=String(req.query?.endDate||'');
