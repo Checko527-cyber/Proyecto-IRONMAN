@@ -15,7 +15,7 @@ test('decodifica muestra FIT original y convierte velocidad',()=>{
  assert.equal(rows[0].hr,155);
  assert.equal(rows[0].cadence,81);
  assert.equal(rows[0].speed,7.8);
- assert.equal(new Date(rows[0].time).toISOString(),'2026-11-02T00:00:00.000Z');
+ assert.equal(new Date(rows[0].time).toISOString(),'2026-10-31T13:20:00.000Z');
 });
 test('calcula ventanas temporales y bloque de esfuerzo',()=>{
  const base=Date.UTC(2026,10,1,12);
