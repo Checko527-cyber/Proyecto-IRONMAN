@@ -27,9 +27,10 @@ export default async function handler(req,res) {
       method:'POST',headers:{Authorization:'ApiKey '+key},signal:AbortSignal.timeout(12000)
     });
     if (!t.ok) return res.status(502).json({error:'No se pudo autenticar con Garmin.',estado:t.status});
-    const tokenResponse=await t.json();
-    const token=tokenResponse.access_token || tokenResponse.accessToken;
-    if (!token) return res.status(502).json({error:'Garmin no devolvió un token válido.'});
+    // Garmin Personal API devuelve un JWT en texto plano, no JSON.
+    const token=(await t.text()).trim();
+    if (!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token))
+      return res.status(502).json({error:'Garmin no devolvió un JWT válido.'});
     if(details){
       const detail=await fetch('https://personal.connectapi.garmin.com/activity-service/activity/'+activityId,{
         headers:{Authorization:'Bearer '+token,Accept:'application/json'},signal:AbortSignal.timeout(15000)
