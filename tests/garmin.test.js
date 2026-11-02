@@ -42,3 +42,18 @@ test('consulta Garmin y devuelve campos de actividad sin tokens',async()=>{
  assert.ok(!JSON.stringify(res.body).includes('simulated-bearer-token'));
  assert.ok(!JSON.stringify(res.body).includes('mock-value'));
 });
+
+test('consulta el detalle de una actividad Garmin con ID válido',async()=>{
+ process.env.COACH_TOKEN='test-only';process.env.GARMIN_PERSONAL_API_KEY='mock-value';
+ global.fetch=async(url)=>String(url).includes('/token')?{ok:true,json:async()=>({access_token:'simulated-bearer-token'})}:{ok:true,json:async()=>({activityId:456,activityName:'Bici con series'})};
+ const res=mockRes();
+ await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{activityId:'456'}},res);
+ assert.equal(res.statusCode,200);
+ assert.equal(res.body.actividad.activityId,456);
+});
+test('rechaza identificadores Garmin maliciosos antes de consultar API',async()=>{
+ process.env.COACH_TOKEN='test-only';process.env.GARMIN_PERSONAL_API_KEY='mock-value';
+ const res=mockRes();
+ await handler({method:'GET',headers:{authorization:'Bearer test-only'},query:{activityId:'../../../secrets'}},res);
+ assert.equal(res.statusCode,400);
+});
