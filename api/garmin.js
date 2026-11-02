@@ -1,3 +1,4 @@
+import {extractFitFromZip,decodeFit,timeSeries} from '../lib/garmin-fit.js';
 import { timingSafeEqual } from 'node:crypto';
 
 // Read-only Garmin Personal API bridge. Never expose the API key or bearer token.
@@ -14,7 +15,8 @@ export default async function handler(req,res) {
   if (!key) return res.status(503).json({error:'La conexión personal de Garmin aún no está configurada.'});
   const activityId=String(req.query?.activityId||'');
   const details=activityId !== '';
-  const download=req.query?.download==='fit';
+  const analysis=req.query?.analysis==='series';
+  const download=req.query?.download==='fit'||analysis;
   if(download&&!details)return res.status(400).json({error:'Se necesita activityId para descargar la actividad.'});
   if (details && !/^[1-9][0-9]{0,19}$/.test(activityId))
     return res.status(400).json({error:'Identificador de actividad inválido.'});
@@ -46,6 +48,11 @@ export default async function handler(req,res) {
       // Garmin entrega ZIP que contiene un archivo FIT; verificar cabecera ZIP.
       if(buffer.length<4||buffer[0]!==0x50||buffer[1]!==0x4b)
         return res.status(502).json({error:'Garmin devolvió un archivo no válido.'});
+      if(analysis){
+        try{const records=decodeFit(extractFitFromZip(buffer));const series=timeSeries(records,{windowSeconds:60,threshold:148});
+          return res.status(200).json({fuente:'garmin-fit',activityId,muestras:records.length,intervaloSegundos:60,umbralReferencialFc:148,advertencia:'Bloques estimados por FC: no sustituyen los tiempos prescritos por el entrenador.',...series});
+        }catch{return res.status(422).json({error:'No fue posible interpretar el FIT de Garmin.'});}
+      }
       res.setHeader('Content-Type','application/zip');
       res.setHeader('Content-Disposition','attachment; filename="garmin-actividad-'+activityId+'.zip"');
       return res.status(200).send(buffer);
