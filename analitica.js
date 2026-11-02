@@ -43,7 +43,22 @@ async function draw(){
  card('<h3>Bicicleta complementaria · próximos 7 días</h3><p class="atlas-muted">Propuestas, nunca alteraciones del plan original. El calendario de TrainingPeaks no está conectado directamente.</p>'+
  (!plan.length?'<p>Sin plan importado: no se prescribirá intensidad hasta conocer las sesiones de carrera y fuerza.</p>':
  proposals.map(p=>'<div class="atlas-suggestion"><b>'+p.date+'</b><span>'+(p.busy?'Ya existe bicicleta':p.hard?'Omitir: entrenamiento intenso del entrenador':p.minutes+' min Z1–Z2 sugeridos · pendiente de confirmar')+'</span></div>').join(''))+
+ '<div class="atlas-suggestion"><label for="tpCsvFile"><b>Importar historial TrainingPeaks (CSV)</b></label><input id="tpCsvFile" type="file" accept=".csv,text/csv" aria-label="Importar exportación CSV de TrainingPeaks"/></div><p id="tpCsvStatus" class="atlas-muted">Se guarda en tu dispositivo y no se envía a terceros. No reemplaza el plan vigente.</p>'+
  '<p class="atlas-muted">Aprendizaje: se conserva el historial para análisis de carga y cumplimiento. No hay entrenamiento automático de modelos con estos datos.</p>');
+  const input=$('tpCsvFile');
+  if(input)input.addEventListener('change',async()=>{
+    const file=input.files?.[0];if(!file)return;
+    if(file.size>4*1024*1024){$('tpCsvStatus').textContent='Archivo demasiado grande (máximo 4 MB).';return;}
+    const csv=await file.text(),lines=csv.replace(/^\\uFEFF/,'').split(/\\r?\\n/).filter(Boolean);
+    if(lines.length<2){$('tpCsvStatus').textContent='CSV sin filas de entrenamiento.';return;}
+    const split=line=>{const out=[];let x='',quote=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(quote&&line[i+1]==='"'){x+='"';i++}else quote=!quote}else if(c===','&&!quote){out.push(x);x=''}else x+=c;}out.push(x);return out};
+    const header=split(lines[0]).map(x=>x.toLowerCase().trim()),ix=(...names)=>header.findIndex(h=>names.some(n=>h.includes(n)));
+    const d=ix('date','fecha'),sport=ix('workout type','sport','activity type','tipo'),name=ix('workout title','title','name','nombre'),duration=ix('duration','duración'),tss=ix('tss','training stress');
+    if(d<0){$('tpCsvStatus').textContent='El CSV no contiene una columna reconocible de fecha.';return;}
+    const history=lines.slice(1,5001).map(line=>split(line)).map(x=>({fecha:x[d]||'',deporte:sport>=0?x[sport]:'',nombre:name>=0?x[name]:'',duracion:duration>=0?x[duration]:'',tss:tss>=0?x[tss]:''})).filter(x=>x.fecha);
+    await Store.set('tp_historical',history);
+    $('tpCsvStatus').textContent=history.length+' sesiones históricas importadas. Se conservan para futuras comparaciones; no se asumen entrenamientos futuros.';
+  });
 }
 document.addEventListener('click',e=>{if(e.target.closest('[data-v="analitica"]'))draw()});
 window.addEventListener('load',()=>{if($('v-analitica')?.classList.contains('active'))draw()});
