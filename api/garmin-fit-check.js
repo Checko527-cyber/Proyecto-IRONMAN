@@ -13,6 +13,6 @@ export default async function handler(req,res){
  const bytes=Buffer.from(await a.arrayBuffer());
  const rows=decodeFit(extractFitFromZip(bytes));
  const s=timeSeries(rows,{windowSeconds:60,threshold:148});
- return res.status(200).json({stage:'decoded',bytes:bytes.length,samples:rows.length,minutes:s.samples.length,blocks:s.blocks.length,firstMinute:s.samples[0]?.minute,lastMinute:s.samples.at(-1)?.minute,preview:s.samples.slice(0,3)});
+ return res.status(200).json({stage:'decoded',bytes:bytes.length,samples:rows.length,minutes:s.samples.length,blocks:s.blocks.length,firstMinute:s.samples[0]?.minute,lastMinute:s.samples.at(-1)?.minute,blocks:s.blocks,preview:s.samples.slice(0,3)});
  }catch(e){return res.status(502).json({stage:'parse',errorName:e?.name||'unknown'});}
 }
