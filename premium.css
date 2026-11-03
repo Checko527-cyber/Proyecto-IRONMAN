@@ -29,3 +29,16 @@ details{border-radius:11px}summary{cursor:pointer}
 @media(min-width:1024px){body{padding-bottom:100px}.view.active{max-width:1380px;margin-inline:auto}#v-inicio section,#v-ruta section{max-width:none}}
 @media(max-width:760px){.wrap{padding:0 12px}.atlas-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.atlas-kpis .atlas-panel{min-height:100px;padding:15px}.atlas-kpis strong{font-size:26px}.nav-wrap{justify-content:flex-start;overflow-x:auto;scrollbar-width:thin}.navbtn{white-space:nowrap;flex:0 0 auto;min-width:76px}.navbtn .ni{display:block;margin:0 auto 3px}section{margin:16px 0 23px}header#appHeader{border-radius:0 0 15px 15px}.atlas-panel{padding:15px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Calendar and session cards: visually legible at every breakpoint */
+.weeknav,.tpweek-top{background:rgba(14,38,61,.72);border:1px solid var(--line);border-radius:15px;padding:12px}
+.tpweek,.wd-col,.day2,.impday,.coach-day{background:linear-gradient(160deg,#102840,#0b1d32);border:1px solid rgba(83,121,156,.27);border-radius:14px;box-shadow:0 7px 17px rgba(0,8,19,.14)}
+.day2,.coach-day{padding:14px}.day2.is-today,.wd-col.is-today{border-color:rgba(11,216,176,.75);box-shadow:0 0 0 1px rgba(11,216,176,.17)}
+.wd-sessions{display:flex;flex-direction:column;gap:8px;min-width:0}.wd-col{min-width:0;padding:10px}
+.coach-day__status,.planbadge,.fchip{border-radius:7px;font-size:10px;letter-spacing:.045em;font-weight:800}
+.fcard,.coach-day,.day2{transition:transform .18s ease,border-color .18s ease}
+.fcard:hover,.coach-day:hover,.day2:hover{transform:translateY(-2px);border-color:rgba(20,220,182,.46)}
+#v-semana .glass,#v-datos .glass,#v-inicio .glass{border-color:rgba(72,122,157,.28)}
+#v-inicio .mrow{gap:8px;border:0;background:transparent;overflow:visible}
+#v-inicio .mcell{border:1px solid var(--line);border-radius:12px;padding:13px 8px;min-width:0}
+@media(max-width:740px){.weeknav{padding:8px}.wd-col{min-width:115px}.tpweek{overflow-x:auto}.wd-sessions{gap:6px}.day2,.coach-day{padding:11px}.fcard:hover,.coach-day:hover,.day2:hover{transform:none}}
