@@ -1,0 +1,31 @@
+/* IRONMAN Premium UI v1 · visual layer; preserves existing components/behavior */
+:root{--bg:#071528;--surf:#0e2138;--raise:#162b44;--line:#203a55;--line2:#35516e;--ink:#f1f7ff;--mut:#a1b4ca;--faint:#728ba7;--go:#0bd8b0;--caution:#f6b73b;--stop:#fa547b;--accent:#10d5b1;--accent-2:#38a6f5;--r:17px;--shadow:0 15px 38px rgba(0,6,19,.28)}
+html{background:#071528}body{background:radial-gradient(ellipse at 8% 0%,rgba(12,108,135,.13),transparent 35%),radial-gradient(ellipse at 100% 40%,rgba(28,52,109,.12),transparent 42%),#071528;color:var(--ink)}
+.wrap{max-width:1440px;margin:auto;padding:0 clamp(12px,2.4vw,38px)}
+header#appHeader{margin:0 0 16px;padding:18px clamp(15px,2vw,29px);border:1px solid var(--line);border-radius:0 0 19px 19px;background:rgba(11,30,51,.96);box-shadow:0 12px 28px rgba(0,0,0,.15)}
+.brand{font-size:clamp(17px,2vw,24px);letter-spacing:.075em;text-transform:uppercase}.brand em{display:block;font-size:9px;letter-spacing:.2em;margin-top:2px;text-transform:uppercase}
+section{margin:22px 0 30px}
+.card,.glass,.fcard,.atlas-panel,.chartcard,.rx-card,.wcard,.sbox,.plan-card,.daycard{background:linear-gradient(145deg,rgba(16,40,65,.98),rgba(10,29,49,.99));border:1px solid rgba(79,118,159,.22);border-radius:16px;box-shadow:0 10px 26px rgba(0,6,20,.13)}
+.card:hover,.fcard:hover,.atlas-panel:hover{border-color:rgba(27,213,180,.34);transition:border-color .2s ease,transform .2s ease}
+.eyebrow{color:#76a7bc;font-weight:800;font-size:10px;letter-spacing:.16em}
+h1,h2,h3{letter-spacing:-.035em}h1{font-size:clamp(25px,3.2vw,45px)}h2{font-size:clamp(19px,2.2vw,29px)}
+.pad{padding:clamp(16px,2vw,26px)}
+.nav-wrap{max-width:1400px;display:flex;justify-content:space-evenly;gap:8px;padding:8px}
+nav{background:rgba(8,26,45,.97);border:1px solid var(--line);backdrop-filter:blur(20px);box-shadow:0 -12px 24px rgba(0,0,0,.16)}
+.navbtn{border-radius:11px!important;padding:9px 15px!important;transition:.16s;color:#a6bdd2;min-width:0}.navbtn.active{color:#06271f!important;background:linear-gradient(125deg,#0ad9af,#23d6b2)!important;box-shadow:0 5px 15px rgba(0,221,174,.18)}.navbtn .ni{display:inline-flex;vertical-align:middle;margin-right:6px}.navbtn svg{width:16px;height:16px}
+.btn.primary,.primary,.livemini{background:linear-gradient(120deg,#0bbf9d,#15d9b7);color:#05251f;border-color:transparent;box-shadow:0 3px 15px rgba(8,196,165,.15);font-weight:700}
+.mcell,.rx-stat,.atlas-kpis .atlas-panel{background:linear-gradient(145deg,rgba(15,40,64,.97),rgba(14,33,56,.97));border-color:rgba(82,121,160,.22)}
+.mv,.mstat-v,.atlas-kpis strong,.rx-num,.data{font-variant-numeric:tabular-nums}
+.mstat-v,.atlas-kpis strong{font-family:'Archivo',sans-serif;font-size:clamp(22px,2.5vw,35px);font-weight:800;letter-spacing:-.06em}
+.atlas-analytics{max-width:1400px!important;padding:10px clamp(2px,2vw,22px) 110px!important}
+.atlas-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:23px 0}
+.atlas-kpis .atlas-panel{padding:23px;min-height:115px}.atlas-kpis small{font-size:12px}.atlas-kpis strong{color:#f4faff}
+.atlas-panel{padding:clamp(17px,2vw,28px);margin:19px 0;border-radius:18px}.atlas-panel h3{font-size:19px;margin:0 0 15px}
+.atlas-scroll{overflow:auto}.atlas-scroll table{min-width:560px}.atlas-scroll thead{background:rgba(36,79,103,.23)}.atlas-scroll th{color:#99c0ce;font-size:11px;text-transform:uppercase;letter-spacing:.08em}.atlas-scroll td{color:#e8f3fe}
+.atlas-suggestion{padding:14px 9px;border-bottom:1px solid rgba(92,133,170,.2)}
+input,select,textarea{border-radius:10px;background:#0c2035;color:#eef8ff;border-color:#35506a}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #16dec0;outline-offset:3px}
+details{border-radius:11px}summary{cursor:pointer}
+@media(min-width:1024px){body{padding-bottom:100px}.view.active{max-width:1380px;margin-inline:auto}#v-inicio section,#v-ruta section{max-width:none}}
+@media(max-width:760px){.wrap{padding:0 12px}.atlas-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.atlas-kpis .atlas-panel{min-height:100px;padding:15px}.atlas-kpis strong{font-size:26px}.nav-wrap{justify-content:flex-start;overflow-x:auto;scrollbar-width:thin}.navbtn{white-space:nowrap;flex:0 0 auto;min-width:76px}.navbtn .ni{display:block;margin:0 auto 3px}section{margin:16px 0 23px}header#appHeader{border-radius:0 0 15px 15px}.atlas-panel{padding:15px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
