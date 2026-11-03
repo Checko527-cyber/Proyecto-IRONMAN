@@ -552,6 +552,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .atlas-analytics{padding:20px 14px 90px;max-width:1100px;margin:auto}.atlas-panel{background:var(--glass,rgba(100,120,135,.12));border:1px solid rgba(146,160,175,.25);padding:20px;border-radius:18px;margin:16px 0}.atlas-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:12px}.atlas-kpis .atlas-panel{margin:0}.atlas-kpis small{display:block;color:var(--mut,#99a6af)}.atlas-kpis strong{display:block;font-size:25px;margin-top:8px}.atlas-muted{color:var(--mut,#99a6af);line-height:1.5}.atlas-scroll{overflow-x:auto}.atlas-scroll table{width:100%;border-collapse:collapse;min-width:480px}.atlas-scroll th,.atlas-scroll td{padding:11px;border-bottom:1px solid rgba(140,150,160,.25);text-align:left}.atlas-suggestion{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid rgba(140,150,160,.2);padding:12px 0;flex-wrap:wrap}
 </style>
 <link rel="stylesheet" href="/premium.css?v=1">
+<link rel="stylesheet" href="/performance.css?v=1">
 </head>
 <body>
 <div class="wrap">
@@ -577,7 +578,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   </header>
 
   <!-- ===== INICIO · feed ===== -->
-  <div class="view active" id="v-inicio">
+  <div class="view active" id="v-inicio"><section class="pc-shell" id="performanceCenter"><p>Consultando indicadores…</p></section>
     <div id="recoBoxHome"></div>
     <div id="feed"></div>
   </div>
@@ -3955,5 +3956,6 @@ function wireUpd(){
 })();
 </script>
 <script src="/analitica.js" defer></script>\n<script src="/premium.js?v=1" defer></script>
+<script src="/performance.js?v=1" defer></script>
 </body>
 </html>
