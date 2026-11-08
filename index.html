@@ -553,6 +553,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 </style>
 <link rel="stylesheet" href="/premium.css?v=1">
 <link rel="stylesheet" href="/performance.css?v=1">
+<link rel="stylesheet" href="/temporada2027.css?v=1">
 </head>
 <body>
 <div class="wrap">
@@ -646,6 +647,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   </div>
 
   <!-- ===== RUTA ===== -->
+  <div class="view" id="v-temporada"><div class="s27-root" id="season2027"></div></div>
   <div class="view" id="v-analitica"><div class="aurora-bg"></div><section class="atlas-analytics" id="atlasAnalytics"><p>Preparando análisis…</p></section></div>
   <div class="view" id="v-motor">
     <div class="aurora-bg"></div>
@@ -688,6 +690,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <button class="navbtn active" data-v="inicio"><span class="ni">◧</span>Inicio</button>
   <button class="navbtn" data-v="semana"><span class="ni">▦</span>Semana</button>
   <button class="navbtn" data-v="datos"><span class="ni">◱</span>Datos</button>
+  <button class="navbtn" data-v="temporada"><span class="ni">◷</span>2027</button>
   <button class="navbtn" data-v="analitica"><span class="ni">▤</span>Análisis</button>
   <button class="navbtn" data-v="motor"><span class="ni">◉</span>Motor</button>
   <button class="navbtn" data-v="ruta"><span class="ni">⛰</span>Ruta</button>
@@ -3955,7 +3958,9 @@ function wireUpd(){
   await step('autosync',autoSyncOnOpen);
 })();
 </script>
-<script src="/analitica.js" defer></script>\n<script src="/premium.js?v=1" defer></script>
+<script src="/analitica.js" defer></script>
+<script src="/premium.js?v=1" defer></script>
 <script src="/performance.js?v=1" defer></script>
+<script type="module" src="/temporada2027.js?v=1"></script>
 </body>
 </html>
