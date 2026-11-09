@@ -75,6 +75,27 @@ function splitPanel(){
  '<div class="v7-race-split">'+ss.map((s,i)=>'<div style="width:'+s.minutes/390*100+'%;background:'+['#43c0e7','#7f97aa','#e1b651','#7f97aa','#ef6d8c'][i]+'" title="'+safe(s.details)+'"></div>').join('')+'</div>'+
  ss.map((s,i)=>'<div class="v7-race-row"><i style="background:'+['#43c0e7','#7f97aa','#e1b651','#7f97aa','#ef6d8c'][i]+'"></i><b>'+safe(s.name)+'</b><span>'+safe(s.details)+'</span><strong>'+Math.floor(s.minutes/60)+':'+String(s.minutes%60).padStart(2,'0')+'</strong></div>').join(''));
 }
+function historicalTrend(){
+ const today=new Date(),monday=new Date(Date.UTC(today.getUTCFullYear(),today.getUTCMonth(),today.getUTCDate()));
+ monday.setUTCDate(monday.getUTCDate()-((monday.getUTCDay()+6)%7));
+ const completed=Array.from({length:12},(_,i)=>{
+  const start=new Date(monday.getTime()-(12-i)*7*86400000);
+  const end=new Date(start.getTime()+6*86400000);
+  const iso=x=>x.toISOString().slice(0,10);
+  const arr=state.activities.filter(a=>a.date>=iso(start)&&a.date<=iso(end));
+  return {start:iso(start),end:iso(end),hours:Math.round(arr.reduce((n,a)=>n+(typeof a.min==='number'?a.min:0),0)/6)/10,
+   load:Math.round(arr.reduce((n,a)=>n+(typeof a.carga==='number'?a.carga:0),0)),
+   sessions:arr.length,missingLoad:arr.filter(a=>a.carga==null).length};
+ });
+ const h=completed.reduce((n,w)=>n+w.hours,0),l=completed.reduce((n,w)=>n+w.load,0);
+ return panel('<div class="v7-card-head"><h3>12 semanas reales antes del plan</h3><span>Comparación histórica · no son proyecciones</span></div>'+
+ '<div class="v7-data-kpis"><b>'+h.toFixed(1)+' h registradas</b><b>'+l+' de carga total</b><b>'+state.activities.length+' actividades disponibles</b></div>'+
+ '<h4>Volumen semanal · horas</h4><div class="v7-chart-scroll">'+lineSVG(completed.map(w=>w.hours))+'</div>'+
+ '<h4>Carga semanal · unidades de Intervals.icu</h4><div class="v7-chart-scroll">'+lineSVG(completed.map(w=>w.load))+'</div>'+
+ '<div class="v7-scroll"><table class="v7-table"><thead><tr><th>Semana</th><th>Sesiones</th><th>Horas</th><th>Carga</th><th>Sin carga</th></tr></thead><tbody>'+
+ completed.map(w=>'<tr><td>'+day(w.start)+'</td><td>'+w.sessions+'</td><td>'+w.hours.toFixed(1)+'</td><td>'+w.load+'</td><td>'+w.missingLoad+'</td></tr>').join('')+
+ '</tbody></table></div><div class="v7-note">Las semanas sin registros aparecen en cero únicamente si realmente no hay actividades en los datos recuperados. La carga puede estar subestimada cuando el proveedor no devuelve ese campo.</div>');
+}
 function recentWellness(){
  const w=state.wellness.filter(x=>x.date>='2026-11-03').slice(0,7);
  const vals=state.wellness.slice(0,60);const mean=k=>{const a=vals.map(x=>x[k]).filter(Number.isFinite);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null};
@@ -101,10 +122,7 @@ function render(){
  overview()+phaseDiagram()+
  '<nav class="v7-tabs" aria-label="Plan 70.3"><button data-v7-tab="plan" class="'+(tab==='plan'?'active':'')+'">Plan semanal</button><button data-v7-tab="datos" class="'+(tab==='datos'?'active':'')+'">Datos y evolución</button><button data-v7-tab="zonas" class="'+(tab==='zonas'?'active':'')+'">Zonas y nutrición</button><button data-v7-tab="carrera" class="'+(tab==='carrera'?'active':'')+'">Día de carrera</button></nav>'+
  (tab==='plan'?panel('<div class="v7-card-head"><h3>Volumen planificado por semana</h3><span>Semanas 4, 8, 12, 16, 20, 24: descarga</span></div>'+volumeChart()+'<div class="v7-legend">'+Object.keys(colors).map(k=>'<span><i style="background:'+colors[k]+'"></i>'+texts[k]+'</span>').join('')+'</div><label class="v7-week-select">Inspeccionar semana <select id="v7-week">'+WEEKS.map(w=>'<option value="'+w.number+'" '+(state.week===w.number?'selected':'')+'>Semana '+w.number+' · '+day(w.start)+' · '+phases[w.phase]+'</option>').join('')+'</select></label>')+weekCard()+panel('<div class="v7-card-head"><h3>29 semanas · tabla completa</h3><span>Horas por disciplina · selección interactiva</span></div>'+weeklyTable()):'')+
- (tab==='datos'?panel('<div class="v7-card-head"><h3>Carga registrada y comparación</h3><span>'+state.activities.length+' actividades cargadas</span></div>'+
- '<p class="v7-muted">La evolución se calcula solo con registros de la plataforma; las semanas futuras no se presentan como ejecutadas.</p>'+
- (state.activities.length?'<div class="v7-data-kpis"><b>'+state.activities.length+' actividades</b><b>'+state.wellness.length+' registros de bienestar</b></div>':'<div class="v7-note">No se pudieron cargar las actividades en este dispositivo. El plan sigue disponible.</div>')+
- '<div class="v7-chart-scroll">'+lineSVG(WEEKS.slice(0,Math.max(1,WEEKS.findIndex(w=>w.start>new Date().toISOString().slice(0,10)))).map(w=>weekStatus(w,state.activities).bike.load+weekStatus(w,state.activities).swim.load+weekStatus(w,state.activities).run.load+weekStatus(w,state.activities).strength.load))+'</div>')+recentWellness()+weekCard():'')+
+ (tab==='datos'?((state.activities.length?historicalTrend():panel('<h3>Historial no disponible</h3><p>El plan de 29 semanas está listo, pero no se pudieron recuperar datos reales ahora.</p>'))+recentWellness()+weekCard()):'')+
  (tab==='zonas'?zonesPanel()+nutritionPanel():'')+
  (tab==='carrera'?splitPanel()+panel('<div class="v7-card-head"><h3>Ritmo de carrera</h3><span>Objetivos provisionales</span></div><div class="v7-pace-list">'+[['Km 0–5','6:55/km','Salida conservadora'],['Km 5–15','6:40/km','Ritmo estable'],['Km 15–21,1','6:40/km','Solo si hay reservas']].map(x=>'<div><b>'+x[0]+'</b><strong>'+x[1]+'</strong><span>'+x[2]+'</span></div>').join('')+'</div><div class="v7-note">Bicicleta: primer tercio Z2 (133–139 ppm); tramo medio Z2–Z3 baja; últimos 20 km preservar piernas. Se ajustará a recorrido y meteorología. No hay potencia medida fiable.</div>')+nutritionPanel():'')+
  '<footer class="v7-footer">Plan orientativo. No escribe en TrainingPeaks, Garmin ni Google Calendar. Antes de programar cualquier sesión estructurada se requiere tu aprobación.</footer>';
