@@ -33,7 +33,7 @@ function weeklyTable(){
  return '<div class="v7-scroll"><table class="v7-table"><thead><tr><th>Sem.</th><th>Fechas</th><th>Fase</th><th>N</th><th>B</th><th>C</th><th>F</th><th>Total</th></tr></thead><tbody>'+WEEKS.map(w=>'<tr data-week-row="'+w.number+'" class="'+(state.week===w.number?'selected':'')+'"><td><button class="v7-week-link" data-select-week="'+w.number+'">'+w.number+'</button></td><td>'+day(w.start)+' – '+day(w.end)+'</td><td><span class="v7-phase-badge '+w.phase+'">'+phases[w.phase]+'</span></td><td>'+w.swim+'</td><td>'+w.bike+'</td><td>'+w.run+'</td><td>'+w.strength+'</td><td><b>'+w.total+'</b></td></tr>').join('')+'</tbody></table></div>';
 }
 function lineSVG(series){
- const w=850,h=170,base=140,max=90;
+ const w=850,h=170,base=140,max=Math.max(70,...series.filter(Number.isFinite))*1.15;
  const points=series.map((v,i)=>[22+i*(810/Math.max(1,series.length-1)),base-Math.min(max,Math.max(0,v))/max*112]);
  return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Tendencia de carga semanal observada" style="width:100%"><path d="M22 140H840" stroke="#64819c" opacity=".3"/><path d="'+points.map((p,i)=>(i?'L':'M')+p.map(n=>n.toFixed(1)).join(',')).join(' ')+'" stroke="#17d5b4" stroke-width="3" fill="none"/>'+points.map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.2" fill="#42d3e6"/>').join('')+'</svg>';
 }
