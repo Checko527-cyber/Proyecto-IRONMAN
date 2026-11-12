@@ -20,3 +20,10 @@ test('periodización ordenada y sin fechas finales anteriores a inicio',()=>{
 test('cuenta atrás determinista desde 8 noviembre 2026',()=>{
  assert.equal(daysUntil('2027-05-30',new Date('2026-11-08T12:00:00Z')),203);
 });
+
+test('MMB 2027 confirmada y separada como objetivo B',()=>{
+ assert.equal(RACES_2027.mmb.date,'2027-07-25');
+ assert.equal(RACES_2027.mmb.priority,'B');
+ assert.equal(plan2027('pendiente').mmb.decision,'objetivo_B');
+ assert.ok(PHASES_2027.some(p=>p.from<='2027-07-25'&&p.to>='2027-07-25'&&p.focus==='mmb'));
+});
