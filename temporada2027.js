@@ -16,10 +16,11 @@ function render(){
  <div class="s27-stats"><article><small>IRONMAN 70.3 Victoria</small><strong>30 MAY</strong><span>Objetivo A · ${Math.max(0,daysUntil('2027-05-30',d))} días</span></article><article><small>Maratón de Berlín</small><strong>26 SEP</strong><span>Resultado del sorteo · 3 dic 2026</span></article><article><small>Maratón de Chicago</small><strong>10 OCT</strong><span>Resultado del sorteo · 8 dic 2026</span></article></div>
  <section class="s27-card"><div class="s27-heading"><h3>Competencias y decisiones</h3><span>Una sola maratón</span></div>
  ${compact(RACES_2027.victoria,'Principal del primer semestre')}
+ ${compact(RACES_2027.mmb,'25 julio 2027 · 21,097 km · objetivo B de evaluación')}
  ${compact(RACES_2027.cartagena,'Equipo · fecha orientativa, no confirmada')}
  ${compact(RACES_2027.berlin,'Sorteo solicitado · sin cupo confirmado')}
  ${compact(RACES_2027.chicago,'Sorteo solicitado · sin cupo confirmado')}
- ${scenarios}<div class="s27-warning"><b>Cartagena:</b> ${safe(p.cartagena.message)}</div></section>
+ ${scenarios}<div class="s27-warning"><b>MMB · 25 de julio:</b> ${safe(p.mmb.message)}</div><div class="s27-warning"><b>Cartagena:</b> ${safe(p.cartagena.message)}</div></section>
  <div class="s27-columns"><section class="s27-card"><div class="s27-heading"><h3>Periodización</h3><span>Nov 2026 – Nov 2027</span></div><div class="s27-phases">${phases}</div></section>
  <section class="s27-card"><div class="s27-heading"><h3>Lecciones de 27,4 km en Cajicá</h3><span>8 nov 2026</span></div>
  <div class="s27-event"><strong>KM 14</strong><p>Inicio del cansancio: revisar ritmo de salida, reserva muscular y carga acumulada.</p></div>
