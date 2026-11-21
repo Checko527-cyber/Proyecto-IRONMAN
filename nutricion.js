@@ -51,25 +51,46 @@ let checklistDocumento={};
 try {const v=JSON.parse(localStorage.getItem(LSCK)||'null');if(v&&typeof v==='object')checklistDocumento=v;}catch(_e){}
 try {const v=JSON.parse(localStorage.getItem(LSA)||'null');if(v&&typeof v==='object')opcionesAuto={...opcionesAuto,...v};}catch(_e){}
 const LSPER='ironman_perfiles_deportivos_v1';
+const ejemploCarrera=()=>({tipo:'703',salida:'07:00',temperaturaC:18,humedadPct:65,tiempos:{swim:45,t1:5,bike:195,t2:5,run:140}});
+const ejemploPerfil=()=>validarPerfil({pesoKg:75,edad:35,experienciaNutricion:'parcial',alertaEstomago:false});
+const datosPersonalizacion=[
+  {id:'perfil',titulo:'Peso, edad y tolerancia',detalle:'Actualiza tu peso y lo que realmente has entrenado.',seccion:'nutritionProfile'},
+  {id:'competencia',titulo:'Modalidad y hora de salida',detalle:'Elige tu competencia y la hora oficial.',seccion:'nutritionRace'},
+  {id:'ritmos',titulo:'Tiempos objetivo por etapa',detalle:'Usa los tiempos acordados con el entrenador.',seccion:'nutritionRace'},
+  {id:'clima',titulo:'Clima y disponibilidad de agua',detalle:'Revisa temperatura y humedad del lugar.',seccion:'nutritionRace'},
+  {id:'productos',titulo:'Geles, bebida y desayuno',detalle:'Selecciona lo que tienes y ya has ensayado.',seccion:'nutritionMotor'}
+];
+let datosConfirmados={perfil:false,competencia:false,ritmos:false,clima:false,productos:false};
+let planGenerico=false;
 let perfilesDb={activo:'principal',atletas:[{id:'principal',nombre:'Atleta actual',entrenadorId:'',datos:null}],entrenadores:[]};
 try{const v=JSON.parse(localStorage.getItem(LSPER)||'null');if(v&&Array.isArray(v.atletas)&&Array.isArray(v.entrenadores)&&v.atletas.length)perfilesDb=v;}catch(_e){}
 const clonar=v=>JSON.parse(JSON.stringify(v));
 function guardarPerfilActivo(){
   const actual=perfilesDb.atletas.find(x=>x.id===perfilesDb.activo);
-  if(actual)actual.datos=clonar({perfil,carrera,opcionesAuto,consumos,preferencias,inventario});
+  if(actual)actual.datos=clonar({perfil,carrera,opcionesAuto,consumos,preferencias,inventario,planGenerico,datosConfirmados});
   try{localStorage.setItem(LSPER,JSON.stringify(perfilesDb));}catch(_e){}
 }
 function cargarPerfilAtleta(id){
   if(!perfilesDb.atletas.some(x=>x.id===id))return;
   guardarPerfilActivo();perfilesDb.activo=id;
   const datos=perfilesDb.atletas.find(x=>x.id===id).datos;
-  perfil=validarPerfil(datos?.perfil||{});
-  carrera=datos?.carrera||{tipo:'703',salida:'07:00',temperaturaC:null,humedadPct:null,tiempos:{swim:null,t1:null,bike:null,t2:null,run:null}};
+  planGenerico=datos?.planGenerico??!datos;
+  datosConfirmados=datos?.datosConfirmados||{perfil:false,competencia:false,ritmos:false,clima:false,productos:false};
+  perfil=datos?.perfil?validarPerfil(datos.perfil):ejemploPerfil();
+  carrera=datos?.carrera||ejemploCarrera();
   opcionesAuto={bikeGHora:null,runGHora:null,liquidosMlHora:null,productoId:null,bebidaId:null,desayuno:'avena',...(datos?.opcionesAuto||{})};
   consumos=datos?.consumos||[];preferencias=datos?.preferencias||{favoritos:[],disponibles:[]};inventario=datos?.inventario||{};
   planAutomatico=null;
-  if(datos)recalcularAutomatico();else guardarPerfilActivo();
-  pintarGestionPerfiles();pintarPerfil();pintarCompetencia();pintarMotor();pintarDocumento();pintarPlan();pintarSeleccion();
+  recalcularAutomatico();
+  pintarGestionPerfiles();pintarPersonalizacion();pintarPerfil();pintarCompetencia();pintarMotor();pintarDocumento();pintarPlan();pintarSeleccion();
+}
+function pintarPersonalizacion(){
+  const box=document.getElementById('nutritionPersonalizar');if(!box)return;
+  const completados=datosPersonalizacion.filter(x=>datosConfirmados[x.id]).length;
+  box.innerHTML=`<div class="race-personalization"><div class="race-personalization-head"><div><p class="eyebrow">${planGenerico?'PLAN DE EJEMPLO · LISTO PARA PERSONALIZAR':'DATOS DEL PLAN · REVISIÓN'}</p><h3>${planGenerico?'Ya tienes un plan calculado':'Personaliza tu estrategia'}</h3><p>${planGenerico?'Partimos de un ejemplo de 70.3, atleta de 75 kg y salida a las 07:00. Son datos ilustrativos, NO mediciones tuyas.':'El plan está calculado con los datos guardados de este atleta.'} Cambia solo lo que corresponda y el plan se recalculará.</p></div><div class="race-personalization-count"><strong>${completados}/${datosPersonalizacion.length}</strong><small>grupos revisados</small></div></div>
+  <div class="race-personalization-list">${datosPersonalizacion.map(x=>`<button type="button" data-config="${x.seccion}" class="${datosConfirmados[x.id]?'confirmed':''}"><span>${datosConfirmados[x.id]?'✓':'!'}</span><strong>${safe(x.titulo)}</strong><small>${safe(x.detalle)}</small><b>${datosConfirmados[x.id]?'Revisado':'Revisar'}</b></button>`).join('')}</div><p class="race-footnote">Las marcas “Revisado” indican que guardaste ese grupo de datos; no certifican precisión clínica ni disponibilidad de productos. Ningún dato del ejemplo debe atribuirse al atleta sin confirmación.</p></div>`;
+  box.querySelectorAll('[data-config]').forEach(b=>b.onclick=()=>{const panel=document.getElementById('nutritionConfig');panel.open=true;
+    document.getElementById(b.dataset.config)?.scrollIntoView({behavior:'smooth',block:'center'});});
 }
 function pintarGestionPerfiles(){
   const box=document.getElementById('nutritionAthletes');if(!box)return;
@@ -121,7 +142,7 @@ function pintarPerfil(){
     perfil=validarPerfil({pesoKg:f.get('pesoKg'),edad:f.get('edad'),sudoracionLh:f.get('sudoracionLh'),
       experienciaNutricion:f.get('experienciaNutricion'),alertaEstomago:f.has('alertaEstomago')});
     try{localStorage.setItem(LSP,JSON.stringify(perfil));}catch(_e){}
-    recalcularAutomatico();pintarPerfil();pintarMotor();pintarDocumento();pintarPlan();
+    datosConfirmados.perfil=true;recalcularAutomatico();pintarPerfil();pintarPersonalizacion();pintarMotor();pintarDocumento();pintarPlan();
   };
 }
 
@@ -145,7 +166,8 @@ function pintarCompetencia(){
     carrera={tipo:String(f.get('tipo')),salida:String(f.get('salida')),
       temperaturaC:opcional('temperaturaC'),humedadPct:opcional('humedadPct'),tiempos:t};
     try{localStorage.setItem(LSC,JSON.stringify(carrera));}catch(_e){}
-    recalcularAutomatico();pintarCompetencia();pintarDocumento();pintarPlan();
+    datosConfirmados.competencia=true;datosConfirmados.ritmos=true;datosConfirmados.clima=true;
+    recalcularAutomatico();pintarCompetencia();pintarPersonalizacion();pintarDocumento();pintarPlan();
   };
 }
 
@@ -225,6 +247,7 @@ function pintarSeleccion(){
 
 function guardar(){try{localStorage.setItem(LS,JSON.stringify(consumos));}catch(_e){}guardarPerfilActivo();}
 function recalcularAutomatico(){
+  if(datosPersonalizacion.every(x=>datosConfirmados[x.id]))planGenerico=false;
   planAutomatico=generarPlanAutomatico({carrera,perfil,catalogo:CATALOGO_COMPLETO,preferencias,inventario,opciones:opcionesAuto});
   consumos=planAutomatico.consumos;
   try{localStorage.setItem(LSAD,JSON.stringify(planAutomatico));}catch(_e){}
@@ -269,8 +292,8 @@ function pintarDocumento(){
   box.querySelector('#raceEditData').onclick=()=>{const config=document.getElementById('nutritionConfig');config.open=true;config.scrollIntoView({behavior:'smooth',block:'start'});};
   box.querySelector('#racePrint').onclick=()=>window.print();
   box.querySelectorAll('[data-operativo]').forEach(x=>x.onchange=()=>{checklistDocumento[x.dataset.operativo]=x.checked;try{localStorage.setItem(LSCK,JSON.stringify(checklistDocumento));}catch(_e){}pintarDocumento();});
-  box.querySelector('#raceProductChange')?.addEventListener('change',e=>{opcionesAuto.productoId=e.target.value||null;try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}recalcularAutomatico();pintarMotor();pintarDocumento();pintarPlan();});
-  box.querySelector('#raceDrinkChange')?.addEventListener('change',e=>{opcionesAuto.bebidaId=e.target.value||null;try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}recalcularAutomatico();pintarMotor();pintarDocumento();pintarPlan();});
+  box.querySelector('#raceProductChange')?.addEventListener('change',e=>{opcionesAuto.productoId=e.target.value||null;datosConfirmados.productos=true;try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}recalcularAutomatico();pintarPersonalizacion();pintarMotor();pintarDocumento();pintarPlan();});
+  box.querySelector('#raceDrinkChange')?.addEventListener('change',e=>{opcionesAuto.bebidaId=e.target.value||null;datosConfirmados.productos=true;try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}recalcularAutomatico();pintarPersonalizacion();pintarMotor();pintarDocumento();pintarPlan();});
 }
 function pintarMotor(){
   const box=document.getElementById('nutritionMotor');if(!box)return;
@@ -292,8 +315,9 @@ function pintarMotor(){
     const numero=k=>{const raw=String(f.get(k)??'').trim();return raw===''?null:Number(raw);};
     opcionesAuto={bikeGHora:numero('bikeGHora'),runGHora:numero('runGHora'),liquidosMlHora:numero('liquidosMlHora'),productoId:String(f.get('productoId')||'')||null,
       bebidaId:String(f.get('bebidaId')||'')||null,desayuno:String(f.get('desayuno')||'avena')};
+    datosConfirmados.productos=true;
     try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}
-    recalcularAutomatico();pintarMotor();pintarDocumento();pintarPlan();
+    recalcularAutomatico();pintarPersonalizacion();pintarMotor();pintarDocumento();pintarPlan();
   };
 }
 function pintarPlan(){
@@ -385,7 +409,7 @@ function pintarPlan(){
 
 function iniciar(){
   if(!root)return;
-  root.innerHTML=`<section id="nutritionAthletes"></section><section id="nutritionDocument"></section>
+  root.innerHTML=`<section id="nutritionAthletes"></section><section id="nutritionPersonalizar"></section><section id="nutritionDocument"></section>
     <details id="nutritionConfig" class="nutrition-config"><summary>Datos del atleta, competencia y generación del plan <span>Editar / recalcular</span></summary><section id="nutritionProfile"></section><section id="nutritionRace"></section><section id="nutritionMotor"></section></details>
     <details class="nutrition-legacy"><summary>Auditoría técnica y edición manual avanzada</summary><section id="nutritionPlan"></section></details>
     <details class="nutrition-legacy"><summary>Catálogo completo y productos personalizados</summary><p class="eyebrow" style="margin-top:22px">CATÁLOGO · SELECCIÓN AVANZADA</p>
@@ -400,8 +424,9 @@ function iniciar(){
   if(activoGuardado){perfil=validarPerfil(activoGuardado.perfil||{});carrera=activoGuardado.carrera||carrera;
     opcionesAuto={...opcionesAuto,...(activoGuardado.opcionesAuto||{})};consumos=activoGuardado.consumos||[];
     preferencias=activoGuardado.preferencias||preferencias;inventario=activoGuardado.inventario||inventario;
+    planGenerico=!!activoGuardado.planGenerico;datosConfirmados=activoGuardado.datosConfirmados||datosConfirmados;
     planAutomatico=null;}
   if(!planAutomatico||consumos.length===0)recalcularAutomatico();
-  pintarGestionPerfiles();pintarPerfil();pintarCompetencia();pintarCatalogo();pintarSeleccion();pintarMotor();pintarDocumento();pintarPlan();
+  pintarGestionPerfiles();pintarPersonalizacion();pintarPerfil();pintarCompetencia();pintarCatalogo();pintarSeleccion();pintarMotor();pintarDocumento();pintarPlan();
 }
 iniciar();
