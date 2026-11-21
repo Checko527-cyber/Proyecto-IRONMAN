@@ -653,7 +653,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1223">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1223</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1224">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1224</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -2891,6 +2891,8 @@ async function renderMontana(){
         <p>El eje vertical es el <b>CTL</b> de Intervals.icu: verde continuo = histórico observado desde el primer dato disponible; amarillo discontinuo = proyección matemática desde el último valor real; azul punteado = referencia orientativa fijada para cada competencia. La distancia vertical entre curvas expresa una diferencia de CTL, no una garantía de terminar o rendir en una prueba. No se inventan tramos anteriores a los registros.</p>
       </details>
     </div>`;
+  // El resumen se actualiza después de dibujar el mismo histórico, sin lecturas divergentes.
+  if(rutaUltimaLectura)await renderRouteInsights();
 }
 
 async function renderRouteInsights(){
@@ -2904,13 +2906,13 @@ async function renderRouteInsights(){
   const prox=allRaces().find(r=>r.date&&daysTo(r.date)>=0&&Number.isFinite(Number(r.exig)));
   const requisito=prox?Number(prox.exig):null;
   const proy=actual===null?[]:ctlProyectado(actual);
-  const fechaUlt=ultimo?String(ultimo.date).slice(0,10):null;
+  const fechaUlt=ultimo?String(ultimo.d||ultimo.date).slice(0,10):null;
   const proyectado=prox&&proy.length?interp([{d:fechaUlt,v:actual},...proy.filter(p=>p.d>fechaUlt)],prox.date):null;
   const gap=proyectado===null||requisito===null?null:Math.round(requisito-proyectado);
   const insight=actual===null?'Conecta Intervals.icu para trazar tu progreso real. Las metas y proyecciones no sustituyen mediciones.':gap===null?'Tu historia ya está disponible. La siguiente competencia necesita una referencia de exigencia para calcular la brecha.':gap<=0?`Si se cumple la proyección, alcanzarías la referencia de ${prox.corto||prox.name}. No es una garantía de resultado.`:`Según la proyección actual, faltarían ${gap} puntos de CTL para la referencia de ${prox.corto||prox.name}. Revisemos la carga progresiva, no una subida brusca.`;
   const n=(v)=>v===null?'—':String(v);
   box.innerHTML=`<section class="route-narrative"><div class="route-narrative-text"><p class="eyebrow">LECTURA DE TU EVOLUCIÓN</p><h2>${actual===null?'La historia empieza con datos reales':cambio>0?'Has ganado '+cambio+' puntos de CTL':cambio<0?'CTL actual '+Math.abs(cambio)+' puntos bajo tu primer registro':'Compara tu punto de partida con hoy'}</h2><p>${insight}</p></div>
-    <div class="route-trajectory-cards"><div><small>Punto de partida</small><strong>${n(primero)}</strong><span>${inicio?.date||'sin registro'}</span></div><div><small>Hoy · CTL real</small><strong>${n(actual)}</strong><span>${ultimo?.date||'sin registro'}</span></div><div><small>Próxima exigencia</small><strong>${n(requisito)}</strong><span>${prox?.corto||'por definir'}</span></div></div></section>`;
+    <div class="route-trajectory-cards"><div><small>Punto de partida</small><strong>${n(primero)}</strong><span>${inicio?.d||inicio?.date||'sin registro'}</span></div><div><small>Hoy · CTL real</small><strong>${n(actual)}</strong><span>${ultimo?.d||ultimo?.date||'sin registro'}</span></div><div><small>Próxima exigencia</small><strong>${n(requisito)}</strong><span>${prox?.corto||'por definir'}</span></div></div></section>`;
 }
 
 // ===== RIESGOS MEDIDOS =====
