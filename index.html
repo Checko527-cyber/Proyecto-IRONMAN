@@ -1307,7 +1307,9 @@ async function todayStravaMatch(){
   const sp=sportFromTag(t.tag);if(!sp)return null;
   const sessions=await Store.get('strava_sessions')||[];
   const ds=fmtLocal(today());
-  return sessions.find(s=>s.date===ds&&sportMatch(sp,s.sport))||null;
+  const matched=sessions.filter(s=>s.date===ds&&sportMatch(sp,s.sport));
+  const total=matched.reduce((sum,s)=>sum+(+s.min||0),0);
+  return total>=Math.max(20,(+t.dmin||0)*0.6)?matched[0]||null:null;
 }
 async function renderTodayButtons(){
   const el=document.getElementById('todayBtns');if(!el)return;
@@ -1369,15 +1371,16 @@ async function renderWeek(){
     // Lo REAL del día: todo lo que Garmin registró esa fecha, planeado o no.
     const delDia=sessions.filter(s=>s.date===ds);
     const realMin=delDia.reduce((a,s)=>a+(+s.min||0),0);
+    const planRealMin=sport?delDia.filter(s=>sportMatch(sport,s.sport)).reduce((a,s)=>a+(+s.min||0),0):0;
     const planMin=+d.dmin||0;
-    const ck=manual||!!auto||restOk||realMin>=20||(planMin>0&&realMin>=Math.max(15,planMin*0.6));
+    const ck=!!manual||restOk||(!future&&!!sport&&planRealMin>=Math.max(20,planMin*0.6));
     if(ck)hechos++;
     const dLabel=parse(ds).toLocaleDateString('es',{day:'numeric',month:'short'});
     const ctx={longest:auto?L[auto.sport+'_km']:null,weight:wt};
 
     // --- La línea resumen: día, deporte, sesión, plan contra real, cumplido ---
     const cifras=planMin
-      ? `<span class="d2plan">${durTxt(planMin)}</span>${realMin?`<span class="d2flecha">→</span><span class="d2real ${realMin>=planMin*0.9?'bien':'corto'}">${durTxt(realMin)}</span>`:''}`
+      ? `<span class="d2plan">${durTxt(planMin)}</span>${planRealMin?`<span class="d2flecha">→</span><span class="d2real ${planRealMin>=planMin*0.9?'bien':'corto'}">${durTxt(planRealMin)}</span>`:''}`
       : (realMin
           ? `<span class="d2plan">off</span><span class="d2flecha">→</span><span class="d2real extra">${durTxt(realMin)}</span>`
           : '<span class="d2plan">—</span>');
@@ -2616,7 +2619,8 @@ async function renderRecomendacion(){
   // --- El entreno: el del plan, ya modificado por el estado ---
   const actividadRegistrada=R.hecho.reduce((a,s)=>a+(+s.min||0),0)>=20;
   const sport=sportFromTag(R.plan.tag)||'rest';
-  const yaEntreno=actividadRegistrada&&sport!=='rest'&&R.hecho.some(s=>s.sport===sport&&(+s.min||0)>=20);
+  const minutosDeporte=R.hecho.filter(s=>sportMatch(sport,s.sport)).reduce((a,s)=>a+(+s.min||0),0);
+  const yaEntreno=actividadRegistrada&&sport!=='rest'&&minutosDeporte>=Math.max(20,(+R.plan.dmin||0)*0.6);
   const titulo=actividadRegistrada?((yaEntreno?'✓ ':'')+R.hecho.map(s=>s.name||s.sport).join(' + '))
              :(R.aj?R.aj.t:R.plan.t);
   const cuerpo=actividadRegistrada
