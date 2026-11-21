@@ -3673,13 +3673,14 @@ async function renderCoach(){
   const sessions=(await Store.get('strava_sessions'))||[];
   const w=wellAsc(await getWell());
   const r=await computeReadiness();
+  const estadoHoy=await recomendacionHoy();
   const wt=await latestWeight();
   const analisis=[],recos=[];
 
   // 1) Cumplimiento reciente vs plan
   const wi=currentWeekIdx();
   let cumpl=0,total=0;
-  for(let k=Math.max(0,wi-1);k<=wi;k++){const {autoDone}=matchStravaWeek(k,sessions);const WD=daysFor(k);WD.forEach((d,i)=>{if(sportFromTag(d.tag)){total++;if(autoDone[i])cumpl++;}});}
+  for(let k=Math.max(0,wi-1);k<=wi;k++){const {autoDone}=matchStravaWeek(k,sessions);const WD=daysFor(k);WD.forEach((d,i)=>{if(sportFromTag(d.tag)){total++;if((+autoDone[i]?.min||0)>=Math.max(20,(+d.dmin||0)*0.6))cumpl++;}});}
   const tasa=total?cumpl/total:0;
 
   // 2) Carga últimas 2 semanas
@@ -3723,9 +3724,10 @@ async function renderCoach(){
   if(feelAvg!=null&&feelAvg<=2.5)recos.push({k:'warn',t:`<b>Tus sensaciones vienen bajas.</b> Cambia la próxima sesión de calidad por una suave. Escuchar al cuerpo ahora evita parar dos semanas después.`});
   if(!recos.length)recos.push({k:'ok',t:`<b>Vas coherente con el plan.</b> Mantén el rumbo: constancia, sueño y progresión suave. No hay nada que corregir hoy.`});
 
-  const semColor=r.level==='verde'?'var(--go)':(r.level==='amarillo'?'var(--caution)':'var(--stop)');
+  const semColor=estadoHoy.nivel==='verde'?'var(--go)':(estadoHoy.nivel==='amarillo'?'var(--caution)':'var(--stop)');
+  const semTexto=estadoHoy.nivel==='verde'?'Verde':(estadoHoy.nivel==='amarillo'?'Amarillo':'Rojo');
   box.innerHTML=`
-    <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"><span style="width:9px;height:9px;border-radius:50%;background:${semColor}"></span><span style="font-weight:700;font-size:14px">Estado: ${r.level.charAt(0).toUpperCase()+r.level.slice(1)} · ${r.score}/100</span></div>
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"><span style="width:9px;height:9px;border-radius:50%;background:${semColor}"></span><span style="font-weight:700;font-size:14px">Estado de hoy: ${semTexto} · ${estadoHoy.score==null?'sin puntuación':estadoHoy.score+'/100'}</span></div>
     ${analisis.map(a=>`<div class="coach-a">${a}</div>`).join('')}
     <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:13px 0 8px">Recomendaciones</div>
     ${recos.slice(0,2).map(x=>`<div class="vd ${x.k}">${x.t}</div>`).join('')}`;
