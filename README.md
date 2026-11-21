@@ -23,6 +23,13 @@ La ausencia de datos puede significar que el archivo no incluye el campo FIT
 `left_right_balance`, que Garmin no lo transfirió o que el sensor no lo registró.
 La integración no modifica sesiones planificadas ni el calendario del entrenador.
 
+En **Datos → Sesiones recientes**, las sesiones de ciclismo que tengan ID de
+Intervals.icu consultan `/api/actividad?id=...` al desplegarse. Si Intervals
+entrega `left_right_balance`, se muestran reparto izquierdo/derecho, variación
+entre mitades y curva por bloques de cinco minutos. Si no lo entrega se indica
+explícitamente, sin sustituirlo por valores inventados. El botón **Sync** vuelve
+a cargar el listado integrado después de Strava.
+
 > Las instrucciones históricas que siguen describen el alta inicial de Strava.
 > El repositorio actual ya contiene más módulos y no requiere repetir esa alta.
 

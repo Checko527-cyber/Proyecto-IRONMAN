@@ -4,6 +4,7 @@
 // cardíaca hubo, dónde se rompió el ritmo. El resumen por sí solo no lo dice.
 //
 // Uso: /api/actividad?id=i197193726   (el id tal como lo devuelve /api/actividades)
+import {summarizeBalance} from '../lib/intervals-balance.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -65,7 +66,7 @@ export default async function handler(req, res) {
 
     const [resumenI, streams] = await Promise.all([
       pedir(''),
-      pedir('/streams?types=time,distance,heartrate,altitude,cadence,velocity_smooth')
+      pedir('/streams.json?types=time,distance,heartrate,altitude,cadence,velocity_smooth,watts,left_right_balance')
     ]);
     if (!resumenI) return res.status(404).json({ error: 'Intervals.icu no encontró esa actividad.' });
 
@@ -172,6 +173,7 @@ function armar(id, resumen, S, fuente) {
       kilometros: km,
       mitades,
       zonas,
+      balance:fuente==='intervals'?summarizeBalance(S,resumen.type):{disponible:false,razon:'Strava no garantiza los datos bilaterales.'},
       _streams: Object.keys(S)
     };
   } catch (e) {

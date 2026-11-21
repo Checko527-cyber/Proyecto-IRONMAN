@@ -187,6 +187,15 @@ header#appHeader{position:sticky;top:0;z-index:40;margin:0 -14px;padding:12px 14
 .sdwins{margin-top:8px;display:flex;flex-direction:column;gap:5px}
 .sdwin{display:flex;gap:7px;align-items:flex-start;font-size:12px;color:var(--mut);line-height:1.45}
 .sdwin b{color:var(--ink);font-weight:600}
+.pedal-box{margin:10px 0;border:1px solid var(--line2);border-radius:10px;padding:12px;background:var(--surf)}
+.pedal-head{font-size:12px;font-weight:700;color:var(--bike);margin-bottom:8px}
+.pedal-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.pedal-kpi{background:var(--raise);border-radius:7px;padding:8px 5px;text-align:center}
+.pedal-kpi b{display:block;font:600 16px 'IBM Plex Mono';color:var(--ink)}
+.pedal-kpi span{font-size:9px;color:var(--mut)}
+.pedal-graph{width:100%;height:auto;display:block;margin-top:8px}
+.pedal-legend{display:flex;gap:12px;font-size:10px;color:var(--mut);margin-top:4px}
+.pedal-legend i{display:inline-block;width:9px;height:3px;vertical-align:middle;margin-right:4px}
 
 /* ===== Gráficas ===== */
 .chartcard{margin-top:10px}
@@ -561,7 +570,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-      <div class="brand" data-version="v1222">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1222</span><span class="vico">⟳</span></button></div>
+      <div class="brand" data-version="v1223">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1223</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -1443,7 +1452,37 @@ async function renderSessions(){
   const ic={swim:'🏊',bike:'🚴',run:'🏃',other:'🏋️'};
   const sm=await Store.get('strava_summary');const L=(sm&&sm.longest)||{};const wt=await latestWeight();
   acts=acts.slice().sort((a,b)=>b.date.localeCompare(a.date));
-  box.innerHTML=acts.slice(0,20).map(a=>`<details class="sessdet"><summary class="sess-row"><span class="si">${ic[a.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${a.name||a.sport||'Sesi\u00f3n'}</div><div class="sd">${fmtNice(a.date)}</div></div><div class="sv">${distStr(a)||''}${(a.km&&a.min)?' \u00b7 ':''}${hhmm(a.min)||''}</div></summary>${sessionDetailHtml(a,{longest:L[a.sport+'_km'],weight:wt})}</details>`).join('');
+  box.innerHTML=acts.slice(0,20).map(a=>{
+    const id=a.sport==='bike'&&/^[is]\d+$/.test(a.id||'')?a.id:null;
+    return `<details class="sessdet"${id?` data-balance-id="${id}"`:''}><summary class="sess-row"><span class="si">${ic[a.sport]||'\ud83c\udfcb\ufe0f'}</span><div class="smain"><div class="sn">${a.name||a.sport||'Sesi\u00f3n'}</div><div class="sd">${fmtNice(a.date)}</div></div><div class="sv">${distStr(a)||''}${(a.km&&a.min)?' \u00b7 ':''}${hhmm(a.min)||''}</div></summary>${sessionDetailHtml(a,{longest:L[a.sport+'_km'],weight:wt})}${id?'<div class="pedal-box" data-balance>Abre para consultar la potencia bilateral…</div>':''}</details>`;
+  }).join('');
+  box.querySelectorAll('[data-balance-id]').forEach(el=>el.addEventListener('toggle',async()=>{
+    if(!el.open||el.dataset.balanceLoaded)return;
+    el.dataset.balanceLoaded='1';const slot=el.querySelector('[data-balance]');
+    try{
+      const resp=await fetch('/api/actividad?id='+encodeURIComponent(el.dataset.balanceId),{headers:{Accept:'application/json'}});
+      const detail=resp.ok?await resp.json():null;
+      slot.innerHTML=renderPedalBalance(detail?.balance);
+    }catch(_){slot.textContent='No se pudo recuperar el balance. Intenta sincronizar de nuevo.';el.dataset.balanceLoaded='';}
+  }));
+}
+
+function renderPedalBalance(b){
+  if(!b?.disponible)return `<div class="pedal-head">⚡ Potencia bilateral</div><div class="empty">${b?.razon||'La fuente no registró el balance de ambos pedales.'} La ausencia de datos no implica un equilibrio 50/50.</div>`;
+  const pct=n=>n==null?'—':Number(n).toFixed(1).replace('.',',')+' %';
+  const entries=(b.curva||[]).filter(x=>Number.isFinite(x.izquierdaPct)&&Number.isFinite(x.derechaPct));
+  const maxT=Math.max(5,...entries.map(x=>x.minuto));
+  const point=key=>entries.map(x=>`${(30+x.minuto/maxT*310).toFixed(1)},${(90-(x[key]-40)/20*64).toFixed(1)}`).join(' ');
+  const plot=entries.length>1?`<svg class="pedal-graph" viewBox="0 0 350 115" role="img" aria-label="Balance de ambas piernas por bloques de cinco minutos">
+    <line x1="30" x2="340" y1="58" y2="58" stroke="#677489" stroke-dasharray="4 4"/>
+    <text x="1" y="21" fill="#98A3B8" font-size="10">60%</text><text x="1" y="60" fill="#98A3B8" font-size="10">50%</text><text x="1" y="91" fill="#98A3B8" font-size="10">40%</text>
+    <polyline fill="none" stroke="#35C8F0" stroke-width="2.5" points="${point('izquierdaPct')}"/>
+    <polyline fill="none" stroke="#F6C445" stroke-width="2.5" points="${point('derechaPct')}"/>
+    <text x="30" y="110" fill="#98A3B8" font-size="10">0′</text><text x="312" y="110" fill="#98A3B8" font-size="10">${maxT}′</text></svg>
+    <div class="pedal-legend"><span><i style="background:#35C8F0"></i>Izquierda</span><span><i style="background:#F6C445"></i>Derecha</span></div>`:'';
+  return `<div class="pedal-head">⚡ Balance bilateral · ${b.muestras} muestras</div>
+    <div class="pedal-kpis"><div class="pedal-kpi"><b>${pct(b.izquierdaPct)}</b><span>Izquierda</span></div><div class="pedal-kpi"><b>${pct(b.derechaPct)}</b><span>Derecha</span></div><div class="pedal-kpi"><b>${b.cambioIzquierdaPuntos==null?'—':Number(b.cambioIzquierdaPuntos).toFixed(1).replace('.',',')+' pp'}</b><span>Cambio 2ª mitad</span></div></div>
+    ${plot}<div style="font-size:10px;color:var(--mut);margin-top:9px">${b.nota||'Compara varias sesiones de potencia similar antes de interpretar una diferencia.'}</div>`;
 }
 
 function computeCalibration(sm){
@@ -3793,7 +3832,7 @@ async function syncActividades(){
     const r=await fetch('/api/actividades?dias=180',{headers:{'Accept':'application/json'}});
     const j=await r.json().catch(()=>null);
     if(!r.ok||!j||j.error||!Array.isArray(j.actividades))return null;
-    const ses=j.actividades.map(a=>({date:a.date,sport:a.sport,name:a.name,km:a.km,min:a.min,
+    const ses=j.actividades.map(a=>({id:a.id,date:a.date,sport:a.sport,name:a.name,km:a.km,min:a.min,
       kcal:a.kcal,elev:a.desnivel,avgHr:a.fc_media,maxHr:a.fc_max,cadence:a.cadencia,carga:a.carga}));
     await Store.set('strava_sessions',ses);
     await Store.set('strava_summary',aggregateFromSessions(ses));
@@ -3859,6 +3898,8 @@ async function runLive(){
 async function syncAll(){
   await runLive();
   await runGarminSync();
+  const refreshed=await syncActividades();
+  if(refreshed)await renderSessions();
   await fetchPlan(true);
   await renderImportedPlan();
   const ch=await Store.get('plan_changes');
