@@ -43,7 +43,7 @@ let objetivos={};
 try {const v=JSON.parse(localStorage.getItem(LSO)||'null');if(v&&typeof v==='object')objetivos=v;}catch(_e){}
 let planAutomatico=null;
 try {const v=JSON.parse(localStorage.getItem(LSAD)||'null');if(v&&Array.isArray(v.resumen))planAutomatico=v;}catch(_e){}
-let opcionesAuto={bikeGHora:null,runGHora:null,liquidosMlHora:null};
+let opcionesAuto={bikeGHora:null,runGHora:null,liquidosMlHora:null,productoId:null};
 try {const v=JSON.parse(localStorage.getItem(LSA)||'null');if(v&&typeof v==='object')opcionesAuto={...opcionesAuto,...v};}catch(_e){}
 const pendientes=[
   'Confirmar itinerario, dorsal y horarios de acceso',
@@ -182,6 +182,7 @@ function pintarMotor(){
   box.innerHTML=`<div class="card pad nutrition-motor"><p class="eyebrow">03 · CEREBRO ENDURANCE · GENERACIÓN AUTOMÁTICA</p>
     <h3>Un plan completo a partir de tus datos</h3><p class="vsub">Primero confirma peso, tipo de carrera, tiempo estimado, clima y los productos disponibles. El motor construye horarios, alimentación previa, avituallamientos, recuperación e inventario. Puedes cambiar cualquier dato y recalcular.</p>
     <form id="nutritionAutoForm" class="nutrition-form">
+      <label>Producto que tengo o prefiero<select name="productoId"><option value="">Elegir automáticamente por favoritos y stock</option>${CATALOGO_COMPLETO.filter(p=>p.carbohidratosG>0&&p.cafeinaMg===0&&['gel','bebida'].includes(p.tipo)).sort((a,b)=>Number(preferencias.disponibles.includes(b.id))-Number(preferencias.disponibles.includes(a.id))||Number(preferencias.favoritos.includes(b.id))-Number(preferencias.favoritos.includes(a.id))).map(p=>`<option value="${safe(p.id)}" ${opcionesAuto.productoId===p.id?'selected':''}>${preferencias.disponibles.includes(p.id)?'✓ Disponible · ':preferencias.favoritos.includes(p.id)?'★ Favorito · ':''}${safe(p.nombre)} · ${fmt(p.carbohidratosG)} g CH</option>`).join('')}</select></label>
       <label>Carbohidratos bici (g/h)<input name="bikeGHora" type="number" min="20" max="100" placeholder="Automático" value="${opcionesAuto.bikeGHora??''}"></label>
       <label>Carbohidratos carrera (g/h)<input name="runGHora" type="number" min="15" max="90" placeholder="Automático" value="${opcionesAuto.runGHora??''}"></label>
       <label>Agua orientativa (ml/h)<input name="liquidosMlHora" type="number" min="250" max="900" step="50" placeholder="Según clima" value="${opcionesAuto.liquidosMlHora??''}"></label>
@@ -192,7 +193,7 @@ function pintarMotor(){
   box.querySelector('form').onsubmit=e=>{
     e.preventDefault();const f=new FormData(e.target);
     const numero=k=>{const raw=String(f.get(k)??'').trim();return raw===''?null:Number(raw);};
-    opcionesAuto={bikeGHora:numero('bikeGHora'),runGHora:numero('runGHora'),liquidosMlHora:numero('liquidosMlHora')};
+    opcionesAuto={bikeGHora:numero('bikeGHora'),runGHora:numero('runGHora'),liquidosMlHora:numero('liquidosMlHora'),productoId:String(f.get('productoId')||'')||null};
     try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}
     planAutomatico=generarPlanAutomatico({carrera,perfil,catalogo:CATALOGO_COMPLETO,preferencias,inventario,opciones:opcionesAuto});
     consumos=planAutomatico.consumos;

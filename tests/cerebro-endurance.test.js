@@ -25,6 +25,11 @@ test('personaliza el clima, tolerancia y objetivos editados',()=>{
   assert.ok(p.avisos.some(x=>x.includes('Calor elevado')));
 });
 
+test('selecciona explícitamente el producto que el atleta tiene a mano',()=>{
+  const p=generarPlanAutomatico({...base,opciones:{productoId:'never-c30'}});
+  assert.ok(p.consumos.filter(x=>x.productoId!=='agua-neutral').every(x=>x.productoId==='never-c30'));
+});
+
 test('marca inventario insuficiente y mantiene explícita la incertidumbre',()=>{
   const p=generarPlanAutomatico({...base,inventario:{'never-c30':1}});
   assert.ok(p.avisos.some(x=>x.includes('Stock insuficiente')));
