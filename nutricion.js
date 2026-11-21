@@ -6,6 +6,7 @@ import { productosPreferidos, validarPerfil } from './lib/preferencias-nutricion
 import { revisarPreparacion } from './lib/preparacion-carrera.js';
 import { revisarInventario } from './lib/inventario-carrera.js';
 import { construirFilasPlan, exportarPlanCSV } from './lib/exportacion-plan.js';
+import { generarPlanAutomatico } from './lib/cerebro-endurance.js';
 
 const root=document.getElementById('nutritionApp');
 const LS='ironman_plan_nutricional_v1';
@@ -15,6 +16,8 @@ const LSL='ironman_checklist_carrera_v1';
 const LSP='ironman_perfil_nutricion_v1';
 const LSF='ironman_productos_preferidos_v1';
 const LSI='ironman_inventario_nutricion_v1';
+const LSA='ironman_motor_automatico_v1';
+const LSAD='ironman_plan_automatico_detalle_v1';
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(n,d=0)=>Number(n).toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:1});
 const tipos=[...new Set(CATALOGO_COMPLETO.map(p=>p.tipo))].sort();
@@ -38,6 +41,10 @@ let carrera={tipo:'703',salida:'07:00',temperaturaC:18,humedadPct:65,
 try {const v=JSON.parse(localStorage.getItem(LSC)||'null');if(v&&typeof v==='object')carrera={...carrera,...v,tiempos:{...carrera.tiempos,...v.tiempos}};}catch(_e){}
 let objetivos={};
 try {const v=JSON.parse(localStorage.getItem(LSO)||'null');if(v&&typeof v==='object')objetivos=v;}catch(_e){}
+let planAutomatico=null;
+try {const v=JSON.parse(localStorage.getItem(LSAD)||'null');if(v&&Array.isArray(v.resumen))planAutomatico=v;}catch(_e){}
+let opcionesAuto={bikeGHora:null,runGHora:null,liquidosMlHora:null};
+try {const v=JSON.parse(localStorage.getItem(LSA)||'null');if(v&&typeof v==='object')opcionesAuto={...opcionesAuto,...v};}catch(_e){}
 const pendientes=[
   'Confirmar itinerario, dorsal y horarios de acceso',
   'Comprobar los puntos de avituallamiento oficiales',
@@ -170,6 +177,29 @@ function pintarSeleccion(){
 }
 
 function guardar(){try{localStorage.setItem(LS,JSON.stringify(consumos));}catch(_e){}}
+function pintarMotor(){
+  const box=document.getElementById('nutritionMotor');if(!box)return;
+  box.innerHTML=`<div class="card pad nutrition-motor"><p class="eyebrow">03 · CEREBRO ENDURANCE · GENERACIÓN AUTOMÁTICA</p>
+    <h3>Un plan completo a partir de tus datos</h3><p class="vsub">Primero confirma peso, tipo de carrera, tiempo estimado, clima y los productos disponibles. El motor construye horarios, alimentación previa, avituallamientos, recuperación e inventario. Puedes cambiar cualquier dato y recalcular.</p>
+    <form id="nutritionAutoForm" class="nutrition-form">
+      <label>Carbohidratos bici (g/h)<input name="bikeGHora" type="number" min="20" max="100" placeholder="Automático" value="${opcionesAuto.bikeGHora??''}"></label>
+      <label>Carbohidratos carrera (g/h)<input name="runGHora" type="number" min="15" max="90" placeholder="Automático" value="${opcionesAuto.runGHora??''}"></label>
+      <label>Agua orientativa (ml/h)<input name="liquidosMlHora" type="number" min="250" max="900" step="50" placeholder="Según clima" value="${opcionesAuto.liquidosMlHora??''}"></label>
+      <button class="btn primary" type="submit">⚡ Generar plan de carrera completo</button>
+    </form><p class="vsub">Los tres objetivos son opcionales. Si quedan vacíos, se calculan según duración, tolerancia y clima. El motor no incorpora cafeína ni sales de forma automática.</p>
+    ${planAutomatico?`<div class="nutrition-auto-result"><strong>Plan generado · ${planAutomatico.consumos.length} tomas programadas</strong><span>Es editable: cambiar productos, cantidades o duración y volver a generar. La generación reemplaza solo los consumos del plan activo; no elimina el catálogo, tus favoritos ni el historial externo.</span></div>`:''}
+  </div>`;
+  box.querySelector('form').onsubmit=e=>{
+    e.preventDefault();const f=new FormData(e.target);
+    const numero=k=>{const raw=String(f.get(k)??'').trim();return raw===''?null:Number(raw);};
+    opcionesAuto={bikeGHora:numero('bikeGHora'),runGHora:numero('runGHora'),liquidosMlHora:numero('liquidosMlHora')};
+    try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}
+    planAutomatico=generarPlanAutomatico({carrera,perfil,catalogo:CATALOGO_COMPLETO,preferencias,inventario,opciones:opcionesAuto});
+    consumos=planAutomatico.consumos;
+    try{localStorage.setItem(LSAD,JSON.stringify(planAutomatico));}catch(_e){}
+    guardar();pintarMotor();pintarPlan();
+  };
+}
 function pintarPlan(){
   const el=document.getElementById('nutritionPlan');if(!el)return;
   const resultado=calcularConsumos(consumos);
@@ -190,13 +220,19 @@ function pintarPlan(){
     const p=CATALOGO_COMPLETO.find(x=>x.id===item.productoId);
     return `<div class="nutrition-plan-row"><div><strong>${safe(p?.nombre||'Producto retirado')}</strong><div class="vsub">${safe(item.en||item.fase)} · minuto ${fmt(item.offsetMin||0)} · ${fmt(item.cantidad,1)} porción(es)</div></div><button type="button" class="btn nutrition-remove" data-index="${i}" aria-label="Retirar producto">×</button></div>`;
   }).join('');
-  el.innerHTML=`<div class="card pad"><p class="eyebrow">03 · ESTRATEGIA NUTRICIONAL · TOTAL</p>
+  const planDetalle=planAutomatico?`<div class="card pad nutrition-race-document"><p class="eyebrow">PLAN DE CARRERA · ESTRUCTURA CARTAGENA</p><h3>Antes, durante y después · listo para preparar</h3>
+    <div class="nutrition-report-grid"><section><h4>48 h y mañana de carrera</h4>${planAutomatico.previo.map(x=>`<div class="nutrition-report-line"><strong>${safe(x.cuando)}</strong><span>${safe(x.accion)}</span></div>`).join('')}</section>
+    <section><h4>Al cruzar la meta</h4>${planAutomatico.post.map(x=>`<div class="nutrition-report-line"><strong>${safe(x.cuando)}</strong><span>${safe(x.accion)}</span></div>`).join('')}</section></div>
+    <h4>Objetivos operativos por etapa</h4><div class="nutrition-stock-table">${planAutomatico.resumen.map(x=>`<div><span>${x.etapa==='bike'?'Ciclismo':'Carrera'} · ${fmt(x.duracionMin)} min</span><strong>${fmt(x.objetivoGHora)} g CH/h</strong><small>${fmt(x.liquidosMl)} ml orientativos · tomas cada ~${x.intervaloMin} min</small></div>`).join('')}</div>
+    <details open><summary>Comprobaciones de seguridad y logística (${planAutomatico.avisos.length})</summary><ul class="vsub">${planAutomatico.avisos.map(a=>`<li>${safe(a)}</li>`).join('')}</ul></details>
+    <p class="vsub">Plan orientativo basado en nutrición deportiva, no diagnóstico ni prescripción individual. Si tienes enfermedades, medicación o síntomas, valida con medicina del deporte/nutrición clínica.</p></div>`:'';
+  el.innerHTML=`${planDetalle}<div class="card pad"><p class="eyebrow">04 · ESTRATEGIA NUTRICIONAL · TOTAL</p>
     <p class="vsub">Perfil: ${perfil.pesoKg===null?'peso sin confirmar':fmt(perfil.pesoKg,1)+' kg'} · ${perfil.sudoracionLh===null?'sudoración sin medir':fmt(perfil.sudoracionLh,1)+' L/h medidos'} · ${perfil.experienciaNutricion==='ensayada'?'productos ensayados':perfil.experienciaNutricion==='parcial'?'ensayo parcial':'tolerancia no confirmada'}</p>
     <div class="nutrition-readiness"><div><small>Preparación de datos</small><strong>${preparacion.avisos.length?'Por completar':'Datos básicos completos'}</strong><small>${preparacion.avisos.length} comprobaciones pendientes</small></div>
     <div><small>Pérdida por sudor · referencia</small><strong>${preparacion.perdidaTeoricaLitros===null?'Sin medir':fmt(preparacion.perdidaTeoricaLitros,1)+' L'}</strong><small>No equivale a líquidos que debas beber</small></div></div>
     ${preparacion.avisos.length?`<details><summary>Información a confirmar (${preparacion.avisos.length})</summary><ul class="vsub">${preparacion.avisos.map(a=>`<li>${safe(a)}</li>`).join('')}</ul></details>`:''}
     <div class="nutrition-kpis">${metrica('carbohidratosG','g')}${metrica('sodioMg','mg')}${metrica('cafeinaMg','mg')}</div>
-    ${consumos.length?filas:'<p class="vsub">Selecciona un producto y añádelo a tu estrategia. No se propone una dosis automáticamente.</p>'}
+    ${consumos.length?filas:'<p class="vsub">Pulsa «Generar plan de carrera completo» para calcular horarios y cantidades. También puedes añadir productos manualmente.</p>'}
     <h3 class="nutrition-section-title">Inventario para esta carrera</h3>
     ${abastecimiento.items.length?`<div class="nutrition-stock-table">${abastecimiento.items.map(i=>`<div><span>${safe(i.nombre)}</span><strong>${fmt(i.requerido,1)} porciones</strong><small>${i.disponible===null?'Stock sin confirmar':i.faltante>0?`Faltan ${fmt(i.faltante,1)}`:`Disponibles ${fmt(i.disponible,1)} · suficientes`}</small></div>`).join('')}</div>`:'<p class="vsub">El inventario aparecerá al agregar productos.</p>'}
     <p class="vsub">Líquido programado: ${abastecimiento.liquidoCompleto?fmt(abastecimiento.liquidoMl)+' ml':'parcial · '+fmt(abastecimiento.liquidoMl)+' ml declarados'}. No se asume que un gel equivale a una bebida.</p>
@@ -253,7 +289,7 @@ function pintarPlan(){
 
 function iniciar(){
   if(!root)return;
-  root.innerHTML=`<section id="nutritionProfile"></section><section id="nutritionRace"></section><section id="nutritionPlan"></section>
+  root.innerHTML=`<section id="nutritionProfile"></section><section id="nutritionRace"></section><section id="nutritionMotor"></section><section id="nutritionPlan"></section>
     <p class="eyebrow" style="margin-top:22px">06 · CATÁLOGO Y PERSONALIZACIÓN</p>
     <div class="nutrition-controls"><input id="nutritionSearch" type="search" placeholder="Buscar por marca o producto…" aria-label="Buscar productos">
     <select id="nutritionType" aria-label="Filtrar tipo"><option value="">Todos los tipos</option>${tipos.map(x=>`<option value="${safe(x)}">${safe(x)}</option>`).join('')}</select></div>
@@ -262,6 +298,6 @@ function iniciar(){
     <div id="nutritionSelected"></div>`;
   root.querySelector('#nutritionSearch').oninput=e=>{filtro=e.target.value.trim().toLowerCase();pintarCatalogo();};
   root.querySelector('#nutritionType').onchange=e=>{tipo=e.target.value;pintarCatalogo();};
-  pintarPerfil();pintarCompetencia();pintarCatalogo();pintarSeleccion();pintarPlan();
+  pintarPerfil();pintarCompetencia();pintarCatalogo();pintarSeleccion();pintarMotor();pintarPlan();
 }
 iniciar();

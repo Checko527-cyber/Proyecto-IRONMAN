@@ -328,6 +328,12 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .nutrition-view{padding:20px 0 90px}.nutrition-head h2{font-size:clamp(23px,4vw,36px)}
 .nutrition-head p{color:var(--mut);font-size:13px;max-width:680px}
 .nutrition-controls{display:grid;grid-template-columns:2fr 1fr;gap:9px;margin:14px 0}
+.nutrition-motor{border:1px solid color-mix(in srgb,var(--bike) 55%,var(--line));background:linear-gradient(125deg,color-mix(in srgb,var(--bike) 9%,var(--surf)),var(--surf))}
+.nutrition-motor h3{font-size:clamp(17px,2.6vw,24px);margin:8px 0}.nutrition-auto-result{display:grid;gap:5px;margin-top:15px;padding:13px;border-radius:10px;background:color-mix(in srgb,var(--swim) 12%,var(--surf));font-size:12px}
+.nutrition-race-document{margin-bottom:12px;border-left:3px solid var(--bike)}.nutrition-race-document h3{font-size:clamp(18px,3vw,25px)}.nutrition-race-document h4{font-size:13px;margin:14px 0 9px}
+.nutrition-report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.nutrition-report-grid section{padding:12px;border:1px solid var(--line);border-radius:12px;min-width:0}
+.nutrition-report-line{display:grid;gap:5px;padding:10px 0;border-top:1px solid var(--line);font-size:12px;line-height:1.5}.nutrition-report-line strong{color:var(--bike)}
+@media(max-width:620px){.nutrition-report-grid{grid-template-columns:1fr}.nutrition-stock-table>div{grid-template-columns:1fr 1fr}.nutrition-stock-table>div span{grid-column:1/-1}.nutrition-supply-row{grid-template-columns:62px minmax(0,1fr)}.nutrition-supply-row small{grid-column:2}.nutrition-supply-row>span:nth-child(3){grid-column:2}}
 .nutrition-controls input,.nutrition-controls select,.nutrition-form input,.nutrition-form select{width:100%;min-width:0;padding:11px;border-radius:10px;color:var(--ink);background:var(--raise);border:1px solid var(--line2);font:inherit}
 .nutrition-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;align-items:end}
 .nutrition-form label{font-size:11px;color:var(--mut);display:block;min-width:0}.nutrition-form label input,.nutrition-form label select{margin-top:5px}
@@ -369,7 +375,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .route-group[open]>summary::after{content:'−'}.route-group>summary span{display:block;color:var(--mut);font-size:11px;font-weight:400;margin-top:4px}
 .route-group>section{padding:0 12px 14px}.route-group>section .eyebrow{margin-top:16px}
 @media(max-width:480px){.nutrition-scenarios{gap:5px}.nutrition-scenarios>div{padding:7px}.nutrition-scenarios strong{font-size:12px}}
-@media print{body{background:#fff!important;color:#111!important}body nav,.nav-wrap,.subnav,#nutritionCatalog,#nutritionSelected,.nutrition-controls,#nutritionRace button,#nutritionPrint{display:none!important}.view{display:none!important}#v-nutricion{display:block!important}#nutritionPlanner{display:block!important}#nutritionApp .card{break-inside:avoid;border:1px solid #bbb!important;box-shadow:none!important;background:#fff!important;color:#111!important}#nutritionApp *{color:#111!important}.nutrition-view{padding:0!important}}
+@media print{body{background:#fff!important;color:#111!important}body nav,.nav-wrap,.subnav,#nutritionCatalog,#nutritionSelected,.nutrition-controls,#nutritionRace button,#nutritionPrint,#nutritionMotor,#nutritionProfile,#nutritionRace,#nutritionCsv,.nutrition-remove{display:none!important}.view{display:none!important}#v-nutricion{display:block!important}#nutritionPlanner{display:block!important}#nutritionApp .card{break-inside:avoid;border:1px solid #bbb!important;box-shadow:none!important;background:#fff!important;color:#111!important}#nutritionApp *{color:#111!important}.nutrition-view{padding:0!important}}
 @media(max-width:480px){.nutrition-controls{grid-template-columns:1fr}.nutrition-product{min-height:95px}.nutrition-kpis{gap:5px}.nutrition-kpis>div{padding:9px}}
 .savetoast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;padding:8px 15px;border-radius:8px;z-index:60;transition:.22s;pointer-events:none}
 .savetoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
