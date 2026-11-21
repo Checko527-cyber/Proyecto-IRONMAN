@@ -147,12 +147,14 @@ function pintarSeleccion(){
       pintarSeleccion();pintarPlan();
     };
   }
-  box.querySelector('#nutritionStock').onchange=e=>{
+  const actualizarStock=e=>{
     const v=e.target.value.trim();
     if(v==='')delete inventario[p.id];else if(Number.isFinite(Number(v))&&Number(v)>=0)inventario[p.id]=Number(v);
     try{localStorage.setItem(LSI,JSON.stringify(inventario));}catch(_e){}
     pintarPlan();
   };
+  box.querySelector('#nutritionStock').oninput=actualizarStock;
+  box.querySelector('#nutritionStock').onchange=actualizarStock;
   box.querySelector('form').onsubmit=e=>{
     e.preventDefault();const f=new FormData(e.target);
     const overrides={};
