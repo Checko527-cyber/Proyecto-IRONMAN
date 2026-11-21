@@ -1,4 +1,4 @@
-import {extractFitFromZip,decodeFit,timeSeries} from '../lib/garmin-fit.js';
+import {extractFitFromZip,decodeFit,timeSeries,bilateralSummary} from '../lib/garmin-fit.js';
 import { timingSafeEqual } from 'node:crypto';
 
 // Read-only Garmin Personal API bridge. Never expose the API key or bearer token.
@@ -50,7 +50,8 @@ export default async function handler(req,res) {
         return res.status(502).json({error:'Garmin devolvió un archivo no válido.'});
       if(analysis){
         try{const records=decodeFit(extractFitFromZip(buffer));const series=timeSeries(records,{windowSeconds:60,threshold:148});
-          return res.status(200).json({fuente:'garmin-fit',activityId,muestras:records.length,intervaloSegundos:60,umbralReferencialFc:148,advertencia:'Bloques estimados por FC: no sustituyen los tiempos prescritos por el entrenador.',...series});
+          return res.status(200).json({fuente:'garmin-fit',activityId,muestras:records.length,intervaloSegundos:60,umbralReferencialFc:148,
+            balance:bilateralSummary(records),advertencia:'Bloques estimados por FC: no sustituyen los tiempos prescritos por el entrenador.',...series});
         }catch{return res.status(422).json({error:'No fue posible interpretar el FIT de Garmin.'});}
       }
       res.setHeader('Content-Type','application/zip');
