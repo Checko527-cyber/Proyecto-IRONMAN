@@ -2607,22 +2607,23 @@ async function renderRecomendacion(){
   ].join('');
 
   // --- El entreno: el del plan, ya modificado por el estado ---
-  const yaEntreno=R.hecho.reduce((a,s)=>a+(+s.min||0),0)>=20;
-  const titulo=yaEntreno?('✓ '+R.hecho.map(s=>s.name||s.sport).join(' + '))
+  const actividadRegistrada=R.hecho.reduce((a,s)=>a+(+s.min||0),0)>=20;
+  const sport=sportFromTag(R.plan.tag)||'rest';
+  const yaEntreno=actividadRegistrada&&sport!=='rest'&&R.hecho.some(s=>s.sport===sport&&(+s.min||0)>=20);
+  const titulo=actividadRegistrada?((yaEntreno?'✓ ':'')+R.hecho.map(s=>s.name||s.sport).join(' + '))
              :(R.aj?R.aj.t:R.plan.t);
-  const cuerpo=yaEntreno
+  const cuerpo=actividadRegistrada
     ? R.hecho.map(s=>[s.km?(s.sport==='swim'?Math.round(s.km*1000)+' m':s.km+' km'):null,
         s.min?s.min+' min':null, s.elev?Math.round(s.elev)+' m desnivel':null,
         s.avgHr?'FC media '+s.avgHr:null].filter(Boolean).join(' · ')).join('<br>')
     : (R.aj?R.aj.detail:R.plan.detail);
-  const porque=yaEntreno
-    ? 'Sesión del día registrada. Lo que viene ahora es recuperar: proteína en la próxima hora, hidratación y sueño.'
+  const porque=actividadRegistrada
+    ? (yaEntreno?'Actividad de la disciplina planificada registrada. Prioriza la recuperación.':'Actividad adicional registrada; la sesión planificada sigue pendiente de comprobar.')
     : (R.aj?R.aj.why:(R.plan.obj||''));
-  const sport=sportFromTag(R.plan.tag)||'rest';
 
   const cambiado=!!R.aj&&!yaEntreno;
-  const hechoHtml=yaEntreno?`<div class="hoy-ok">Cumplido automáticamente desde Garmin</div>`:'';
-  const origen=yaEntreno
+  const hechoHtml=yaEntreno?`<div class="hoy-ok">Actividad de la disciplina planificada registrada</div>`:(actividadRegistrada?`<div class="hoy-orig">La actividad registrada es de otra disciplina; no se marca como cumplida la sesión del entrenador.</div>`:'');
+  const origen=actividadRegistrada
     ? `<div class="hoy-orig">El plan de hoy era <b>${R.plan.t}</b></div>`
     : (cambiado?`<div class="hoy-orig">El plan de hoy era <b>${R.plan.t}</b> · ajustado por tu estado</div>`:'');
   const motivos=R.motivos.length?`<ul class="hoy-mot">${R.motivos.map(m=>`<li>${m}</li>`).join('')}</ul>`:'';
