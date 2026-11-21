@@ -725,9 +725,11 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     <div class="aurora-bg"></div>
     <div id="reviewBanner"></div>
     <div id="montana"></div>
-    <div id="missionHero"></div>
-    <div id="raceHero"></div>
-    <div id="recoBox"></div>
+    <details class="route-group"><summary>Resumen operativo <span>Próxima carrera · estado del día · recuperación</span></summary>
+      <div id="missionHero"></div>
+      <div id="raceHero"></div>
+      <div id="recoBox"></div>
+    </details>
     <section><p class="eyebrow">◈ Camino al IRONMAN 2028 · horizontes posteriores opcionales</p><div id="trail"></div></section>
     <details class="route-group"><summary>Capacidad y evolución <span>Forma · volumen · disciplinas</span></summary>
       <section><p class="eyebrow">◈ Capacidad · sistema de disciplinas</p><div class="glass pad" id="capBox"></div></section>
@@ -755,7 +757,9 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
         <div class="btnrow" id="addRaceBtnRow"><button class="btn" id="rcAddBtn">＋ Agregar competencia</button></div>
       </div>
     </section>
-    <section><p class="eyebrow">◈ Riesgos · medidos, no supuestos</p><div class="glass pad" id="riesgos"></div></section>
+    <details class="route-group"><summary>Alertas y riesgos <span>Fatiga · sobrecarga · lesión</span></summary>
+      <section><div class="glass pad" id="riesgos"></div></section>
+    </details>
   </div>
   <div class="view" id="v-nutricion"><section class="nutrition-view" id="nutritionPlanner">
     <div class="nutrition-head"><p class="eyebrow">NUTRICIÓN · PLANIFICADOR DE CARRERA</p><h2>Tu estrategia de abastecimiento</h2>
