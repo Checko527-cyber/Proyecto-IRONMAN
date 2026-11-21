@@ -26,6 +26,7 @@ body{font-family:'Archivo',system-ui,sans-serif;color:var(--ink);line-height:1.5
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 input{font-family:inherit}
 .wrap{max-width:680px;margin:0 auto;padding:0 14px}
+@media(min-width:1100px){.wrap{max-width:1050px;padding:0 28px}}
 h1,h2,h3{font-family:'Archivo';letter-spacing:-.025em;margin:0}
 .num,.data{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin:0 0 10px}
@@ -319,6 +320,57 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .navbtn .ni{font-size:16px;line-height:1}
 .navbtn.active{color:var(--ink)}
 .navbtn.active::before{content:"";position:absolute;top:0;left:22%;right:22%;height:2px;background:var(--ink);border-radius:0 0 2px 2px}
+.section-subnav{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:12px 0 0;margin-bottom:4px}
+.section-subnav[hidden]{display:none}
+.section-subnav button{white-space:nowrap;font-size:12px;font-weight:650;padding:8px 13px;border-radius:999px;background:var(--surf);border:1px solid var(--line);color:var(--mut)}
+.section-subnav button.active{color:var(--ink);border-color:var(--swim);background:rgba(53,200,240,.1)}
+.section-subnav button:focus-visible,.navbtn:focus-visible{outline:2px solid var(--swim);outline-offset:2px}
+.nutrition-view{padding:20px 0 90px}.nutrition-head h2{font-size:clamp(23px,4vw,36px)}
+.nutrition-head p{color:var(--mut);font-size:13px;max-width:680px}
+.nutrition-controls{display:grid;grid-template-columns:2fr 1fr;gap:9px;margin:14px 0}
+.nutrition-controls input,.nutrition-controls select,.nutrition-form input,.nutrition-form select{width:100%;min-width:0;padding:11px;border-radius:10px;color:var(--ink);background:var(--raise);border:1px solid var(--line2);font:inherit}
+.nutrition-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;align-items:end}
+.nutrition-form label{font-size:11px;color:var(--mut);display:block;min-width:0}.nutrition-form label input,.nutrition-form label select{margin-top:5px}
+.nutrition-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:9px;margin:12px 0}
+.nutrition-product{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surf);text-align:left;display:flex;flex-direction:column;gap:6px;min-width:0}
+.nutrition-product strong{font-size:12px;line-height:1.4}.nutrition-product small{color:var(--mut)}
+.nutrition-product.selected{border-color:var(--swim);background:rgba(53,200,240,.08)}
+.nutrition-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.nutrition-kpis>div{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surf);min-width:0}
+.nutrition-kpis strong{display:block;font:600 clamp(16px,3vw,25px) 'IBM Plex Mono',monospace;color:var(--ink)}
+.nutrition-kpis small{font-size:10px;color:var(--mut)}
+.nutrition-plan-row{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);padding:10px 0;font-size:12px}
+.nutrition-stages{display:flex;gap:3px;width:100%;height:80px;margin:17px 0 10px;overflow:hidden;border-radius:12px}
+.nutrition-stage{min-width:0;background:color-mix(in srgb,var(--stage-color) 20%,var(--surf));border-top:5px solid var(--stage-color);padding:8px;display:flex;flex-direction:column;justify-content:space-between}
+.nutrition-stage span{font-size:10px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nutrition-stage strong{font-size:11px;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+.nutrition-stage-legend{display:flex;gap:8px 16px;flex-wrap:wrap;margin-bottom:16px}.nutrition-stage-legend span{font-size:10px;color:var(--mut);display:flex;gap:5px;align-items:center}.nutrition-stage-legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.nutrition-section-title{font-size:13px;margin:16px 0 7px}.nutrition-grid>.btn{min-height:60px}
+.nutrition-audit{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px;margin:12px 0}
+.nutrition-audit-card{padding:13px;background:var(--surf);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.nutrition-audit-card>strong{font-size:13px}.nutrition-audit-card small{font-size:10px;color:var(--mut)}
+.nutrition-audit-value{font:600 21px 'IBM Plex Mono',monospace}.nutrition-audit-target{font-size:10px;color:var(--mut)}
+.nutrition-audit-target input{display:block;width:100%;padding:9px;margin-top:5px;border-radius:8px;background:var(--raise);border:1px solid var(--line2);color:var(--ink)}
+.nutrition-scenarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}.nutrition-scenarios>div{padding:11px;background:var(--surf);border-radius:10px;border:1px solid var(--line);display:grid;gap:5px}
+.nutrition-scenarios strong{font:600 clamp(14px,2.5vw,21px) 'IBM Plex Mono',monospace}.nutrition-scenarios small{font-size:10px;color:var(--mut)}
+.nutrition-checklist{display:grid;gap:9px;padding:12px 0}.nutrition-checklist label{display:flex;align-items:flex-start;gap:10px;font-size:12px}.nutrition-checklist input{accent-color:var(--swim);margin-top:2px}
+.nutrition-product-flags{display:flex;flex-wrap:wrap;gap:10px 18px;margin:0 0 18px}.nutrition-product-flags label{font-size:12px;color:var(--ink);display:flex;align-items:center;gap:7px}.nutrition-product-flags input,.nutrition-check-label input{accent-color:var(--swim)}
+.nutrition-form label.nutrition-check-label{display:flex;align-items:center;gap:8px;padding:11px 0;color:var(--ink);font-size:11px}
+.nutrition-readiness{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:11px 0}.nutrition-readiness>div{display:flex;flex-direction:column;gap:5px;padding:13px;border:1px solid var(--line);border-radius:11px;background:var(--surf)}
+.nutrition-readiness strong{font-size:15px;color:var(--ink)}.nutrition-readiness small{font-size:10px;color:var(--mut)}
+.nutrition-stock-input{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-bottom:15px}.nutrition-stock-input input{width:135px;padding:8px;border:1px solid var(--line2);border-radius:9px;background:var(--raise);color:var(--ink)}
+.nutrition-stock-table{display:grid;gap:5px;margin:9px 0}.nutrition-stock-table>div{display:grid;grid-template-columns:minmax(0,2fr) 1fr 1fr;gap:8px;align-items:center;border-top:1px solid var(--line);padding:9px 0;font-size:11px}.nutrition-stock-table strong{font-size:11px}.nutrition-stock-table small{color:var(--mut)}
+.nutrition-supply-row{display:grid;grid-template-columns:60px minmax(0,2fr) 1fr minmax(110px,1fr);gap:8px;align-items:center;border-top:1px solid var(--line);padding:10px 0;font-size:11px}.nutrition-supply-row>.num{color:var(--bike);font-weight:700}.nutrition-supply-row small{color:var(--mut)}
+@media(max-width:600px){.nutrition-supply-row{grid-template-columns:55px 1fr 1fr}.nutrition-supply-row small{grid-column:2/-1}}
+@media(max-width:480px){.nutrition-stock-table>div{grid-template-columns:1fr 1fr}.nutrition-stock-table small{grid-column:1/-1}}
+@media(max-width:400px){.nutrition-readiness{grid-template-columns:1fr}}
+.route-group{margin:15px 0;border:1px solid var(--line);border-radius:15px;background:var(--surf);overflow:hidden}
+.route-group>summary{display:block;cursor:pointer;padding:17px 19px;font-size:14px;font-weight:700;list-style:none;position:relative}
+.route-group>summary::-webkit-details-marker{display:none}.route-group>summary::after{content:'+';position:absolute;right:17px;top:15px;font-size:20px;color:var(--swim)}
+.route-group[open]>summary::after{content:'−'}.route-group>summary span{display:block;color:var(--mut);font-size:11px;font-weight:400;margin-top:4px}
+.route-group>section{padding:0 12px 14px}.route-group>section .eyebrow{margin-top:16px}
+@media(max-width:480px){.nutrition-scenarios{gap:5px}.nutrition-scenarios>div{padding:7px}.nutrition-scenarios strong{font-size:12px}}
+@media print{body{background:#fff!important;color:#111!important}body nav,.nav-wrap,.subnav,#nutritionCatalog,#nutritionSelected,.nutrition-controls,#nutritionRace button,#nutritionPrint{display:none!important}.view{display:none!important}#v-nutricion{display:block!important}#nutritionPlanner{display:block!important}#nutritionApp .card{break-inside:avoid;border:1px solid #bbb!important;box-shadow:none!important;background:#fff!important;color:#111!important}#nutritionApp *{color:#111!important}.nutrition-view{padding:0!important}}
+@media(max-width:480px){.nutrition-controls{grid-template-columns:1fr}.nutrition-product{min-height:95px}.nutrition-kpis{gap:5px}.nutrition-kpis>div{padding:9px}}
 .savetoast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;padding:8px 15px;border-radius:8px;z-index:60;transition:.22s;pointer-events:none}
 .savetoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -587,6 +639,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
       <span class="ribstat" id="ribStat"></span>
     </div>
   </header>
+  <div class="section-subnav" id="sectionSubnav" hidden aria-label="Secciones relacionadas"></div>
 
   <!-- ===== INICIO · feed ===== -->
   <div class="view active" id="v-inicio"><section class="pc-shell" id="performanceCenter"><p>Consultando indicadores…</p></section>
@@ -597,7 +650,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <!-- ===== SEMANA ===== -->
   <div class="view" id="v-semana">
     <section>
-      <p class="eyebrow">Plan semanal · Fase 3 — Doble de ruta: 15K y 28K</p>
+      <p class="eyebrow" id="planPhaseTitle">Plan semanal · preparando la fase actual…</p>
       <div id="travelBar"></div>
       <div id="importedPlan"></div>
       <div class="weeknav" id="weekNav"></div>
@@ -672,13 +725,17 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     <div id="missionHero"></div>
     <div id="raceHero"></div>
     <div id="recoBox"></div>
-    <section><p class="eyebrow">◈ Capacidad · sistema de disciplinas</p><div class="glass pad" id="capBox"></div></section>
-    <section><p class="eyebrow">◈ Curva de forma</p><div class="glass pad" id="fitChart"></div></section>
-    <section><p class="eyebrow">◈ Volumen de entrenamiento</p><div class="glass pad" id="volChart"></div></section>
-    <section><p class="eyebrow">◈ Tus zonas de entrenamiento</p><div class="glass pad" id="zonasBox"></div></section>
-    <section><p class="eyebrow">◈ Índice de eficiencia · ¿el plan sirve?</p><div class="glass pad" id="effBox"></div></section>
-    <section><p class="eyebrow">◈ Trabajo depositado</p><div class="glass pad" id="bankBox"></div></section>
-    <section><p class="eyebrow">◈ La travesía · 9 fases hacia Ultraman</p><div id="trail"></div></section>
+    <section><p class="eyebrow">◈ Camino al IRONMAN 2028 · horizontes posteriores opcionales</p><div id="trail"></div></section>
+    <details class="route-group"><summary>Capacidad y evolución <span>Forma · volumen · disciplinas</span></summary>
+      <section><p class="eyebrow">◈ Capacidad · sistema de disciplinas</p><div class="glass pad" id="capBox"></div></section>
+      <section><p class="eyebrow">◈ Curva de forma</p><div class="glass pad" id="fitChart"></div></section>
+      <section><p class="eyebrow">◈ Volumen de entrenamiento</p><div class="glass pad" id="volChart"></div></section>
+    </details>
+    <details class="route-group"><summary>Lectura técnica <span>Zonas · eficiencia · trabajo acumulado</span></summary>
+      <section><p class="eyebrow">◈ Tus zonas de entrenamiento</p><div class="glass pad" id="zonasBox"></div></section>
+      <section><p class="eyebrow">◈ Índice de eficiencia · ¿el plan sirve?</p><div class="glass pad" id="effBox"></div></section>
+      <section><p class="eyebrow">◈ Trabajo depositado</p><div class="glass pad" id="bankBox"></div></section>
+    </details>
     
     <section><p class="eyebrow">Tus competencias</p>
       <div class="card pad">
@@ -697,15 +754,17 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     </section>
     <section><p class="eyebrow">◈ Riesgos · medidos, no supuestos</p><div class="glass pad" id="riesgos"></div></section>
   </div>
+  <div class="view" id="v-nutricion"><section class="nutrition-view" id="nutritionPlanner">
+    <div class="nutrition-head"><p class="eyebrow">NUTRICIÓN · PLANIFICADOR DE CARRERA</p><h2>Tu estrategia de abastecimiento</h2>
+      <p>Selecciona productos, ajusta sus cantidades por porción y construye una primera estrategia pre, durante y post. Las fichas históricas y los valores no confirmados se identifican explícitamente.</p></div>
+    <div id="nutritionApp">Cargando catálogo…</div>
+  </section></div>
   <nav><div class="nav-wrap">
   <button class="navbtn active" data-v="inicio"><span class="ni">◧</span>Inicio</button>
-  <button class="navbtn" data-v="semana"><span class="ni">▦</span>Semana</button>
-  <button class="navbtn" data-v="datos"><span class="ni">◱</span>Datos</button>
-  <button class="navbtn" data-v="temporada"><span class="ni">◷</span>2027</button>
-  <button class="navbtn" data-v="plan703"><span class="ni">◴</span>Victoria</button>
-  <button class="navbtn" data-v="analitica"><span class="ni">▤</span>Análisis</button>
-  <button class="navbtn" data-v="motor"><span class="ni">◉</span>Motor</button>
-  <button class="navbtn" data-v="ruta"><span class="ni">⛰</span>Ruta</button>
+  <button class="navbtn" data-v="plan"><span class="ni">▦</span>Plan</button>
+  <button class="navbtn" data-v="rendimiento"><span class="ni">◱</span>Rendimiento</button>
+  <button class="navbtn" data-v="competencias"><span class="ni">⛰</span>Competencias</button>
+  <button class="navbtn" data-v="nutricion"><span class="ni">◉</span>Nutrición</button>
 </div></nav>
 <div class="savetoast" id="toast">Guardado ✓</div>
 
@@ -735,7 +794,7 @@ const PHASES=[
   {n:"FASE 2",title:"Estreno triatlón · 5150 Cartagena",when:"27 jul → 6 sep 2026",done:true,ratio:"70/30",zone:"Base + bricks",
    body:"Primer triatlón encadenando las tres disciplinas.",
    focus:['<span class="tag t-tri">Tri olímpico</span>','<span class="tag t-brick">Bricks</span>']},
-  {n:"FASE 3",title:"Doble de ruta · 15K y 28K",when:"7 sep → 8 nov 2026 · 9 sem",cur:true,ratio:"70/30",zone:"Umbral + fondo",
+  {n:"FASE 3",title:"Doble de ruta · 15K y 28K",when:"7 sep → 8 nov 2026 · 9 sem",ratio:"70/30",zone:"Umbral + fondo",
    goal:"Allianz 15K 18 oct · Split Adidas 28K 8 nov · Vol 8-10h · Tirada larga 24-26k antes del 28K",
    body:"Dos carreras en tres semanas: velocidad primero, fondo después. El 28K será tu distancia a pie más larga.",
    focus:['<span class="tag t-run">Velocidad</span>','<span class="tag t-run">Fondo</span>','<span class="tag t-bike">Base</span>']},
@@ -856,6 +915,12 @@ const FASE_CAL=[
 const DOW_N=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
 function faseCal(iso){return FASE_CAL.find(f=>iso>=f.from&&iso<=f.to)||FASE_CAL[FASE_CAL.length-1];}
+// El indicador de fase se deriva de la fecha, nunca de una bandera fija antigua.
+function indiceFaseActual(){
+  const iso=fmtLocal(today());
+  const idx=FASE_CAL.findIndex(f=>iso>=f.from&&iso<=f.to);
+  return idx>=0?idx:(iso<FASE_CAL[0].from?0:FASE_CAL.length-1);
+}
 function addD(d,n){const x=new Date(d);x.setDate(x.getDate()+n);x.setHours(0,0,0,0);return x;}
 function lunesDe(d){const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));x.setHours(0,0,0,0);return x;}
 function durTxt(m){const h=Math.floor(m/60),r=m%60;return h?(r?h+"h"+(r<10?"0":"")+r:h+"h"):r+" min";}
@@ -1247,11 +1312,14 @@ async function renderTodayButtons(){
 }
 
 function renderPhases(){
-  document.getElementById('phaseList').innerHTML=PHASES.map((p,i)=>{const cls=(p.cur?'cur ':'')+(i===0?'open':'');return `<div class="phase ${cls}"><div class="ph-head"><div><div class="ph-n">${p.n}</div><div class="ph-title">${p.title}</div><div class="ph-when">${p.when}</div></div><span class="chev">▸</span></div><div class="ph-body">${p.body}<div class="ph-focus">${p.focus.join('')}</div></div></div>`;}).join('');
+  const actual=indiceFaseActual();
+  document.getElementById('phaseList').innerHTML=PHASES.map((p,i)=>{const cls=(i===actual?'cur ':'')+(i===actual?'open':'');return `<div class="phase ${cls}"><div class="ph-head"><div><div class="ph-n">${p.n}</div><div class="ph-title">${p.title}</div><div class="ph-when">${p.when}</div></div><span class="chev">▸</span></div><div class="ph-body">${p.body}<div class="ph-focus">${p.focus.join('')}</div></div></div>`;}).join('');
   document.querySelectorAll('.ph-head').forEach(h=>h.onclick=()=>h.closest('.phase').classList.toggle('open'));
 }
 
 function renderWeekNav(){
+  const titulo=document.getElementById('planPhaseTitle');
+  if(titulo){const fase=PHASES[indiceFaseActual()];titulo.textContent=`Plan semanal · ${fase.n} — ${fase.title}`;}
   // Seis semanas y nada mas: la anterior, la actual y las cuatro siguientes.
   const act=currentWeekIdx();
   const desde=Math.max(0,act-1), hasta=Math.min(PLAN_WEEKS.length-1,act+4);
@@ -2193,7 +2261,7 @@ async function renderBank(){
 // --- El ascenso: sendero de 7 fases ---
 async function renderTrail(){
   const box=document.getElementById('trail');if(!box)return;
-  const cur=Math.max(0,PHASES.findIndex(p=>p.cur));
+  const cur=indiceFaseActual();
   if(typeof selPhase!=='number')selPhase=cur;
   const n=PHASES.length;
   const pct=Math.round(((cur+0.4)/n)*100);
@@ -2258,14 +2326,15 @@ let selPhase;
 // Hero de misión: estado del atleta con datos reales
 async function renderMission(){
   const box=document.getElementById('missionHero');if(!box)return;
-  const cur=PHASES.find(p=>p.cur)||PHASES[0];
+  const indice=indiceFaseActual();
+  const cur=PHASES[indice];
   const sm=await Store.get('strava_summary');
   const sessions=(await Store.get('strava_sessions'))||[];
   let totalKm=0,totalH=0;
   sessions.forEach(s=>{totalKm+=(+s.km||0);totalH+=(+s.min||0)/60;});
   const next=allRaces().find(x=>x.date&&daysTo(x.date)>=0);
   const dNext=next?daysTo(next.date):null;
-  const curNum=PHASES.filter(p=>p.done).length+1;
+  const curNum=indice+1;
   box.innerHTML=`<section><div class="mission glass">
     <div class="mission-glow"></div>
     <div class="mission-in">
@@ -3021,7 +3090,11 @@ async function renderMotor(forzar){
   // La recomendación usa datos recién consultados; la Radiografía conserva su historial.
   let consejo = null;
   try {
-    const r = await fetch('/api/recomendacion', {cache:'no-store',headers:{Accept:'application/json'}});
+    const restricciones = await Store.get('restricciones_entrenamiento') || [];
+    const r = await fetch('/api/recomendacion', {
+      method:'POST',cache:'no-store',headers:{Accept:'application/json','Content-Type':'application/json'},
+      body:JSON.stringify({restricciones:Array.isArray(restricciones)?restricciones:[]})
+    });
     if(r.ok) consejo = await r.json();
   } catch(_e) {}
   const seguro = x => String(x==null?'':x).replace(/[&<>"']/g,c=>({
@@ -3033,11 +3106,18 @@ async function renderMotor(forzar){
   const cValor = x => x == null ? '—' : Number(x).toLocaleString('es-CO',{maximumFractionDigits:1});
   const cKpis = consejo?.evidencia || {};
   const cRazones = (consejo?.razones || []).slice(0,3).map(x=>'<li>'+seguro(x)+'</li>').join('');
+  const restriccionesGuardadas = Array.isArray(await Store.get('restricciones_entrenamiento'))
+    ? await Store.get('restricciones_entrenamiento') : [];
+  const rEtiqueta = {enfermedad:'Enfermedad',lesion:'Lesión',disponibilidad:'Disponibilidad'};
+  const rLista = restriccionesGuardadas.map((r,i)=>`<div class="vsub" style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:7px">
+    <span>${seguro(rEtiqueta[r.tipo]||'Restricción')} · ${seguro(r.desde)} a ${seguro(r.hasta)} · ${seguro(r.estado==='recuperacion'?'Recuperación':'Activa')}${r.disciplinas?.length?' · '+seguro(r.disciplinas.join(', ')):''}</span>
+    <button type="button" class="btn restriction-remove" data-index="${i}" aria-label="Eliminar restricción">×</button>
+  </div>`).join('');
   const cPanel = `<section class="coach-day coach-day--${seguro(cEstado)}" aria-labelledby="coach-day-title">
     <div class="coach-day__top">
       <div><div class="coach-day__eyebrow">MOTOR ADAPTATIVO · HOY</div>
         <h4 id="coach-day-title">${seguro(consejo?.titular || 'Datos no disponibles')}</h4></div>
-      <span class="coach-day__status">${seguro(cEstado==='reducir'?'Recuperar':cEstado==='moderar'?'Moderar':cEstado==='mantener'?'Mantener':'Sin datos')}</span>
+      <span class="coach-day__status">${seguro(cEstado==='pausar'?'Pausar':cEstado==='recuperar'?'Retorno gradual':cEstado==='reducir'?'Recuperar':cEstado==='moderar'?'Moderar':cEstado==='mantener'?'Mantener':'Sin datos')}</span>
     </div>
     <div class="coach-day__prescription">
       <div><span class="coach-day__hint">Volumen sugerido</span><strong>${cFactor == null ? '—' : cFactor+' %'}</strong></div>
@@ -3052,6 +3132,18 @@ async function renderMotor(forzar){
     ${cRazones?'<ul class="coach-day__reasons">'+cRazones+'</ul>':'<p class="coach-day__reasons">Sin lectura reciente. Conserva el plan base sin intensificar.</p>'}
     <p class="coach-day__why">${seguro(consejo?.porQue || 'La recomendación automática no está disponible. El plan original sigue intacto.')}</p>
     <div class="coach-day__foot"><span>Datos: ${seguro(cFecha)} · ${seguro(cKpis.bienestar || 'no disponibles')}</span><span>Orientativo · No es diagnóstico</span></div>
+    <details style="margin-top:12px"><summary style="cursor:pointer">Registrar enfermedad, recuperación o disponibilidad</summary>
+      <div style="padding-top:10px">${rLista||'<p class="vsub">Sin restricciones registradas.</p>'}</div>
+      <form id="restrictionForm" class="logform" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px">
+        <label class="field">Motivo<select name="tipo" required><option value="enfermedad">Enfermedad</option><option value="lesion">Lesión</option><option value="disponibilidad">Disponibilidad</option></select></label>
+        <label class="field">Estado<select name="estado" required><option value="activo">Activo / limitado</option><option value="recuperacion">Recuperación</option></select></label>
+        <label class="field">Desde<input name="desde" type="date" required></label>
+        <label class="field">Hasta<input name="hasta" type="date" required></label>
+        <label class="field">Deporte afectado<select name="disciplina"><option value="">Todas / general</option><option value="swim">Natación</option><option value="bike">Ciclismo</option><option value="run">Carrera</option><option value="strength">Fuerza</option></select></label>
+        <div class="field" style="display:flex;justify-content:flex-end"><button class="btn primary" type="submit">Guardar restricción</button></div>
+      </form>
+      <p class="vsub">Solo ajusta recomendaciones complementarias. No diagnostica enfermedades ni modifica el calendario del entrenador.</p>
+    </details>
   </section>`;
 
   const d = (c, inv) => { if(!c) return ''; const dif=c.fin-c.ini;
@@ -3194,6 +3286,27 @@ async function renderMotor(forzar){
   html += `<div class="rx-cortes">${cortes.map((c,i)=>`<span class="rx-chip ${i===cortes.length-1?'on':''}">${fmtNice(c.fecha)}</span>`).join('')}</div></div>`;
 
   box.innerHTML = html;
+  const restrictionForm=document.getElementById('restrictionForm');
+  if(restrictionForm){
+    restrictionForm.onsubmit=async e=>{
+      e.preventDefault();
+      const f=new FormData(restrictionForm);
+      const desde=String(f.get('desde')||''), hasta=String(f.get('hasta')||'');
+      if(desde>hasta){toast('La fecha final debe ser posterior a la inicial');return;}
+      const disciplina=String(f.get('disciplina')||'');
+      const items=Array.isArray(await Store.get('restricciones_entrenamiento'))?await Store.get('restricciones_entrenamiento'):[];
+      items.push({tipo:String(f.get('tipo')),estado:String(f.get('estado')),desde,hasta,disciplinas:disciplina?[disciplina]:[]});
+      await Store.set('restricciones_entrenamiento',items.slice(-30));
+      await renderMotor(true);toast('Restricción guardada');
+    };
+  }
+  box.querySelectorAll('.restriction-remove').forEach(btn=>btn.onclick=async()=>{
+    const items=await Store.get('restricciones_entrenamiento')||[];
+    if(!Array.isArray(items))return;
+    items.splice(Number(btn.dataset.index),1);
+    await Store.set('restricciones_entrenamiento',items);
+    await renderMotor(true);toast('Restricción retirada');
+  });
   const b = document.getElementById('rxUpd');
   if(b) b.onclick = async () => { b.disabled=true; b.textContent='…';
     await renderMotor(true); toast('Radiografía actualizada ✓'); };
@@ -3913,9 +4026,24 @@ async function renderChecks(){
   document.querySelectorAll('.checkitem').forEach(el=>el.onclick=async()=>{const s=await Store.get('checks')||{};const id=el.dataset.id;const cur=(id in s)?s[id]:!!(CHECKS.find(c=>c.id===id)||{}).done;s[id]=!cur;await Store.set('checks',s);el.classList.toggle('on');});
 }
 
-function go(v){
+const NAV_GRUPOS={inicio:['inicio'],plan:['semana'],rendimiento:['datos','analitica','motor'],competencias:['temporada','plan703','ruta'],nutricion:['nutricion']};
+const NAV_NOMBRES={semana:'Semana',datos:'Datos',analitica:'Análisis',motor:'Motor',temporada:'Temporada 2027',plan703:'Victoria 70.3',ruta:'Ruta'};
+let navAnterior={};
+function go(destino){
+  const grupo=Object.keys(NAV_GRUPOS).find(k=>k===destino||NAV_GRUPOS[k].includes(destino))||'inicio';
+  const v=NAV_GRUPOS[grupo].includes(destino)?destino:(navAnterior[grupo]||NAV_GRUPOS[grupo][0]);
+  navAnterior[grupo]=v;
   if(v==='motor') setTimeout(()=>{try{renderMotor(false);}catch(e){}},30);
-  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));const t=document.getElementById('v-'+v);if(t)t.classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));window.scrollTo({top:0,behavior:'smooth'});}
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  const t=document.getElementById('v-'+v);if(t)t.classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>{const activo=b.dataset.v===grupo;b.classList.toggle('active',activo);b.setAttribute('aria-current',activo?'page':'false');});
+  const sub=document.getElementById('sectionSubnav');
+  const vistas=NAV_GRUPOS[grupo];sub.hidden=vistas.length<2;
+  sub.innerHTML=vistas.length<2?'':vistas.map(x=>`<button type="button" data-sub="${x}" class="${x===v?'active':''}" aria-pressed="${x===v}">${NAV_NOMBRES[x]||x}</button>`).join('');
+  sub.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>go(b.dataset.sub));
+  window.dispatchEvent(new CustomEvent('ironman:navigate',{detail:{grupo,vista:v}}));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));
 
 // ===================== ACTUALIZACION DE VERSION =====================
@@ -4007,5 +4135,6 @@ function wireUpd(){
 <script src="/performance.js?v=1" defer></script>
 <script type="module" src="/temporada2027.js?v=1"></script>
 <script type="module" src="/victoria630.js?v=1"></script>
+<script type="module" src="/nutricion.js?v=1"></script>
 </body>
 </html>

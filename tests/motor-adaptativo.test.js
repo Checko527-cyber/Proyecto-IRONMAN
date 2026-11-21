@@ -46,3 +46,47 @@ test('una mediana de sueño próxima a siete horas no fuerza reducción de carga
   const w=base.map(x=>({...x})); w[0].sleep=7.6; w[1].sleep=6.37; w[2].sleep=7.6;
   assert.equal(evaluarMotor(w,[],{hoy}).estado,'mantener');
 });
+
+test('una gripe declarada activa prevalece sobre métricas normales',()=>{
+  const r=evaluarMotor(base,[],{hoy,restricciones:[{
+    tipo:'enfermedad',desde:'2026-10-25',hasta:'2026-10-29',estado:'activo'
+  }]});
+  assert.equal(r.estado,'pausar');
+  assert.equal(r.factor,0);
+  assert.ok(r.senales.includes('restriccion_salud_declarada'));
+});
+
+test('en recuperación no intenta compensar sesiones perdidas',()=>{
+  const r=evaluarMotor(base,[],{hoy,restricciones:[{
+    tipo:'enfermedad',desde:'2026-10-25',hasta:'2026-10-30',estado:'recuperacion'
+  }]});
+  assert.equal(r.estado,'recuperar');
+  assert.equal(r.factor,0.5);
+  assert.match(r.razones[0],/No recuperes las sesiones perdidas/);
+});
+
+test('restricción de piscina limita disciplina sin inventar una enfermedad',()=>{
+  const r=evaluarMotor(base,[],{hoy,restricciones:[{
+    tipo:'disponibilidad',desde:'2026-10-01',hasta:'2026-10-31',disciplinas:['swim']
+  }]});
+  assert.equal(r.estado,'mantener');
+  assert.deepEqual(r.restricciones[0].disciplinas,['swim']);
+  assert.ok(r.senales.includes('disponibilidad_limitada'));
+});
+
+test('una restricción caducada no altera el motor',()=>{
+  const r=evaluarMotor(base,[],{hoy,restricciones:[{
+    tipo:'enfermedad',desde:'2026-10-01',hasta:'2026-10-12'
+  }]});
+  assert.equal(r.estado,'mantener');
+});
+
+test('restricciones generan propuestas sin reescribir sesiones del entrenador',()=>{
+  const r=evaluarMotor(base,[],{hoy,restricciones:[{
+    tipo:'disponibilidad',desde:'2026-10-01',hasta:'2026-10-31',disciplinas:['swim']
+  }]});
+  assert.equal(r.propuesta.modo,'solo_sugerencia');
+  assert.equal(r.propuesta.modificaCalendario,false);
+  assert.equal(r.propuesta.sesionesEntrenadorProtegidas,true);
+  assert.deepEqual(r.propuesta.disciplinasLimitadas,['swim']);
+});

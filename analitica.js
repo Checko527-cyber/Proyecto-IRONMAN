@@ -70,5 +70,6 @@ async function draw(){
   });
 }
 document.addEventListener('click',e=>{if(e.target.closest('[data-v="analitica"]'))draw()});
+window.addEventListener('ironman:navigate',e=>{if(e.detail?.vista==='analitica')draw()});
 window.addEventListener('load',()=>{if($('v-analitica')?.classList.contains('active'))draw()});
 })();
