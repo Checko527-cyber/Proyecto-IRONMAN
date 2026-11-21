@@ -2006,28 +2006,31 @@ function feedSessionCard(s,all,day,wt,L){
 function gaugeSvg(score,level){
   const col=level==='verde'?'var(--done)':(level==='amarillo'?'var(--accent-2)':'var(--run)');
   const R=32,C=2*Math.PI*R,off=C*(1-score/100);
-  return `<div class="gring"><svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" fill="none" stroke="var(--border)" stroke-width="7"/><circle cx="38" cy="38" r="${R}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="gnum"><div class="gv">${score}</div><div class="gl">LISTO</div></div></div>`;
+  return `<div class="gring"><svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="${R}" fill="none" stroke="var(--border)" stroke-width="7"/><circle cx="38" cy="38" r="${R}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="gnum"><div class="gv">${score}</div><div class="gl">ESTADO</div></div></div>`;
 }
 async function renderReadiness(){
   const box=document.getElementById('readyBox'),adj=document.getElementById('adjustBox');
   if(!box)return;
   const r=await computeReadiness();
   if(!r.hasData){box.innerHTML='<div class="empty">Sin datos de recuperaci\u00f3n todav\u00eda. Conecta <b>Garmin</b> en intervals.icu (o registra HRV y Body Battery a mano en Progreso) y aqu\u00ed ver\u00e1s tu sem\u00e1foro diario.</div>';if(adj)adj.innerHTML='';return;}
-  const txt=r.level==='verde'?{s:'Luz verde',d:'Tus señales están en orden. Ejecuta la sesión de hoy como está planeada.'}
-    :r.level==='amarillo'?{s:'Luz amarilla',d:'Recuperación parcial. Podemos entrenar, pero bajando una marcha.'}
+  const unificado=await recomendacionHoy();
+  const nivel=unificado.nivel;
+  const puntaje=unificado.score??r.score;
+  const txt=nivel==='verde'?{s:'Luz verde',d:'Tus señales están en orden. Ejecuta la sesión de hoy como está planeada.'}
+    :nivel==='amarillo'?{s:'Luz amarilla',d:'Recuperación parcial. Podemos entrenar, pero bajando una marcha.'}
     :{s:'Luz roja',d:'Tu cuerpo pide recuperación. Hoy, aflojar es ejecutar el plan.'};
   const flags=r.flags.map(f=>`<div class="flag"><span class="fi ${f.k}"></span><span>${f.t}</span></div>`).join('');
-  box.innerHTML=`<div class="gauge">${gaugeSvg(r.score,r.level)}<div class="gtxt"><div class="gstate ${r.level}">${txt.s}</div><div class="gsub">${txt.d}</div></div></div><div style="margin-top:12px">${flags}</div>`;
+  box.innerHTML=`<div class="gauge">${gaugeSvg(puntaje,nivel)}<div class="gtxt"><div class="gstate ${nivel}">${txt.s}</div><div class="gsub">${txt.d}</div></div></div><div style="margin-top:12px">${flags}</div>`;
   // Ajuste automático de la sesión de hoy
   if(adj){
     const day=PLAN_WEEKS[currentWeekIdx()].days[dowIdx];
     const override=await Store.get('adjust_override_'+fmtLocal(today()));
-    const a=adjustSession(day,r.level);
+    const a=adjustSession(day,nivel);
     if(a&&!override){
       adj.innerHTML=`<div class="adjust"><div class="adjust-h">⚙️ Plan ajustado a tu estado de hoy</div><div class="adjust-b"><div class="an">${a.t}</div><div>${a.detail}</div><div class="aw">${a.why}</div><div class="orig">Original: ${day.t} — ${day.detail}</div><div class="btnrow" style="margin-top:10px"><button class="btn" id="keepOrig" style="padding:7px 12px;font-size:12px">Seguir el plan original</button></div></div></div>`;
       document.getElementById('keepOrig').onclick=async()=>{await Store.set('adjust_override_'+fmtLocal(today()),true);renderReadiness();toast('Plan original restaurado');};
     } else if(a&&override){
-      adj.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-top:10px;border-left:2px solid var(--border-strong);padding-left:9px">Estás siguiendo el plan original pese al semáforo ${r.level}. <button class="btn" id="useAdj" style="padding:4px 9px;font-size:11px;margin-left:4px">Ver ajuste sugerido</button></div>`;
+      adj.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-top:10px;border-left:2px solid var(--border-strong);padding-left:9px">Estás siguiendo el plan original pese al semáforo ${nivel}. <button class="btn" id="useAdj" style="padding:4px 9px;font-size:11px;margin-left:4px">Ver ajuste sugerido</button></div>`;
       document.getElementById('useAdj').onclick=async()=>{await Store.set('adjust_override_'+fmtLocal(today()),false);renderReadiness();};
     } else adj.innerHTML='';
   }
