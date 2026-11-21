@@ -382,15 +382,17 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .mt-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:14px 16px 2px}
 .mt-tit{font-family:Archivo,system-ui,sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
 .mt-sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);white-space:nowrap}
-.mt-svg{padding:2px 4px 0}
-.mt-svg svg{display:block;width:100%;height:auto}
+.mt-svg{padding:10px 12px 0;max-width:900px;margin:0 auto}
+.mt-svg svg{display:block;width:100%;height:auto;overflow:visible}
 .mt-leg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:4px 16px 0;
   font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint)}
 .mt-leg span{display:inline-flex;align-items:center;gap:5px}
 .mt-leg .sw{width:13px;height:3px;border-radius:2px;flex:0 0 auto}
 .mt-leg .sw-go{background:var(--go)}
 .mt-leg .sw-pr{background:linear-gradient(90deg,var(--bike),var(--ink));opacity:.75}
+.mt-leg .sw-req{background:repeating-linear-gradient(90deg,#50B7F5 0 5px,transparent 5px 8px)}
 .mt-leg .sw-cp{width:8px;height:8px;border-radius:50%;background:var(--surf);border:1.6px solid var(--mut)}
+.mt-origin{padding:9px 16px 0;font-size:10.5px;color:var(--mut);line-height:1.5}.mt-origin b{color:var(--ink)}
 .mt-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:12px 0 0;
   background:var(--line);border-top:1px solid var(--line)}
 .mt-n{background:var(--surf);padding:11px 8px;text-align:center}
@@ -403,6 +405,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .mt-det[open] summary::after{content:' −'}
 .mt-det p{margin:0;padding:0 16px 14px;font-size:12.5px;line-height:1.55;color:var(--mut)}
 @media(max-width:360px){.mt-v{font-size:21px}.mt-tit{font-size:17px}}
+@media(max-width:600px){.mt-svg{padding:8px 4px 0}.mt-leg{gap:7px 12px}.mt-nums{grid-template-columns:repeat(3,minmax(0,1fr))}.mt-v{font-size:clamp(16px,5vw,23px)}}
 
 /* ===== PANTALLA DE HOY: estado + entreno ajustado ===== */
 .hoy{position:relative;border:1px solid var(--line);border-radius:18px;background:var(--surf);
@@ -2689,7 +2692,7 @@ function renderZonas(){
 function ctlProyectado(ctl0){
   const out=[]; let c=(ctl0!=null?ctl0:45);
   const k=1-Math.exp(-7/42), TSSxH=50;
-  let d=lunesDe(today()); const fin=parse("2028-08-01");
+  let d=addD(lunesDe(today()),7); const fin=parse("2028-08-01");
   while(d<=fin){
     const f=faseCal(fmtLocal(d));
     const sem=Math.max(0,Math.round((d-parse(f.from))/(7*MS)));
@@ -2725,12 +2728,13 @@ async function renderMontana(){
   const hoyS=fmtLocal(today()), xHoy=X(hoyS);
 
   // --- Ladera recorrida: un punto por semana de tu CTL real ---
-  const well=wellAsc(await getWell()).filter(w=>w.ctl!=null);
+  const well=wellAsc(await getWell()).filter(w=>/^\d{4}-\d{2}-\d{2}$/.test(w.date)&&Number.isFinite(w.ctl)&&parse(w.date).getTime()>=T0&&parse(w.date).getTime()<=Math.min(T1,today().getTime()));
   const real=[]; let last='';
   well.forEach(w=>{const k=isoWeekKey(parse(w.date));
     if(k!==last){real.push({d:w.date,v:w.ctl});last=k;} else real[real.length-1]={d:w.date,v:w.ctl};});
   const ctlHoy=real.length?real[real.length-1].v:null;
-  const proy=ctlProyectado(ctlHoy);
+  // La proyección debe conectar exactamente con el último dato real, no reemplazarlo.
+  const proy=ctlHoy==null?[]:[real[real.length-1],...ctlProyectado(ctlHoy).filter(p=>p.d>real[real.length-1].d)];
 
   // --- Dos laderas: la conquistada (datos) y la pendiente (proyeccion) ---
   const pts=s=>s.map(p=>X(p.d).toFixed(1)+','+Y(p.v).toFixed(1)).join(' ');
@@ -2739,13 +2743,16 @@ async function renderMontana(){
   const laderaReal=areaDe(real), laderaProy=areaDe(proy);
 
   // --- Campamentos: las carreras a su altura de exigencia ---
-  const carreras=allRaces().filter(r=>r.date&&r.exig);
+  const carreras=allRaces().filter(r=>r.date&&Number.isFinite(Number(r.exig))&&parse(r.date).getTime()>=T0&&parse(r.date).getTime()<=T1).sort((a,b)=>a.date.localeCompare(b.date));
+  // Esta curva es la referencia deportiva entre hitos; distinta del CTL observado y del previsto.
+  const requisitos=carreras.map(r=>({d:r.date,v:Number(r.exig)}));
   const puestas=[];   // etiquetas ya colocadas, para no pisarlas
   const campos=carreras.map((r,i)=>{
     const x=X(r.date), yC=Y(r.exig), hecho=daysTo(r.date)<0;
-    const terreno=hecho?interp(real,r.date):interp(proy,r.date);
-    const yT=Y(terreno==null?0:terreno);
-    const brecha=Math.round(r.exig-(terreno==null?0:terreno));
+    const serie=hecho?real:proy;
+    const terreno=serie.length&&r.date>=serie[0].d&&r.date<=serie[serie.length-1].d?interp(serie,r.date):null;
+    const yT=terreno==null?null:Y(terreno);
+    const brecha=terreno==null?null:Math.round(r.exig-terreno);
     // Busca el primer hueco libre: arriba, abajo, mas arriba, mas abajo...
     const cand=[yC-13,yC+17,yC-26,yC+30,yC-39,yC+43];
     let yTxt=cand.find(c=>c>pT+8&&c<base-4&&!puestas.some(q=>Math.abs(q.x-x)<34&&Math.abs(q.y-c)<11));
@@ -2756,7 +2763,7 @@ async function renderMontana(){
     const anc = x<60?'start' : x>W-60?'end' : 'middle';
     const col=hecho?'var(--go)':(r.summit?'var(--bike)':'var(--mut)');
     // Si el campamento esta por encima del terreno, el hueco se dibuja
-    const hueco=(!hecho&&brecha>3)? `<line x1="${x.toFixed(1)}" y1="${yT.toFixed(1)}" x2="${x.toFixed(1)}" y2="${(yC+5).toFixed(1)}" stroke="var(--line2)" stroke-width="1" stroke-dasharray="2 2"/>`:'';
+    const hueco=(brecha!=null&&Math.abs(brecha)>3)? `<line x1="${x.toFixed(1)}" y1="${yT.toFixed(1)}" x2="${x.toFixed(1)}" y2="${yC.toFixed(1)}" stroke="#50B7F5" stroke-width="1.1" stroke-dasharray="2 3" opacity=".9"/>`:'';
     const bandera=r.summit
       ? `<path d="M${x.toFixed(1)},${yC.toFixed(1)} l0,-11 l11,4 l-11,4" fill="var(--bike)"/><circle cx="${x.toFixed(1)}" cy="${yC.toFixed(1)}" r="4.5" fill="var(--bike)"/>`
       : hecho
@@ -2778,6 +2785,7 @@ async function renderMontana(){
 
   // --- Tu posicion exacta ---
   const yHoy=Y(ctlHoy==null?0:ctlHoy);
+  const inicioReal=real.length?`<circle cx="${X(real[0].d).toFixed(1)}" cy="${Y(real[0].v).toFixed(1)}" r="3.1" fill="#2FD98A" stroke="#0A0E14" stroke-width="1"/>`:'';
   const marca=ctlHoy==null?'':`
     <line x1="${xHoy.toFixed(1)}" y1="${pT-6}" x2="${xHoy.toFixed(1)}" y2="${base}" stroke="var(--ink)" stroke-width=".8" stroke-dasharray="3 3" opacity=".5"/>
     <circle cx="${xHoy.toFixed(1)}" cy="${yHoy.toFixed(1)}" r="8" fill="var(--go)" opacity=".16"/>
@@ -2801,20 +2809,21 @@ async function renderMontana(){
     </defs>
     ${grid}${anios}
     <path d="${laderaProy}" fill="url(#gProy)"/>
-    <polyline points="${pts(proy)}" fill="none" stroke="url(#gCresta)" stroke-width="1.5" opacity=".65"/>
+    ${requisitos.length>1?`<polyline points="${pts(requisitos)}" fill="none" stroke="#50B7F5" stroke-width="1.5" stroke-dasharray="3 3" stroke-linejoin="round" opacity=".9"/>`:''}
+    <polyline points="${pts(proy)}" fill="none" stroke="#F6C445" stroke-width="2" stroke-linejoin="round" stroke-dasharray="4 3"/>
     <path d="${laderaReal}" fill="url(#gReal)"/>
-    <polyline points="${pts(real)}" fill="none" stroke="#2FD98A" stroke-width="2.1" stroke-linejoin="round"/>
-    ${campos}${marca}
+    <polyline points="${pts(real)}" fill="none" stroke="#2FD98A" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+    ${inicioReal}${campos}${marca}
   </svg>`;
 
   // --- Un dato = un numero. Tres cifras, sin parrafos. ---
   const sig=carreras.find(r=>daysTo(r.date)>=0);
-  const sigTerr=sig?interp(proy,sig.date):null;
+  const sigTerr=sig&&proy.length&&sig.date>=proy[0].d&&sig.date<=proy[proy.length-1].d?interp(proy,sig.date):null;
   const brechaSig=(sig&&sigTerr!=null)?Math.round(sig.exig-sigTerr):null;
   const hechas=carreras.filter(r=>daysTo(r.date)<0).length;
   const cifras=[
     {v:ctlHoy==null?'—':Math.round(ctlHoy), l:'tu altura hoy', c:'var(--go)'},
-    {v:sig?sig.exig:'—', l:sig?('exige '+(sig.corto||'')):'—', c:'var(--bike)'},
+    {v:sig?sig.exig:'—', l:sig?('referencia '+(sig.corto||'')):'—', c:'#50B7F5'},
     {v:brechaSig==null?'—':(brechaSig<=0?'✓':'+'+brechaSig), l:brechaSig!=null&&brechaSig<=0?'ladera alcanza':'falta ascender', c:brechaSig!=null&&brechaSig<=0?'var(--go)':'var(--caution)'}
   ];
 
@@ -2828,11 +2837,13 @@ async function renderMontana(){
       <div class="mt-leg">
         <span><i class="sw sw-go"></i>recorrido</span>
         <span><i class="sw sw-pr"></i>proyección del plan</span>
+        <span><i class="sw sw-req"></i>referencia de competencia</span>
         <span><i class="sw sw-cp"></i>campamento pendiente</span>
       </div>
+      <div class="mt-origin">${real.length?`Primer registro CTL: <b>${real[0].d}</b> · ${Math.round(real[0].v)} puntos. Último registro: <b>${real[real.length-1].d}</b>.`:'Aún no hay una serie de CTL observada para dibujar el progreso. No se sustituye con datos estimados.'}</div>
       <div class="mt-nums">${cifras.map(c=>`<div class="mt-n"><div class="mt-v" style="color:${c.c}">${c.v}</div><div class="mt-l">${c.l}</div></div>`).join('')}</div>
       <details class="mt-det"><summary>Cómo se lee este mapa</summary>
-        <p>La altura es tu <b>CTL</b>: la condición física acumulada que calcula Intervals.icu con todos tus entrenamientos. La ladera verde son tus datos reales; la amarilla punteada es a dónde te lleva el plan. Cada carrera está clavada a la altura de CTL que exige — si el círculo queda por encima de la ladera, esa distancia punteada es lo que falta por construir.</p>
+        <p>El eje vertical es el <b>CTL</b> de Intervals.icu: verde continuo = histórico observado desde el primer dato disponible; amarillo discontinuo = proyección matemática desde el último valor real; azul punteado = referencia orientativa fijada para cada competencia. La distancia vertical entre curvas expresa una diferencia de CTL, no una garantía de terminar o rendir en una prueba. No se inventan tramos anteriores a los registros.</p>
       </details>
     </div>`;
 }

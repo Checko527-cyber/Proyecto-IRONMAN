@@ -18,8 +18,9 @@ export default async function handler(req, res) {
     const athlete = (INTERVALS_ATHLETE_ID || '0').trim();
     const auth = 'Basic ' + Buffer.from('API_KEY:' + INTERVALS_API_KEY).toString('base64');
 
-    // Rango: últimos ~120 días (suficiente para tendencias sin traer de más)
-    const days = Math.min(365, Math.max(7, parseInt(req.query && req.query.days, 10) || 120));
+    // Conservar el origen del progreso desde 2025 para el gráfico histórico de Ruta.
+    // La ventana puede reducirse con ?days=120 para vistas de corto plazo.
+    const days = Math.min(730, Math.max(7, parseInt(req.query && req.query.days, 10) || 540));
     const pad = (n) => String(n).padStart(2, '0');
     const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     const newest = new Date();
