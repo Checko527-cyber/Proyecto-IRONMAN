@@ -429,6 +429,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .route-narrative-text h2{font-size:clamp(19px,2.8vw,28px);letter-spacing:-.035em;margin:6px 0 10px;line-height:1.15}.route-narrative-text>p:last-child{font-size:12px;line-height:1.6;color:var(--mut);max-width:460px}
 .route-trajectory-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.route-trajectory-cards>div{background:var(--raise);padding:14px;border:1px solid var(--line);border-radius:12px;min-width:0}.route-trajectory-cards small{font-size:10px;color:var(--mut);display:block}.route-trajectory-cards strong{font:700 clamp(20px,3vw,30px) 'IBM Plex Mono',monospace;display:block;margin:8px 0}.route-trajectory-cards span{color:var(--mut);font-size:9px;display:block;overflow:hidden;text-overflow:ellipsis}
 .route-analytics-grid,.route-next-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:13px 0}.route-chart-card{border:1px solid var(--line);border-radius:15px;background:var(--surf);padding:16px;min-width:0}.route-chart-card>.eyebrow{margin:0 0 12px}.route-chart-card svg{max-height:260px}.route-chart-card #raceHero .hero2{margin:0}.route-chart-card .clegend{margin-top:9px}
+.route-chart-insight{border-left:3px solid var(--swim);background:color-mix(in srgb,var(--swim) 7%,var(--raise));border-radius:0 9px 9px 0;padding:10px 13px;margin-bottom:13px;display:grid;gap:5px}.route-chart-insight strong{font-size:12px;line-height:1.35}.route-chart-insight span{font-size:10.5px;color:var(--mut);line-height:1.45}
 @media(max-width:850px){.route-narrative{grid-template-columns:1fr}.route-analytics-grid,.route-next-grid{grid-template-columns:1fr}}
 @media(max-width:500px){.route-narrative{padding:15px}.route-trajectory-cards>div{padding:9px}.route-trajectory-cards strong{font-size:21px}.route-trajectory-cards small{font-size:9px}.mt-svg{padding:8px 3px}.mt-wrap .mt-head{flex-direction:column;align-items:start}.route-chart-card{padding:12px}}
 @media(max-width:360px){.mt-v{font-size:21px}.mt-tit{font-size:17px}}
@@ -2249,7 +2250,7 @@ async function renderCapacity(){
   box.innerHTML=`<div style="font-size:11.5px;color:var(--mut);margin-bottom:12px;line-height:1.5">Tu distancia máxima frente a lo que exige el <b style="color:var(--ink)">IRONMAN 70.3</b>.</div>
     ${capacityRings(data)}
     <div class="clegend"><span><i class="sw" style="background:var(--swim)"></i>Nado</span><span><i class="sw" style="background:var(--bike)"></i>Bici</span><span><i class="sw" style="background:var(--run)"></i>Carrera</span><span class="cnote">anillo completo = distancia del 70.3</span></div>
-    ${ready>0?`<div class="vd ok" style="margin-top:12px"><b>${ready} de 3 disciplinas</b> ya alcanzan la distancia del 70.3.${data[2].cur<data[2].tgt?' La carrera es tu frontera: ahí está el trabajo por hacer.':''}</div>`:''}`;
+    ${ready>0?`<div class="vd ok" style="margin-top:12px"><b>${ready} de 3 disciplinas</b> tienen un registro aislado que cubre la distancia.${data[2].cur<data[2].tgt?' La carrera es la frontera de distancia.':''} Falta comprobar el esfuerzo combinado y la nutrición del 70.3.</div>`:''}`;
 }
 
 // --- Índice de eficiencia ---
@@ -2490,7 +2491,10 @@ async function renderFitnessChart(){
   }
   const tsb=last.form!=null?last.form:null;
   const tsbCol=tsb==null?'var(--mut)':(tsb>5?'var(--go)':(tsb<-20?'var(--stop)':'var(--bike)'));
+  const delta=Math.round(last.ctl-w[0].ctl),fatiga=Number.isFinite(Number(last.atl))?Math.round(last.atl-last.ctl):null;
+  const lectura=delta>2?`Fitness +${delta} CTL en el período.`:delta< -2?`Fitness ${delta} CTL en el período.`:'Fitness relativamente estable.';
   box.innerHTML=`
+    <div class="route-chart-insight"><strong>${lectura}</strong><span>${fatiga===null?'Fatiga no disponible':fatiga>10?'La fatiga reciente supera la condición acumulada.':fatiga< -10?'Fatiga reciente por debajo de la condición acumulada.':'Fatiga y condición próximas; revisa descanso y sensaciones.'}</span></div>
     <div class="chead"><span class="ctitle">Curva de forma · 70 días</span>
       <span class="cnow">forma <b style="color:${tsbCol}">${tsb!=null?(tsb>0?'+':'')+tsb:'—'}</b></span></div>
     <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block" role="img" aria-label="Evolución de fitness y fatiga">
@@ -2533,6 +2537,10 @@ async function renderVolumeChart(){
   const W=340,H=150,pL=24,pR=8,pT=16,pB=24;
   const tot=a=>a.swim+a.bike+a.run+a.otro;
   const max=Math.max(...arr.map(tot))*1.15||1;
+  const recientes=arr.slice(-4),anteriores=arr.slice(-8,-4);
+  const promedio=v=>v.length?v.reduce((n,x)=>n+tot(x),0)/v.length:null;
+  const curr=promedio(recientes),prev=promedio(anteriores);
+  const lectura=curr===null?'Sin semanas comparables':prev===null?'Primeras semanas de referencia':`Últimas 4 semanas: ${curr.toFixed(1)} h/sem · ${curr>=prev?'+':''}${(curr-prev).toFixed(1)} h frente a las 4 previas`;
   const bw=(W-pL-pR)/arr.length;
   const barW=Math.min(20,bw*0.62);
   let bars='',labels='';
@@ -2560,7 +2568,7 @@ async function renderVolumeChart(){
     grid+=`<text x="${pL-4}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="7.5" font-family="IBM Plex Mono" fill="var(--faint)">${v.toFixed(0)}</text>`;
   }
   const media=arr.reduce((s,a)=>s+tot(a),0)/arr.length;
-  box.innerHTML=`
+  box.innerHTML=`<div class="route-chart-insight"><strong>${lectura}</strong><span>Altura de las barras = horas totales. Colores = disciplina. La semana parcial puede reducir el último valor.</span></div>
     <div class="chead"><span class="ctitle">Volumen semanal · 12 sem</span>
       <span class="cnow">media <b>${media.toFixed(1)} h</b></span></div>
     <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block" role="img" aria-label="Horas semanales por deporte">
@@ -2754,6 +2762,7 @@ function interp(serie,iso){
   return serie[serie.length-1].v;
 }
 
+let rutaUltimaLectura=null;
 async function renderMontana(){
   const box=document.getElementById('montana'); if(!box)return;
   const W=900,H=328,pL=38,pR=32,pT=32,pB=43, CMAX=112;
@@ -2768,6 +2777,7 @@ async function renderMontana(){
   well.forEach(w=>{const k=isoWeekKey(parse(w.date));
     if(k!==last){real.push({d:w.date,v:Number(w.ctl)});last=k;} else real[real.length-1]={d:w.date,v:Number(w.ctl)};});
   const ctlHoy=real.length?real[real.length-1].v:null;
+  rutaUltimaLectura=real.length?{inicio:real[0],ultimo:real[real.length-1]}:null;
   // La proyección debe conectar exactamente con el último dato real, no reemplazarlo.
   const proy=ctlHoy==null?[]:[real[real.length-1],...ctlProyectado(ctlHoy).filter(p=>p.d>real[real.length-1].d)];
 
@@ -2887,9 +2897,9 @@ async function renderRouteInsights(){
   const box=document.getElementById('routeInsights');if(!box)return;
   const wellness=wellAsc(await getWell()).filter(w=>Number.isFinite(Number(w.ctl))&&w.ctl!==null);
   const orden=[...wellness].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  const inicio=orden[0],ultimo=orden.at(-1);
-  const actual=ultimo?Number(ultimo.ctl):null;
-  const primero=inicio?Number(inicio.ctl):null;
+  const inicio=rutaUltimaLectura?.inicio||orden[0],ultimo=rutaUltimaLectura?.ultimo||orden.at(-1);
+  const actual=ultimo?Number(ultimo.v??ultimo.ctl):null;
+  const primero=inicio?Number(inicio.v??inicio.ctl):null;
   const cambio=actual===null||primero===null?null:Math.round(actual-primero);
   const prox=allRaces().find(r=>r.date&&daysTo(r.date)>=0&&Number.isFinite(Number(r.exig)));
   const requisito=prox?Number(prox.exig):null;
@@ -3380,8 +3390,8 @@ async function renderMotor(forzar){
 }
 
 async function renderRuta(){
-  await renderRouteInsights();
   await renderMontana();
+  await renderRouteInsights();
   await renderMission();
   await renderRaceHero();
   await renderRecomendacion();
