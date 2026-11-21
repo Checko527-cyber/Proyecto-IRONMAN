@@ -40,3 +40,18 @@ test('adapta plan a distancia corrida sin inventar ciclismo',()=>{
   assert.ok(p.consumos.length>0);
   assert.ok(p.consumos.every(x=>x.en==='run'));
 });
+
+test('combina bebida seleccionada, geles y agua sin duplicar líquido',()=>{
+  const p=generarPlanAutomatico({...base,opciones:{productoId:'never-c30',bebidaId:'skratch-hydration'}});
+  assert.ok(p.consumos.some(x=>x.productoId==='skratch-hydration'&&x.en==='bike'));
+  assert.ok(p.consumos.some(x=>x.productoId==='never-c30'&&x.en==='bike'));
+  assert.ok(p.consumos.some(x=>x.productoId==='agua-neutral'&&x.en==='bike'));
+  const bici=p.resumen.find(x=>x.etapa==='bike');
+  assert.equal(bici.bebidaMl+bici.aguaMl,bici.liquidosMl);
+  assert.ok(p.consumos.every(x=>x.productoId!=='skratch-hydration'||x.en==='bike'));
+});
+
+test('no agrega bebidas no seleccionadas ni declaradas disponibles',()=>{
+  const p=generarPlanAutomatico({...base,preferencias:{favoritos:[],disponibles:['never-c30']},opciones:{productoId:'never-c30'}});
+  assert.equal(p.bebidaElegida,null);
+});

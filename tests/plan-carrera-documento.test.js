@@ -16,4 +16,8 @@ test('produce cuatro ejes Cartagena con eventos de D-2 a recuperación y cantida
   assert.ok(doc.materiales.length>=4);
   assert.ok(doc.productos.some(p=>p.id==='never-c30'&&p.cantidad>0));
   assert.ok(doc.eventos.findIndex(e=>e.accion.includes('Desayuno'))<doc.eventos.findIndex(e=>e.accion.includes('Inicio · Natación')));
+  assert.deepEqual(doc.secciones.map(x=>x.id),['pre','swim','t1','bike','t2','run','post']);
+  assert.ok(doc.secciones.find(x=>x.id==='pre').filas.some(x=>x.accion.includes('Avena')));
+  assert.ok(doc.secciones.find(x=>x.id==='bike').filas.some(x=>x.accion.includes('Neversecond')));
+  assert.ok(doc.secciones.find(x=>x.id==='t2').filas.some(x=>x.accion.includes('casco')));
 });
