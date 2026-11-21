@@ -20,4 +20,5 @@ test('produce cuatro ejes Cartagena con eventos de D-2 a recuperación y cantida
   assert.ok(doc.secciones.find(x=>x.id==='pre').filas.some(x=>x.accion.includes('Avena')));
   assert.ok(doc.secciones.find(x=>x.id==='bike').filas.some(x=>x.accion.includes('Neversecond')));
   assert.ok(doc.secciones.find(x=>x.id==='t2').filas.some(x=>x.accion.includes('casco')));
+  assert.ok(doc.secciones.find(x=>x.id==='swim').filas.some(x=>x.accion.includes('2:20 min/100 m')));
 });

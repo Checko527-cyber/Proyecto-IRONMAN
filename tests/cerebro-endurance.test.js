@@ -12,6 +12,7 @@ test('genera un plan ordenado para 70.3 sin agregar cafeína ni consumo nadando'
   assert.ok(plan.consumos.every(x=>['never-c30','agua-neutral'].includes(x.productoId)));
   assert.ok(plan.consumos.some(x=>x.productoId==='agua-neutral'&&x.overrides.liquidoMl>0));
   assert.ok(plan.consumos.every(x=>['bike','run'].includes(x.en)));
+  assert.ok(plan.consumos.filter(x=>x.productoId!=='agua-neutral').every(x=>Number.isInteger(x.cantidad)));
   assert.equal(plan.cronograma.alertas.filter(x=>x.includes('fuera de la duración')).length,0);
   assert.equal(plan.previo.length,3);
   assert.equal(plan.post.length,2);
