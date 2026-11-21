@@ -7,6 +7,7 @@ import { revisarPreparacion } from './lib/preparacion-carrera.js';
 import { revisarInventario } from './lib/inventario-carrera.js';
 import { construirFilasPlan, exportarPlanCSV } from './lib/exportacion-plan.js';
 import { generarPlanAutomatico } from './lib/cerebro-endurance.js';
+import { construirDocumentoCarrera } from './lib/plan-carrera-documento.js';
 
 const root=document.getElementById('nutritionApp');
 const LS='ironman_plan_nutricional_v1';
@@ -18,6 +19,7 @@ const LSF='ironman_productos_preferidos_v1';
 const LSI='ironman_inventario_nutricion_v1';
 const LSA='ironman_motor_automatico_v1';
 const LSAD='ironman_plan_automatico_detalle_v1';
+const LSCK='ironman_checklist_operativo_v1';
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(n,d=0)=>Number(n).toLocaleString('es-CO',{minimumFractionDigits:d,maximumFractionDigits:1});
 const tipos=[...new Set(CATALOGO_COMPLETO.map(p=>p.tipo))].sort();
@@ -44,6 +46,9 @@ try {const v=JSON.parse(localStorage.getItem(LSO)||'null');if(v&&typeof v==='obj
 let planAutomatico=null;
 try {const v=JSON.parse(localStorage.getItem(LSAD)||'null');if(v&&Array.isArray(v.resumen))planAutomatico=v;}catch(_e){}
 let opcionesAuto={bikeGHora:null,runGHora:null,liquidosMlHora:null,productoId:null};
+let vistaDocumento='plan';
+let checklistDocumento={};
+try {const v=JSON.parse(localStorage.getItem(LSCK)||'null');if(v&&typeof v==='object')checklistDocumento=v;}catch(_e){}
 try {const v=JSON.parse(localStorage.getItem(LSA)||'null');if(v&&typeof v==='object')opcionesAuto={...opcionesAuto,...v};}catch(_e){}
 const pendientes=[
   'Confirmar itinerario, dorsal y horarios de acceso',
@@ -76,7 +81,7 @@ function pintarPerfil(){
     perfil=validarPerfil({pesoKg:f.get('pesoKg'),edad:f.get('edad'),sudoracionLh:f.get('sudoracionLh'),
       experienciaNutricion:f.get('experienciaNutricion'),alertaEstomago:f.has('alertaEstomago')});
     try{localStorage.setItem(LSP,JSON.stringify(perfil));}catch(_e){}
-    pintarPerfil();pintarPlan();
+    if(planAutomatico)recalcularAutomatico();pintarPerfil();pintarMotor();pintarDocumento();pintarPlan();
   };
 }
 
@@ -100,7 +105,7 @@ function pintarCompetencia(){
     carrera={tipo:String(f.get('tipo')),salida:String(f.get('salida')),
       temperaturaC:opcional('temperaturaC'),humedadPct:opcional('humedadPct'),tiempos:t};
     try{localStorage.setItem(LSC,JSON.stringify(carrera));}catch(_e){}
-    pintarCompetencia();pintarPlan();
+    if(planAutomatico)recalcularAutomatico();pintarCompetencia();pintarDocumento();pintarPlan();
   };
 }
 
@@ -151,14 +156,14 @@ function pintarSeleccion(){
       const set=new Set(preferencias[clave]);if(e.target.checked)set.add(p.id);else set.delete(p.id);
       preferencias[clave]=[...set];
       try{localStorage.setItem(LSF,JSON.stringify(preferencias));}catch(_e){}
-      pintarSeleccion();pintarPlan();
+      pintarSeleccion();pintarMotor();pintarDocumento();pintarPlan();
     };
   }
   const actualizarStock=e=>{
     const v=e.target.value.trim();
     if(v==='')delete inventario[p.id];else if(Number.isFinite(Number(v))&&Number(v)>=0)inventario[p.id]=Number(v);
     try{localStorage.setItem(LSI,JSON.stringify(inventario));}catch(_e){}
-    pintarPlan();
+    pintarDocumento();pintarPlan();
   };
   box.querySelector('#nutritionStock').oninput=actualizarStock;
   box.querySelector('#nutritionStock').onchange=actualizarStock;
@@ -172,11 +177,50 @@ function pintarSeleccion(){
     const en=String(f.get('en'));
     consumos.push({productoId:p.id,cantidad:Number(f.get('cantidad')),fase:en==='pre'?'pre':en==='post'?'post':'durante',
       en,offsetMin:Number(f.get('offsetMin')),overrides});
-    guardar();pintarPlan();
+    guardar();pintarDocumento();pintarPlan();
   };
 }
 
 function guardar(){try{localStorage.setItem(LS,JSON.stringify(consumos));}catch(_e){}}
+function recalcularAutomatico(){
+  planAutomatico=generarPlanAutomatico({carrera,perfil,catalogo:CATALOGO_COMPLETO,preferencias,inventario,opciones:opcionesAuto});
+  consumos=planAutomatico.consumos;
+  try{localStorage.setItem(LSAD,JSON.stringify(planAutomatico));}catch(_e){}
+  guardar();
+}
+function pintarDocumento(){
+  const box=document.getElementById('nutritionDocument');if(!box||!planAutomatico)return;
+  const doc=construirDocumentoCarrera({carrera,perfil,plan:planAutomatico,consumos,catalogo:CATALOGO_COMPLETO});
+  const labels={plan:'Plan de carrera',cronograma:'Cronograma',suplementos:'Suplementos',checklist:'Checklist'};
+  const total=planAutomatico.cronograma.totalMin;
+  const pesos=calcularConsumos(consumos).totales.general;
+  const sport=planAutomatico.resumen.map(r=>`<div class="race-discipline"><span class="race-discipline-icon">${r.etapa==='bike'?'🚴':'🏃'}</span><div><strong>${r.etapa==='bike'?'Ciclismo':'Carrera'}</strong><small>${r.duracionMin} min estimados</small></div><div class="race-discipline-value">${fmt(r.objetivoGHora)}<small> g CH/h</small></div></div>`).join('');
+  const detalles=doc.eventos.filter(e=>e.dia==='Carrera'&&!e.accion.startsWith('Fin ·')).slice(0,10);
+  const filas=items=>`<div class="race-table"><div class="race-table-head"><span>Hora / Día</span><span>Etapa</span><span>Actividad o producto</span><span>Referencia</span></div>${items.map(e=>`<div class="race-table-row"><strong>${safe(e.hora)}</strong><span>${safe(e.etapa)}</span><span>${safe(e.accion)}</span><small>${safe(e.detalle)}</small></div>`).join('')}</div>`;
+  const planVista=`<div class="race-metrics"><div><small>Salida</small><strong>${safe(doc.inicio)}</strong></div><div><small>Meta estimada</small><strong>${safe(doc.meta)}</strong></div><div><small>Duración</small><strong>${Math.floor(total/60)} h ${total%60} min</strong></div><div><small>Carbohidratos programados</small><strong>${fmt(pesos.carbohidratosG.total)} g</strong></div></div>
+    <div class="race-overview"><section><h3>Tu estrategia por disciplina</h3>${sport}<p class="race-footnote">Natación y transiciones: organización de material y horarios; el motor no programa ingestiones en el agua.</p></section><section><h3>Antes y después</h3>${planAutomatico.previo.concat(planAutomatico.post).map(x=>`<div class="race-minirow"><strong>${safe(x.cuando)}</strong><span>${safe(x.accion)}</span></div>`).join('')}</section></div>
+    <h3>Vista rápida del día de carrera</h3>${filas(detalles)}<button class="btn" type="button" data-ir="cronograma">Ver cronograma completo</button>`;
+  const cronogramaVista=`<h3>Desde dos días antes hasta la meta</h3><p class="vsub">Horarios anclados a la salida ${safe(doc.inicio)}. Ajusta las duraciones para recalcular todas las tomas.</p>${filas(doc.eventos)}`;
+  const elegibles=CATALOGO_COMPLETO.filter(p=>p.carbohidratosG>0&&p.cafeinaMg===0&&['gel','bebida'].includes(p.tipo));
+  const suplementoVista=`<h3>Productos y cantidades para empacar</h3><p class="vsub">Prioriza lo que tienes y has ensayado. El selector modifica el producto principal y vuelve a calcular toda la estrategia.</p>
+    <label class="race-product-label">Combustible principal<select id="raceProductChange"><option value="">Selección automática</option>${elegibles.map(p=>`<option value="${safe(p.id)}" ${planAutomatico.productoElegido===p.id?'selected':''}>${safe(p.nombre)} · ${fmt(p.carbohidratosG)} g CH</option>`).join('')}</select></label>
+    <div class="race-product-stack">${doc.productos.map(p=>`<article><div><strong>${safe(p.nombre||p.id)}</strong><small>${p.carbohidratosG===null?'Etiqueta incompleta':fmt(p.carbohidratosG)+' g CH por porción'} · ${p.cafeinaMg??'—'} mg cafeína</small></div><strong>${fmt(p.cantidad,1)} <small>porciones</small></strong><span>${inventario[p.id]===undefined?'Stock por confirmar':inventario[p.id]>=p.cantidad?'Disponible':`Faltan ${fmt(p.cantidad-inventario[p.id],1)}`}</span></article>`).join('')}</div>
+    <div class="race-product-stack"><article><div><strong>Agua para bicicleta y carrera</strong><small>Volumen orientativo, sujeto a sed, clima y avituallamientos</small></div><strong>${fmt(planAutomatico.resumen.reduce((n,r)=>n+r.liquidosMl,0))} <small>ml</small></strong></article></div>
+    <p class="race-footnote">Cantidades fraccionadas indican equivalentes nutricionales; deben ajustarse a los formatos físicos de los envases. No se agregan estimulantes automáticamente.</p>`;
+  const checks=doc.materiales.flatMap(([grupo,items])=>items.map((item,i)=>({grupo,item,id:`${grupo}-${i}`})));
+  const marcados=checks.filter(i=>checklistDocumento[i.id]).length;
+  const checklistVista=`<div class="race-check-head"><h3>Maleta, transición y nutrición</h3><strong>${marcados}/${checks.length}</strong></div><div class="race-check-progress"><span style="width:${Math.round(marcados/Math.max(1,checks.length)*100)}%"></span></div>
+    ${doc.materiales.map(([grupo,items])=>`<section class="race-check-group"><h4>${safe(grupo)}</h4>${items.map((item,i)=>`<label><input type="checkbox" data-operativo="${safe(grupo+'-'+i)}" ${checklistDocumento[grupo+'-'+i]?'checked':''}><span>${safe(item)}</span></label>`).join('')}</section>`).join('')}`;
+  box.innerHTML=`<div class="race-document"><div class="race-document-heading"><div><p class="eyebrow">PLAN DE COMPETENCIA · FORMATO CARTAGENA</p><h2>Tu hoja de ruta para competir</h2><p>Una sola estrategia con horarios, nutrición, inventario y equipo. Personalizable para cualquier distancia.</p></div><button type="button" class="btn primary" id="raceEditData">Editar datos y recalcular</button></div>
+    <nav class="race-tabs" aria-label="Vistas del plan">${Object.entries(labels).map(([id,label])=>`<button type="button" data-vista="${id}" class="${vistaDocumento===id?'active':''}" aria-pressed="${vistaDocumento===id}">${label}</button>`).join('')}</nav>
+    <div class="race-document-body">${{plan:planVista,cronograma:cronogramaVista,suplementos:suplementoVista,checklist:checklistVista}[vistaDocumento]}</div>
+    <div class="race-document-footer"><button class="btn" id="racePrint" type="button">Imprimir / PDF</button><small>Estimación sujeta a condiciones reales y tolerancia individual.</small></div></div>`;
+  box.querySelectorAll('[data-vista],[data-ir]').forEach(b=>b.onclick=()=>{vistaDocumento=b.dataset.vista||b.dataset.ir;pintarDocumento();});
+  box.querySelector('#raceEditData').onclick=()=>{const config=document.getElementById('nutritionConfig');config.open=true;config.scrollIntoView({behavior:'smooth',block:'start'});};
+  box.querySelector('#racePrint').onclick=()=>window.print();
+  box.querySelectorAll('[data-operativo]').forEach(x=>x.onchange=()=>{checklistDocumento[x.dataset.operativo]=x.checked;try{localStorage.setItem(LSCK,JSON.stringify(checklistDocumento));}catch(_e){}pintarDocumento();});
+  box.querySelector('#raceProductChange')?.addEventListener('change',e=>{opcionesAuto.productoId=e.target.value||null;try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}recalcularAutomatico();pintarMotor();pintarDocumento();pintarPlan();});
+}
 function pintarMotor(){
   const box=document.getElementById('nutritionMotor');if(!box)return;
   box.innerHTML=`<div class="card pad nutrition-motor"><p class="eyebrow">03 · CEREBRO ENDURANCE · GENERACIÓN AUTOMÁTICA</p>
@@ -195,10 +239,7 @@ function pintarMotor(){
     const numero=k=>{const raw=String(f.get(k)??'').trim();return raw===''?null:Number(raw);};
     opcionesAuto={bikeGHora:numero('bikeGHora'),runGHora:numero('runGHora'),liquidosMlHora:numero('liquidosMlHora'),productoId:String(f.get('productoId')||'')||null};
     try{localStorage.setItem(LSA,JSON.stringify(opcionesAuto));}catch(_e){}
-    planAutomatico=generarPlanAutomatico({carrera,perfil,catalogo:CATALOGO_COMPLETO,preferencias,inventario,opciones:opcionesAuto});
-    consumos=planAutomatico.consumos;
-    try{localStorage.setItem(LSAD,JSON.stringify(planAutomatico));}catch(_e){}
-    guardar();pintarMotor();pintarPlan();
+    recalcularAutomatico();pintarMotor();pintarDocumento();pintarPlan();
   };
 }
 function pintarPlan(){
@@ -290,15 +331,18 @@ function pintarPlan(){
 
 function iniciar(){
   if(!root)return;
-  root.innerHTML=`<section id="nutritionProfile"></section><section id="nutritionRace"></section><section id="nutritionMotor"></section><section id="nutritionPlan"></section>
-    <p class="eyebrow" style="margin-top:22px">06 · CATÁLOGO Y PERSONALIZACIÓN</p>
+  root.innerHTML=`<section id="nutritionDocument"></section>
+    <details id="nutritionConfig" class="nutrition-config"><summary>Datos del atleta, competencia y generación del plan <span>Editar / recalcular</span></summary><section id="nutritionProfile"></section><section id="nutritionRace"></section><section id="nutritionMotor"></section></details>
+    <details class="nutrition-legacy"><summary>Auditoría técnica y edición manual avanzada</summary><section id="nutritionPlan"></section></details>
+    <details class="nutrition-legacy"><summary>Catálogo completo y productos personalizados</summary><p class="eyebrow" style="margin-top:22px">CATÁLOGO · SELECCIÓN AVANZADA</p>
     <div class="nutrition-controls"><input id="nutritionSearch" type="search" placeholder="Buscar por marca o producto…" aria-label="Buscar productos">
     <select id="nutritionType" aria-label="Filtrar tipo"><option value="">Todos los tipos</option>${tipos.map(x=>`<option value="${safe(x)}">${safe(x)}</option>`).join('')}</select></div>
     <div class="vsub" style="margin-bottom:8px">${CATALOGO_COMPLETO.length} referencias · Colombia y plan histórico de Cartagena · inventario comercial no confirmado en tiempo real</div>
     <div id="nutritionCatalog" class="nutrition-grid"></div>
-    <div id="nutritionSelected"></div>`;
+    <div id="nutritionSelected"></div></details>`;
   root.querySelector('#nutritionSearch').oninput=e=>{filtro=e.target.value.trim().toLowerCase();pintarCatalogo();};
   root.querySelector('#nutritionType').onchange=e=>{tipo=e.target.value;pintarCatalogo();};
-  pintarPerfil();pintarCompetencia();pintarCatalogo();pintarSeleccion();pintarMotor();pintarPlan();
+  if(!planAutomatico&&consumos.length===0)recalcularAutomatico();
+  pintarPerfil();pintarCompetencia();pintarCatalogo();pintarSeleccion();pintarMotor();pintarDocumento();pintarPlan();
 }
 iniciar();

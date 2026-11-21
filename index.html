@@ -329,6 +329,21 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .nutrition-head p{color:var(--mut);font-size:13px;max-width:680px}
 .nutrition-controls{display:grid;grid-template-columns:2fr 1fr;gap:9px;margin:14px 0}
 .nutrition-motor{border:1px solid color-mix(in srgb,var(--bike) 55%,var(--line));background:linear-gradient(125deg,color-mix(in srgb,var(--bike) 9%,var(--surf)),var(--surf))}
+.race-document{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surf);margin:18px 0 15px;box-shadow:0 13px 38px rgba(0,0,0,.075)}
+.race-document-heading{padding:clamp(18px,3vw,28px);background:linear-gradient(110deg,color-mix(in srgb,var(--bike) 12%,var(--surf)),var(--surf));display:flex;align-items:center;justify-content:space-between;gap:20px}
+.race-document-heading h2{font-size:clamp(21px,3vw,30px);letter-spacing:-.035em;margin:4px 0 7px}.race-document-heading p:not(.eyebrow){font-size:12px;color:var(--mut);max-width:520px}
+.race-tabs{display:flex;gap:5px;padding:7px 15px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow-x:auto;background:var(--surf)}
+.race-tabs button{cursor:pointer;white-space:nowrap;border:0;border-radius:9px;padding:11px 15px;color:var(--mut);background:transparent;font:600 12px inherit}
+.race-tabs button.active{background:color-mix(in srgb,var(--bike) 15%,var(--surf));color:var(--ink);box-shadow:inset 0 -2px var(--bike)}
+.race-document-body{padding:clamp(14px,2.5vw,25px)}.race-document-body h3{font-size:15px;margin:16px 0 12px}.race-document-body h3:first-child{margin-top:0}
+.race-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:22px}.race-metrics>div{border:1px solid var(--line);border-radius:12px;padding:13px;min-width:0;background:var(--raise)}.race-metrics small{display:block;color:var(--mut);font-size:10px}.race-metrics strong{display:block;font:600 clamp(15px,2vw,23px) 'IBM Plex Mono',monospace;letter-spacing:-.04em;margin-top:6px}
+.race-overview{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}.race-overview section{border:1px solid var(--line);border-radius:12px;padding:15px;min-width:0}.race-discipline{display:flex;gap:12px;align-items:center;border-top:1px solid var(--line);padding:13px 0}.race-discipline-icon{font-size:22px}.race-discipline div:nth-child(2){flex:1}.race-discipline strong{display:block;font-size:13px}.race-discipline small{color:var(--mut);font-size:10px}.race-discipline-value{font:600 22px 'IBM Plex Mono',monospace}.race-discipline-value small{font:400 10px inherit}.race-footnote{font-size:11px;color:var(--mut);line-height:1.5;margin-top:12px}.race-minirow{display:grid;grid-template-columns:80px 1fr;gap:10px;border-top:1px solid var(--line);padding:10px 0;font-size:11px;line-height:1.5}.race-minirow strong{color:var(--bike)}
+.race-table{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}.race-table-head,.race-table-row{display:grid;grid-template-columns:78px minmax(90px,.65fr) minmax(140px,1.45fr) minmax(150px,1.3fr);gap:12px;padding:10px 13px;align-items:start}.race-table-head{background:var(--raise);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--mut)}.race-table-row{font-size:11px;line-height:1.45;border-top:1px solid var(--line)}.race-table-row strong{font:600 12px 'IBM Plex Mono',monospace;color:var(--bike)}.race-table-row small{color:var(--mut);font-size:11px}
+.race-product-label{display:grid;gap:7px;font-size:12px;font-weight:700;margin:14px 0}.race-product-label select{width:100%;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--ink);font:inherit}
+.race-product-stack{display:grid;gap:8px;margin:12px 0}.race-product-stack article{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;background:var(--raise);border:1px solid var(--line);border-radius:11px}.race-product-stack article>div{flex:1}.race-product-stack strong{font-size:13px}.race-product-stack small{display:block;color:var(--mut);font-size:10px;margin-top:5px}.race-product-stack article>span{font-size:10px;color:var(--mut)}
+.race-check-head{display:flex;align-items:center;justify-content:space-between}.race-check-progress{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin:10px 0 18px}.race-check-progress span{display:block;height:100%;background:var(--bike)}.race-check-group{border-top:1px solid var(--line);padding:13px 0}.race-check-group h4{font-size:13px;margin:0 0 9px}.race-check-group label{display:flex;gap:10px;align-items:center;padding:7px 0;font-size:12px}.race-check-group input{accent-color:var(--bike)}
+.race-document-footer{display:flex;gap:15px;align-items:center;border-top:1px solid var(--line);padding:15px 22px}.race-document-footer small{color:var(--mut);font-size:10px}.nutrition-config,.nutrition-legacy{border:1px solid var(--line);border-radius:13px;margin:10px 0;padding:0 14px;background:var(--surf)}.nutrition-config>summary,.nutrition-legacy>summary{cursor:pointer;padding:18px 0;font-size:13px;font-weight:650;color:var(--ink)}.nutrition-config>summary span{float:right;color:var(--bike);font-size:11px}.nutrition-config>.card,.nutrition-legacy>.card{margin:8px 0}.nutrition-config section{margin:12px 0}
+@media(max-width:750px){.race-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.race-overview{grid-template-columns:1fr}.race-document-heading{align-items:flex-start;flex-direction:column}.race-table-head{display:none}.race-table-row{grid-template-columns:70px minmax(0,1fr);gap:4px 9px}.race-table-row span:nth-child(2){color:var(--mut)}.race-table-row span:nth-child(3),.race-table-row small{grid-column:2}.race-minirow{grid-template-columns:74px 1fr}}
 .nutrition-motor h3{font-size:clamp(17px,2.6vw,24px);margin:8px 0}.nutrition-auto-result{display:grid;gap:5px;margin-top:15px;padding:13px;border-radius:10px;background:color-mix(in srgb,var(--swim) 12%,var(--surf));font-size:12px}
 .nutrition-race-document{margin-bottom:12px;border-left:3px solid var(--bike)}.nutrition-race-document h3{font-size:clamp(18px,3vw,25px)}.nutrition-race-document h4{font-size:13px;margin:14px 0 9px}
 .nutrition-report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.nutrition-report-grid section{padding:12px;border:1px solid var(--line);border-radius:12px;min-width:0}
@@ -375,7 +390,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .route-group[open]>summary::after{content:'−'}.route-group>summary span{display:block;color:var(--mut);font-size:11px;font-weight:400;margin-top:4px}
 .route-group>section{padding:0 12px 14px}.route-group>section .eyebrow{margin-top:16px}
 @media(max-width:480px){.nutrition-scenarios{gap:5px}.nutrition-scenarios>div{padding:7px}.nutrition-scenarios strong{font-size:12px}}
-@media print{body{background:#fff!important;color:#111!important}body nav,.nav-wrap,.subnav,#nutritionCatalog,#nutritionSelected,.nutrition-controls,#nutritionRace button,#nutritionPrint,#nutritionMotor,#nutritionProfile,#nutritionRace,#nutritionCsv,.nutrition-remove{display:none!important}.view{display:none!important}#v-nutricion{display:block!important}#nutritionPlanner{display:block!important}#nutritionApp .card{break-inside:avoid;border:1px solid #bbb!important;box-shadow:none!important;background:#fff!important;color:#111!important}#nutritionApp *{color:#111!important}.nutrition-view{padding:0!important}}
+@media print{body{background:#fff!important;color:#111!important}body nav,.nav-wrap,.subnav,#nutritionCatalog,#nutritionSelected,.nutrition-controls,#nutritionRace button,#nutritionPrint,#nutritionMotor,#nutritionProfile,#nutritionRace,#nutritionCsv,.nutrition-remove,.nutrition-config,.nutrition-legacy,.race-document-footer,.race-document-heading .btn,.race-tabs{display:none!important}.view{display:none!important}#v-nutricion{display:block!important}#nutritionPlanner{display:block!important}#nutritionApp .card{break-inside:avoid;border:1px solid #bbb!important;box-shadow:none!important;background:#fff!important;color:#111!important}#nutritionApp *{color:#111!important}.nutrition-view{padding:0!important}.race-document{box-shadow:none!important;border:0!important}.race-document-body{padding:0!important}.race-table-row{break-inside:avoid}}
 @media(max-width:480px){.nutrition-controls{grid-template-columns:1fr}.nutrition-product{min-height:95px}.nutrition-kpis{gap:5px}.nutrition-kpis>div{padding:9px}}
 .savetoast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:600;padding:8px 15px;border-radius:8px;z-index:60;transition:.22s;pointer-events:none}
 .savetoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -388,8 +403,8 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .mt-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:14px 16px 2px}
 .mt-tit{font-family:Archivo,system-ui,sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
 .mt-sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);white-space:nowrap}
-.mt-svg{padding:10px 12px 0;max-width:900px;margin:0 auto}
-.mt-svg svg{display:block;width:100%;height:auto;overflow:visible}
+.mt-svg{padding:12px 20px 0;max-width:none;margin:0 auto;overflow-x:auto}
+.mt-svg svg{display:block;width:100%;min-width:690px;height:auto;overflow:visible}
 .mt-leg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:4px 16px 0;
   font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint)}
 .mt-leg span{display:inline-flex;align-items:center;gap:5px}
@@ -410,6 +425,12 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
 .mt-det summary::after{content:' ＋';color:var(--faint)}
 .mt-det[open] summary::after{content:' −'}
 .mt-det p{margin:0;padding:0 16px 14px;font-size:12.5px;line-height:1.55;color:var(--mut)}
+.route-narrative{display:grid;grid-template-columns:1fr 1.05fr;gap:22px;align-items:center;padding:23px;margin-bottom:14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(115deg,color-mix(in srgb,var(--go) 9%,var(--surf)),var(--surf))}
+.route-narrative-text h2{font-size:clamp(19px,2.8vw,28px);letter-spacing:-.035em;margin:6px 0 10px;line-height:1.15}.route-narrative-text>p:last-child{font-size:12px;line-height:1.6;color:var(--mut);max-width:460px}
+.route-trajectory-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.route-trajectory-cards>div{background:var(--raise);padding:14px;border:1px solid var(--line);border-radius:12px;min-width:0}.route-trajectory-cards small{font-size:10px;color:var(--mut);display:block}.route-trajectory-cards strong{font:700 clamp(20px,3vw,30px) 'IBM Plex Mono',monospace;display:block;margin:8px 0}.route-trajectory-cards span{color:var(--mut);font-size:9px;display:block;overflow:hidden;text-overflow:ellipsis}
+.route-analytics-grid,.route-next-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:13px 0}.route-chart-card{border:1px solid var(--line);border-radius:15px;background:var(--surf);padding:16px;min-width:0}.route-chart-card>.eyebrow{margin:0 0 12px}.route-chart-card svg{max-height:260px}.route-chart-card #raceHero .hero2{margin:0}.route-chart-card .clegend{margin-top:9px}
+@media(max-width:850px){.route-narrative{grid-template-columns:1fr}.route-analytics-grid,.route-next-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.route-narrative{padding:15px}.route-trajectory-cards>div{padding:9px}.route-trajectory-cards strong{font-size:21px}.route-trajectory-cards small{font-size:9px}.mt-svg{padding:8px 3px}.mt-wrap .mt-head{flex-direction:column;align-items:start}.route-chart-card{padding:12px}}
 @media(max-width:360px){.mt-v{font-size:21px}.mt-tit{font-size:17px}}
 @media(max-width:600px){.mt-svg{padding:8px 4px 0}.mt-leg{gap:7px 12px}.mt-nums{grid-template-columns:repeat(3,minmax(0,1fr))}.mt-v{font-size:clamp(16px,5vw,23px)}}
 
@@ -730,18 +751,15 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div class="view" id="v-ruta">
     <div class="aurora-bg"></div>
     <div id="reviewBanner"></div>
+    <div id="routeInsights"></div>
     <div id="montana"></div>
-    <details class="route-group"><summary>Resumen operativo <span>Próxima carrera · estado del día · recuperación</span></summary>
-      <div id="missionHero"></div>
-      <div id="raceHero"></div>
-      <div id="recoBox"></div>
-    </details>
-    <section><p class="eyebrow">◈ Camino al IRONMAN 2028 · horizontes posteriores opcionales</p><div id="trail"></div></section>
-    <details class="route-group"><summary>Capacidad y evolución <span>Forma · volumen · disciplinas</span></summary>
-      <section><p class="eyebrow">◈ Capacidad · sistema de disciplinas</p><div class="glass pad" id="capBox"></div></section>
-      <section><p class="eyebrow">◈ Curva de forma</p><div class="glass pad" id="fitChart"></div></section>
-      <section><p class="eyebrow">◈ Volumen de entrenamiento</p><div class="glass pad" id="volChart"></div></section>
-    </details>
+    <div class="route-analytics-grid">
+      <section class="route-chart-card"><p class="eyebrow">Fitness y fatiga · últimos 70 días</p><div id="fitChart"></div></section>
+      <section class="route-chart-card"><p class="eyebrow">Entrenamiento · últimas 12 semanas</p><div id="volChart"></div></section>
+    </div>
+    <div class="route-next-grid"><section class="route-chart-card"><p class="eyebrow">Distancias frente al 70.3</p><div id="capBox"></div></section><section class="route-chart-card"><p class="eyebrow">Próxima competencia</p><div id="raceHero"></div></section></div>
+    <details class="route-group"><summary>Etapas del camino <span>Hitos hacia el IRONMAN</span></summary><div id="trail"></div></details>
+    <details class="route-group"><summary>Estado y recomendación <span>Recuperación · entrenamiento</span></summary><div id="missionHero"></div><div id="recoBox"></div></details>
     <details class="route-group"><summary>Lectura técnica <span>Zonas · eficiencia · trabajo acumulado</span></summary>
       <section><p class="eyebrow">◈ Tus zonas de entrenamiento</p><div class="glass pad" id="zonasBox"></div></section>
       <section><p class="eyebrow">◈ Índice de eficiencia · ¿el plan sirve?</p><div class="glass pad" id="effBox"></div></section>
@@ -768,8 +786,8 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     </details>
   </div>
   <div class="view" id="v-nutricion"><section class="nutrition-view" id="nutritionPlanner">
-    <div class="nutrition-head"><p class="eyebrow">NUTRICIÓN · PLANIFICADOR DE CARRERA</p><h2>Tu estrategia de abastecimiento</h2>
-      <p>Selecciona productos, ajusta sus cantidades por porción y construye una primera estrategia pre, durante y post. Las fichas históricas y los valores no confirmados se identifican explícitamente.</p></div>
+    <div class="nutrition-head"><p class="eyebrow">NUTRICIÓN · PLAN DE COMPETENCIA</p><h2>Tu carrera, paso a paso</h2>
+      <p>El plan completo aparece primero. Explora sus cuatro vistas o modifica los datos para recalcular horarios y productos.</p></div>
     <div id="nutritionApp">Cargando catálogo…</div>
   </section></div>
   <nav><div class="nav-wrap">
@@ -2738,7 +2756,7 @@ function interp(serie,iso){
 
 async function renderMontana(){
   const box=document.getElementById('montana'); if(!box)return;
-  const W=360,H=250,pL=4,pR=4,pT=26,pB=34, CMAX=112;
+  const W=900,H=328,pL=38,pR=32,pT=32,pB=43, CMAX=112;
   const T0=parse("2025-09-01").getTime(), T1=parse("2028-09-01").getTime();
   const X=iso=>pL+((parse(iso).getTime()-T0)/(T1-T0))*(W-pL-pR);
   const Y=v=>H-pB-(Math.max(0,Math.min(CMAX,v))/CMAX)*(H-pT-pB);
@@ -2771,9 +2789,9 @@ async function renderMontana(){
     const yT=terreno==null?null:Y(terreno);
     const brecha=terreno==null?null:Math.round(r.exig-terreno);
     // Busca el primer hueco libre: arriba, abajo, mas arriba, mas abajo...
-    const cand=[yC-13,yC+17,yC-26,yC+30,yC-39,yC+43];
-    let yTxt=cand.find(c=>c>pT+8&&c<base-4&&!puestas.some(q=>Math.abs(q.x-x)<34&&Math.abs(q.y-c)<11));
-    if(yTxt==null)yTxt=yC-13;
+    const cand=[yC-17,yC+24,yC-34,yC+41,yC-51,yC+58];
+    let yTxt=cand.find(c=>c>pT+8&&c<base-4&&!puestas.some(q=>Math.abs(q.x-x)<45&&Math.abs(q.y-c)<15));
+    if(yTxt==null)yTxt=Math.max(pT+12,yC-17);
     puestas.push({x:x,y:yTxt});
     const guia=Math.abs(yTxt-yC)>16
       ? `<line x1="${x.toFixed(1)}" y1="${yC.toFixed(1)}" x2="${x.toFixed(1)}" y2="${(yTxt+(yTxt<yC?4:-7)).toFixed(1)}" stroke="var(--line2)" stroke-width=".8"/>` : '';
@@ -2786,7 +2804,7 @@ async function renderMontana(){
       : hecho
       ? `<circle cx="${x.toFixed(1)}" cy="${yC.toFixed(1)}" r="4.2" fill="var(--go)"/><path d="M${(x-2).toFixed(1)},${yC.toFixed(1)} l1.6,1.8 l2.7,-3.4" stroke="#0A0E14" stroke-width="1.4" fill="none" stroke-linecap="round"/>`
       : `<circle cx="${x.toFixed(1)}" cy="${yC.toFixed(1)}" r="4.2" fill="var(--surf)" stroke="var(--mut)" stroke-width="1.6"/>`;
-    return `${hueco}${guia}${bandera}<text x="${x.toFixed(1)}" y="${yTxt.toFixed(1)}" text-anchor="${anc}" font-size="8.5" font-family="'IBM Plex Mono',monospace" fill="${col}" font-weight="600">${r.corto||''}</text>`;
+    return `${hueco}${guia}${bandera}<text x="${x.toFixed(1)}" y="${yTxt.toFixed(1)}" text-anchor="${anc}" font-size="11" font-family="'IBM Plex Mono',monospace" fill="${col}" font-weight="600">${r.corto||''}</text>`;
   }).join('');
 
   // --- Reticula de altura, rotulada en CTL ---
@@ -2827,9 +2845,9 @@ async function renderMontana(){
     ${grid}${anios}
     <path d="${laderaProy}" fill="url(#gProy)"/>
     ${requisitos.length>1?`<polyline points="${pts(requisitos)}" fill="none" stroke="#50B7F5" stroke-width="1.5" stroke-dasharray="3 3" stroke-linejoin="round" opacity=".9"/>`:''}
-    <polyline points="${pts(proy)}" fill="none" stroke="#F6C445" stroke-width="2" stroke-linejoin="round" stroke-dasharray="4 3"/>
+    <polyline points="${pts(proy)}" fill="none" stroke="#F6C445" stroke-width="3.1" stroke-linejoin="round" stroke-dasharray="8 5"/>
     <path d="${laderaReal}" fill="url(#gReal)"/>
-    <polyline points="${pts(real)}" fill="none" stroke="#2FD98A" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+    <polyline points="${pts(real)}" fill="none" stroke="#2FD98A" stroke-width="4.4" stroke-linejoin="round" stroke-linecap="round"/>
     ${inicioReal}${campos}${marca}
   </svg>`;
 
@@ -2847,8 +2865,8 @@ async function renderMontana(){
   box.innerHTML=`
     <div class="mt-wrap">
       <div class="mt-head">
-        <div class="mt-tit">El ascenso</div>
-        <div class="mt-sub">${hechas} de ${carreras.length} campamentos</div>
+        <div class="mt-tit">Tu ascenso · origen, presente y exigencia</div>
+        <div class="mt-sub">${hechas} de ${carreras.length} competencias recorridas</div>
       </div>
       <div class="mt-svg">${svg}</div>
       <div class="mt-leg">
@@ -2863,6 +2881,26 @@ async function renderMontana(){
         <p>El eje vertical es el <b>CTL</b> de Intervals.icu: verde continuo = histórico observado desde el primer dato disponible; amarillo discontinuo = proyección matemática desde el último valor real; azul punteado = referencia orientativa fijada para cada competencia. La distancia vertical entre curvas expresa una diferencia de CTL, no una garantía de terminar o rendir en una prueba. No se inventan tramos anteriores a los registros.</p>
       </details>
     </div>`;
+}
+
+async function renderRouteInsights(){
+  const box=document.getElementById('routeInsights');if(!box)return;
+  const wellness=wellAsc(await getWell()).filter(w=>Number.isFinite(Number(w.ctl))&&w.ctl!==null);
+  const orden=[...wellness].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const inicio=orden[0],ultimo=orden.at(-1);
+  const actual=ultimo?Number(ultimo.ctl):null;
+  const primero=inicio?Number(inicio.ctl):null;
+  const cambio=actual===null||primero===null?null:Math.round(actual-primero);
+  const prox=allRaces().find(r=>r.date&&daysTo(r.date)>=0&&Number.isFinite(Number(r.exig)));
+  const requisito=prox?Number(prox.exig):null;
+  const proy=actual===null?[]:ctlProyectado(actual);
+  const fechaUlt=ultimo?String(ultimo.date).slice(0,10):null;
+  const proyectado=prox&&proy.length?interp([{d:fechaUlt,v:actual},...proy.filter(p=>p.d>fechaUlt)],prox.date):null;
+  const gap=proyectado===null||requisito===null?null:Math.round(requisito-proyectado);
+  const insight=actual===null?'Conecta Intervals.icu para trazar tu progreso real. Las metas y proyecciones no sustituyen mediciones.':gap===null?'Tu historia ya está disponible. La siguiente competencia necesita una referencia de exigencia para calcular la brecha.':gap<=0?`Si se cumple la proyección, alcanzarías la referencia de ${prox.corto||prox.name}. No es una garantía de resultado.`:`Según la proyección actual, faltarían ${gap} puntos de CTL para la referencia de ${prox.corto||prox.name}. Revisemos la carga progresiva, no una subida brusca.`;
+  const n=(v)=>v===null?'—':String(v);
+  box.innerHTML=`<section class="route-narrative"><div class="route-narrative-text"><p class="eyebrow">LECTURA DE TU EVOLUCIÓN</p><h2>${actual===null?'La historia empieza con datos reales':cambio>0?'Has ganado '+cambio+' puntos de CTL':cambio<0?'CTL actual '+Math.abs(cambio)+' puntos bajo tu primer registro':'Compara tu punto de partida con hoy'}</h2><p>${insight}</p></div>
+    <div class="route-trajectory-cards"><div><small>Punto de partida</small><strong>${n(primero)}</strong><span>${inicio?.date||'sin registro'}</span></div><div><small>Hoy · CTL real</small><strong>${n(actual)}</strong><span>${ultimo?.date||'sin registro'}</span></div><div><small>Próxima exigencia</small><strong>${n(requisito)}</strong><span>${prox?.corto||'por definir'}</span></div></div></section>`;
 }
 
 // ===== RIESGOS MEDIDOS =====
@@ -3342,6 +3380,7 @@ async function renderMotor(forzar){
 }
 
 async function renderRuta(){
+  await renderRouteInsights();
   await renderMontana();
   await renderMission();
   await renderRaceHero();
