@@ -2728,10 +2728,10 @@ async function renderMontana(){
   const hoyS=fmtLocal(today()), xHoy=X(hoyS);
 
   // --- Ladera recorrida: un punto por semana de tu CTL real ---
-  const well=wellAsc(await getWell()).filter(w=>/^\d{4}-\d{2}-\d{2}$/.test(w.date)&&Number.isFinite(w.ctl)&&parse(w.date).getTime()>=T0&&parse(w.date).getTime()<=Math.min(T1,today().getTime()));
+  const well=wellAsc(await getWell()).map(w=>({...w,date:String(w.date||'').slice(0,10)})).filter(w=>/^\d{4}-\d{2}-\d{2}$/.test(w.date)&&Number.isFinite(Number(w.ctl))&&parse(w.date).getTime()>=T0&&parse(w.date).getTime()<=Math.min(T1,today().getTime()));
   const real=[]; let last='';
   well.forEach(w=>{const k=isoWeekKey(parse(w.date));
-    if(k!==last){real.push({d:w.date,v:w.ctl});last=k;} else real[real.length-1]={d:w.date,v:w.ctl};});
+    if(k!==last){real.push({d:w.date,v:Number(w.ctl)});last=k;} else real[real.length-1]={d:w.date,v:Number(w.ctl)};});
   const ctlHoy=real.length?real[real.length-1].v:null;
   // La proyección debe conectar exactamente con el último dato real, no reemplazarlo.
   const proy=ctlHoy==null?[]:[real[real.length-1],...ctlProyectado(ctlHoy).filter(p=>p.d>real[real.length-1].d)];
@@ -3922,7 +3922,7 @@ async function runGarminSync(){
       if(touched){logs[w.date]=cur;n++;}
     });
     await Store.set('logs',logs);await Store.set('garmin_wellness',rows);await Store.set('garmin_synced',new Date().toISOString());
-    await renderProgress();await renderBench();await renderFormBoard();await renderFeed();await renderRibbon();
+    await renderProgress();await renderBench();await renderFormBoard();await renderFeed();await renderRibbon();await renderMontana();
     const wd=j.withData||{};
     if(j.diagnosis==='ACTIVIDADES_SI_SALUD_NO'){
       setGarminStatus(`<b style="color:var(--accent-2)">Falta conectar Garmin en Intervals.icu.</b><br>Intervals.icu sí tiene tus entrenos (por eso calcula la carga), pero <b>no está recibiendo ningún dato de salud</b>: cero días con sueño, HRV, Body Battery o Training Readiness.<br><br>Tus actividades le están llegando desde <b>Strava</b>, no desde Garmin — y Strava no transporta datos de recuperación.<br><br>Solución: en intervals.icu → <b>Settings → Integrations → Garmin Connect → Connect</b>, y autoriza los permisos de <b>Wellness</b> y <b>Sleep</b>. Luego usa "Download old data" y vuelve a pulsar Sync.`);
