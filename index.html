@@ -3932,7 +3932,7 @@ async function runGarminSync(){
       if(touched){logs[w.date]=cur;n++;}
     });
     await Store.set('logs',logs);await Store.set('garmin_wellness',rows);await Store.set('garmin_synced',new Date().toISOString());
-    await renderProgress();await renderBench();await renderFormBoard();await renderFeed();await renderRibbon();await renderMontana();
+    await renderProgress();await renderBench();await renderFormBoard();await renderFeed();await renderRibbon();await renderMontana();await renderCoach();await renderRecomendacion();
     const wd=j.withData||{};
     if(j.diagnosis==='ACTIVIDADES_SI_SALUD_NO'){
       setGarminStatus(`<b style="color:var(--accent-2)">Falta conectar Garmin en Intervals.icu.</b><br>Intervals.icu sí tiene tus entrenos (por eso calcula la carga), pero <b>no está recibiendo ningún dato de salud</b>: cero días con sueño, HRV, Body Battery o Training Readiness.<br><br>Tus actividades le están llegando desde <b>Strava</b>, no desde Garmin — y Strava no transporta datos de recuperación.<br><br>Solución: en intervals.icu → <b>Settings → Integrations → Garmin Connect → Connect</b>, y autoriza los permisos de <b>Wellness</b> y <b>Sleep</b>. Luego usa "Download old data" y vuelve a pulsar Sync.`);
