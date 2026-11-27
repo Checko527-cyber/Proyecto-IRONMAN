@@ -11,6 +11,26 @@ export function validarEstadoQA(data){
  }
  return out;
 }
+export async function ejecutarCicloPanelQA({pedir,mensaje=()=>{},render=()=>{}}){
+ mensaje('Preparando tareas idempotentes…');
+ const seed=await pedir('seed');
+ if(typeof seed?.semillas?.rendimiento!=='boolean'||typeof seed?.semillas?.ingenieria!=='boolean')throw Error('Preparación no verificada');
+ const previo=await pedir('status');const estado=validarEstadoQA(previo);render(previo);
+ const rPend=estado.rendimiento.pendiente>0,iPend=estado.ingenieria.pendiente>0;
+ if(!rPend&&!iPend)return {mensaje:'No hay tareas pendientes. Se muestran los registros reales.'};
+ // La concurrencia es diagnóstico independiente; no repetirla si alguna semilla ya existía.
+ let simultanea=false;
+ if(seed.semillas.rendimiento&&seed.semillas.ingenieria&&rPend&&iPend){
+  mensaje('Verificando dos sesiones concurrentes…');
+  const c=await pedir('concurrencia');if(c.concurrente!==true)throw Error('Concurrencia no comprobada');simultanea=true;
+ }
+ let r={procesadas:0},i={procesadas:0};
+ if(rPend){mensaje('Ejecutando rendimiento…');r=await pedir('rendimiento');}
+ if(iPend){mensaje('Ejecutando ingeniería…');i=await pedir('ingenieria');}
+ for(const x of [r,i])if(!Number.isSafeInteger(x.procesadas)||x.procesadas<0||x.procesadas>1)throw Error('Resultado de ciclo inválido');
+ render(await pedir('status'));
+ return {mensaje:(simultanea?'Concurrencia comprobada. ':'')+'Rendimiento: '+r.procesadas+'; ingeniería: '+i.procesadas+'. Verifica los estados y los registros.'};
+}
 function iniciar(root){
  const input=root.querySelector('#agentAccessToken'),msg=root.querySelector('#agentQaMessage'),botones=[...root.querySelectorAll('[data-qa-action]')];
  const mensaje=t=>{msg.textContent=t;};
@@ -31,16 +51,8 @@ function iniciar(root){
   const accion=btn.dataset.qaAction;botones.forEach(b=>b.disabled=true);
   try{
    if(accion==='cycle'){
-    mensaje('Preparando tareas idempotentes…');await pedir(token,'seed');
-    const previo=await pedir(token,'status');render(previo);
-    const rPend=previo.agentes.rendimiento.estados.pendiente>0,iPend=previo.agentes.ingenieria.estados.pendiente>0;
-    if(!rPend&&!iPend){mensaje('Las tareas de este ciclo ya fueron procesadas. Se muestran los registros reales.');return;}
-    let simultanea=false;
-    if(rPend&&iPend){mensaje('Verificando dos sesiones concurrentes…');const c=await pedir(token,'concurrencia');if(c.concurrente!==true)throw new Error('Concurrencia no comprobada');simultanea=true;}
-    let r={procesadas:0},i={procesadas:0};
-    if(rPend){mensaje('Ejecutando rendimiento…');r=await pedir(token,'rendimiento');}
-    if(iPend){mensaje('Ejecutando ingeniería…');i=await pedir(token,'ingenieria');}
-    render(await pedir(token,'status'));mensaje((simultanea?'Concurrencia comprobada. ':'')+'Rendimiento: '+r.procesadas+'; ingeniería: '+i.procesadas+'. Verifica los estados y los registros.');
+    const resultado=await ejecutarCicloPanelQA({pedir:a=>pedir(token,a),mensaje,render});
+    mensaje(resultado.mensaje);
    }else{
     mensaje('Comprobando '+accion+'…');const d=await pedir(token,accion);
     if(accion==='status'){render(d);mensaje('Estado consultado en PostgreSQL.');}
