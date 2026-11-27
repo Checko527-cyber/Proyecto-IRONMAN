@@ -55,9 +55,11 @@ test('adaptador PG consulta paramétricamente y valida tenant', async () => {
   const claimed = await store.reclamar('ingenieria');
   assert.equal(claimed.id, 't1');
   assert.deepEqual(calls[0].params, ['ironman','ingenieria']);
-  assert.match(calls[0].sql, /SKIP LOCKED/);
+  assert.match(calls[0].sql, /lease_agotado/);
+  assert.match(calls[1].sql, /SKIP LOCKED/);
+  assert.match(calls[1].sql, /SELECT id, proyecto_id/);
   await store.completar('t1', 'lease1', { estado: 'validacion', resumen: 'OK' });
-  assert.match(calls[1].sql, /lease_hasta > now/);
+  assert.match(calls[2].sql, /lease_hasta > now/);
   assert.throws(() => crearAlmacenPostgres({ proyectoId: "ironman'; DROP", query: async () => ({ rows: [] }) }), /inválido/);
 });
 test('rechaza completado sin revisión', async () => {
@@ -127,4 +129,15 @@ test('contratos SQL aíslan proyectos por claves foráneas compuestas', async ()
   assert.match(llamadas[0].statement, /ON CONFLICT \(proyecto_id, id\) DO NOTHING/);
   await store.reclamar('ingenieria');
   assert.match(llamadas[1].statement, /t\.proyecto_id = siguiente\.proyecto_id/);
+});
+
+test('ACK sin evento no inserta JSON null y rechaza colisiones en vez de ocultarlas', async () => {
+ const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async (sql, params) => {
+   assert.match(sql, /jsonb_typeof\(\$4::jsonb->'evento'\) = 'object'/);
+   assert.doesNotMatch(sql, /ON CONFLICT/);
+   assert.match(sql, /agente = \$4::jsonb->'evento'->>'origen'/);
+   assert.deepEqual(JSON.parse(params[3]), {estado:'validacion', resumen:'OK', evento:null});
+   return {rows:[{id:'t1'}]};
+ }});
+ await store.completar('t1','lease1',{estado:'validacion',resumen:'OK',extra:'no persistir'});
 });
