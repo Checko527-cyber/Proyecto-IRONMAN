@@ -1,0 +1,24 @@
+-- Migración aplicada previamente en la base exclusiva IRONMAN; conservar para reproducibilidad.
+BEGIN;
+CREATE ROLE ironman_qa_worker NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+CREATE ROLE ironman_qa_approver NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+GRANT USAGE ON SCHEMA ironman_agents TO ironman_qa_worker,ironman_qa_approver;
+GRANT SELECT,INSERT ON ironman_agents.eventos TO ironman_qa_worker;
+GRANT SELECT,INSERT ON ironman_agents.tareas TO ironman_qa_worker;
+GRANT UPDATE(estado,intentos,lease,lease_hasta,disponible_en,resultado,ultimo_error,actualizada_en) ON ironman_agents.tareas TO ironman_qa_worker;
+GRANT INSERT,SELECT ON ironman_agents.auditoria TO ironman_qa_worker,ironman_qa_approver;
+GRANT SELECT,INSERT ON ironman_agents.actividad TO ironman_qa_worker;
+GRANT UPDATE(motivo,procesadas,actualizada_en) ON ironman_agents.actividad TO ironman_qa_worker;
+GRANT SELECT ON ironman_agents.tareas TO ironman_qa_approver;
+GRANT UPDATE(estado,resultado,actualizada_en) ON ironman_agents.tareas TO ironman_qa_approver;
+CREATE POLICY qa_eventos_read ON ironman_agents.eventos FOR SELECT TO ironman_qa_worker USING(proyecto_id='ironman-qa');
+CREATE POLICY qa_eventos_insert ON ironman_agents.eventos FOR INSERT TO ironman_qa_worker WITH CHECK(proyecto_id='ironman-qa');
+CREATE POLICY qa_tareas_read ON ironman_agents.tareas FOR SELECT TO ironman_qa_worker,ironman_qa_approver USING(proyecto_id='ironman-qa');
+CREATE POLICY qa_tareas_insert ON ironman_agents.tareas FOR INSERT TO ironman_qa_worker WITH CHECK(proyecto_id='ironman-qa' AND estado='pendiente' AND intentos=0 AND lease IS NULL AND resultado IS NULL);
+CREATE POLICY qa_tareas_worker_update ON ironman_agents.tareas FOR UPDATE TO ironman_qa_worker USING(proyecto_id='ironman-qa' AND estado IN ('pendiente','en_progreso')) WITH CHECK(proyecto_id='ironman-qa' AND estado IN ('pendiente','en_progreso','validacion','bloqueada'));
+CREATE POLICY qa_tareas_approver_update ON ironman_agents.tareas FOR UPDATE TO ironman_qa_approver USING(proyecto_id='ironman-qa' AND estado='validacion') WITH CHECK(proyecto_id='ironman-qa' AND estado='completada');
+CREATE POLICY qa_audit_read ON ironman_agents.auditoria FOR SELECT TO ironman_qa_worker,ironman_qa_approver USING(proyecto_id='ironman-qa');
+CREATE POLICY qa_audit_worker ON ironman_agents.auditoria FOR INSERT TO ironman_qa_worker WITH CHECK(proyecto_id='ironman-qa' AND accion IN ('a_validacion','intento_fallido','lease_agotado'));
+CREATE POLICY qa_audit_approver ON ironman_agents.auditoria FOR INSERT TO ironman_qa_approver WITH CHECK(proyecto_id='ironman-qa' AND accion='qa_triple_aprobada');
+CREATE POLICY qa_activity ON ironman_agents.actividad FOR ALL TO ironman_qa_worker USING(proyecto_id='ironman-qa') WITH CHECK(proyecto_id='ironman-qa');
+COMMIT;

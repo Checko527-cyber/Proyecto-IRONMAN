@@ -134,9 +134,9 @@ test('contratos SQL aíslan proyectos por claves foráneas compuestas', async ()
 
 test('ACK sin evento no inserta JSON null y rechaza colisiones en vez de ocultarlas', async () => {
  const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async (sql, params) => {
-   assert.match(sql, /jsonb_typeof\(\$4::jsonb->'evento'\) = 'object'/);
+   assert.match(sql, /jsonb_typeof\(\$4::text::jsonb->'evento'\) = 'object'/);
    assert.doesNotMatch(sql, /ON CONFLICT/);
-   assert.match(sql, /agente = \$4::jsonb->'evento'->>'origen'/);
+   assert.match(sql, /agente = \$4::text::jsonb->'evento'->>'origen'/);
    assert.deepEqual(JSON.parse(params[3]), {estado:'validacion', resumen:'OK', evento:null});
    return {rows:[{id:'t1'}]};
  }});
