@@ -6,7 +6,7 @@ CREATE SCHEMA IF NOT EXISTS ironman_agents;
 REVOKE ALL ON SCHEMA ironman_agents FROM PUBLIC, anon, authenticated;
 
 CREATE TABLE IF NOT EXISTS ironman_agents.eventos (
- id text PRIMARY KEY,
+ id text NOT NULL,
  proyecto_id text NOT NULL,
  origen text NOT NULL CHECK (origen IN ('rendimiento','ingenieria')),
  destino text NOT NULL CHECK (destino IN ('rendimiento','ingenieria')),
@@ -14,12 +14,12 @@ CREATE TABLE IF NOT EXISTS ironman_agents.eventos (
  resumen varchar(280) NOT NULL,
  creada_en timestamptz NOT NULL DEFAULT now(),
  CONSTRAINT agente_distinto CHECK (origen <> destino),
- CONSTRAINT evento_identidad UNIQUE (proyecto_id, id)
+ CONSTRAINT eventos_pk PRIMARY KEY (proyecto_id, id)
 );
 CREATE TABLE IF NOT EXISTS ironman_agents.tareas (
- id text PRIMARY KEY,
+ id text NOT NULL,
  proyecto_id text NOT NULL,
- evento_id text NOT NULL REFERENCES ironman_agents.eventos(id),
+ evento_id text NOT NULL,
  agente text NOT NULL CHECK (agente IN ('rendimiento','ingenieria')),
  tipo text NOT NULL,
  resumen varchar(280) NOT NULL,
@@ -34,13 +34,17 @@ CREATE TABLE IF NOT EXISTS ironman_agents.tareas (
  ultimo_error varchar(160),
  creada_en timestamptz NOT NULL DEFAULT now(),
  actualizada_en timestamptz NOT NULL DEFAULT now(),
- CONSTRAINT tarea_identidad UNIQUE (proyecto_id, id),
+ CONSTRAINT tareas_pk PRIMARY KEY (proyecto_id, id),
+ CONSTRAINT tareas_evento_fk FOREIGN KEY (proyecto_id, evento_id)
+   REFERENCES ironman_agents.eventos (proyecto_id, id),
  CONSTRAINT lease_consistente CHECK ((lease IS NULL) = (lease_hasta IS NULL))
 );
 CREATE TABLE IF NOT EXISTS ironman_agents.auditoria (
  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  proyecto_id text NOT NULL,
- tarea_id text REFERENCES ironman_agents.tareas(id),
+ tarea_id text,
+ CONSTRAINT auditoria_tarea_fk FOREIGN KEY (proyecto_id, tarea_id)
+   REFERENCES ironman_agents.tareas (proyecto_id, id),
  accion text NOT NULL,
  detalle jsonb NOT NULL DEFAULT '{}'::jsonb,
  creada_en timestamptz NOT NULL DEFAULT now()

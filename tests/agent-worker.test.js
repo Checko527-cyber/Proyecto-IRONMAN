@@ -105,3 +105,26 @@ test('ACK almacena publicación al segundo agente en la misma operación', async
   assert.match(llamadas[0].sql, /nueva_tarea/);
   assert.match(llamadas[0].sql, /WITH confirmada/);
 });
+
+test('contratos SQL aíslan proyectos por claves foráneas compuestas', async () => {
+  const fs = await import('node:fs/promises');
+  const sql = await fs.readFile(new URL('../db/ironman_agents_schema.sql', import.meta.url), 'utf8');
+  assert.match(sql, /eventos_pk PRIMARY KEY \(proyecto_id, id\)/);
+  assert.match(sql, /tareas_pk PRIMARY KEY \(proyecto_id, id\)/);
+  assert.match(sql, /FOREIGN KEY \(proyecto_id, evento_id\)/);
+  assert.match(sql, /FOREIGN KEY \(proyecto_id, tarea_id\)/);
+  assert.match(sql, /ENABLE ROW LEVEL SECURITY/);
+  const llamadas = [];
+  const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async (statement, params) => {
+    llamadas.push({ statement, params });
+    return { rows: [{ id: 'evt-1' }] };
+  } });
+  await store.publicar({
+    id: 'evt-1', proyectoId: 'ironman',
+    origen: 'rendimiento', destino: 'ingenieria', tipo: 'mejora.tecnica',
+    resumen: 'Revisión sin datos sensibles'
+  });
+  assert.match(llamadas[0].statement, /ON CONFLICT \(proyecto_id, id\) DO NOTHING/);
+  await store.reclamar('ingenieria');
+  assert.match(llamadas[1].statement, /t\.proyecto_id = siguiente\.proyecto_id/);
+});
