@@ -12,7 +12,7 @@ test('rechaza usuario privilegiado, otra ref, otro host, ssl inseguro y puerto i
 });
 test('parámetros separados y cierre una sola vez',async()=>{
  let llamada,fin=0;
- const conectar=crearConectorPostgresQA({env:{IRONMAN_QA_WORKER_DATABASE_URL:uri},funcion:'worker',cargarDriver:async()=>()=>({unsafe:async(q,p)=>{llamada=[q,p];return [{x:1}]},end:async()=>{fin++}})});
+ const conectar=crearConectorPostgresQA({env:{IRONMAN_QA_WORKER_DATABASE_URL:uri},funcion:'worker',cargarCA:async()=> '-----BEGIN CERTIFICATE-----\nsynthetic\n-----END CERTIFICATE-----',cargarDriver:async()=>()=>({unsafe:async(q,p)=>{llamada=[q,p];return [{x:1}]},end:async()=>{fin++}})});
  const bd=await conectar(config);assert.deepEqual(await bd.query('SELECT $1',['dato']),{rows:[{x:1}]});assert.deepEqual(llamada,['SELECT $1',['dato']]);
  await bd.cerrar();await bd.cerrar();assert.equal(fin,1);await assert.rejects(bd.query('SELECT 1'));
 });

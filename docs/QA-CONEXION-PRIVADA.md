@@ -10,3 +10,5 @@ Variables sensibles adicionales: IRONMAN_QA_RUN_TOKEN (aleatorio, mínimo 32 car
 
 ## Configuración de la base exclusiva
 El servidor Session Pooler confirmado por el propietario es aws-0-us-east-2.pooler.supabase.com:5432. Las credenciales dedicadas worker y reader se configuraron como sensibles en Preview QA; aprobador NOLOGIN. Prueba de activación puntual en el build mediante IRONMAN_QA_BOOTSTRAP_CHECK (fecha Bogotá). No registrar datos deportivos, contraseñas ni tokens. No promover el build QA a producción.
+
+TLS: raíz pública obtenida del enlace oficial del dashboard Supabase y validada por huella SHA-256; mantener verificación del hostname y rejectUnauthorized=true. No usar sslmode=require como sustituto de verify-full.

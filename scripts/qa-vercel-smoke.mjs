@@ -1,6 +1,7 @@
 // Prueba de activación explícita, solo Preview QA y fecha aprobada. No publica secretos.
 import {prepararArranqueSeguro} from '../lib/ironman-infra-guard.js';
 import {protegerConexionQA,validarDestinoQA} from '../lib/agent-db-permissions.js';
+import {cargarRaizSupabaseQA} from '../lib/agent-supabase-ca.js';
 import {crearConectorPostgresQA,codigoSeguroQA} from '../lib/agent-postgres-connector.js';
 import {crearAlmacenPostgres} from '../lib/agent-store-pg.js';
 import {comprobarConcurrenciaQA} from '../lib/agent-concurrency-qa.js';
@@ -16,6 +17,9 @@ if(env.VERCEL_ENV==='preview'&&env.VERCEL_GIT_COMMIT_REF==='qa/ironman-multiagen
  let etapa='config',bd;
  try{
   const config=prepararArranqueSeguro(env);validarDestinoQA(config);
+  etapa='ca_oficial';const pem=await cargarRaizSupabaseQA();marca(etapa,'PASS');
+  // Únicamente certificado público, nunca credenciales; permite fijarlo localmente tras verificar su origen.
+  marca('ca_publica_base64',Buffer.from(pem,'utf8').toString('base64'));
   const conectar=crearConectorPostgresQA({env,funcion:'worker'});
   const worker=protegerConexionQA({conectar,funcion:'worker'});
   const reader=protegerConexionQA({conectar:crearConectorPostgresQA({env,funcion:'reader'}),funcion:'reader'});
@@ -57,5 +61,5 @@ if(env.VERCEL_ENV==='preview'&&env.VERCEL_GIT_COMMIT_REF==='qa/ironman-multiagen
    marca(etapa,JSON.stringify({procesadas:re.procesadas,validacion:re.conteo?.validacion??0,registro:re.registro,fuente:tech}));
    etapa='estado';const s=await status();marca(etapa,JSON.stringify(Object.fromEntries(Object.entries(s.agentes).map(([k,v])=>[k,{estados:v.estados,actividad:v.actividad}]))));
   }
- }catch(e){marca(etapa,'NO_VERIFICADA '+(e?.code==='QA_PERMISOS'?'QA_PERMISOS':codigoSeguroQA(e)));process.exitCode=1;}finally{try{await bd?.cerrar?.();}catch{process.exitCode=1;}}
+ }catch(e){marca(etapa,'NO_VERIFICADA '+(['QA_PERMISOS','QA_CA_INVALIDA','QA_CA_DESCARGA'].includes(e?.code)?e.code:codigoSeguroQA(e)));process.exitCode=1;}finally{try{await bd?.cerrar?.();}catch{process.exitCode=1;}}
 }else console.log('[IRONMAN-QA-SMOKE] OMITIDA: entorno o fecha no autorizados');
