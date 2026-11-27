@@ -23,3 +23,31 @@ test('no permite transferencias arbitrarias ni ciclos',async()=>{
  const d=crearManejadores({agente:'rendimiento',proyectoId,proveedores:{revisionDeportiva:async()=>({estado:'propuesta',solicitud:'texto privado'}),validacionDeportiva:async()=>({estado:'verificado'})}});
  await assert.rejects(d['revision.deportiva'](tarea));
 });
+
+test('circuito bilateral termina en validación sin generar ciclos',async()=>{
+ const d=crearManejadores({agente:'rendimiento',proyectoId,proveedores:{
+ revisionDeportiva:async()=>({estado:'propuesta',solicitud:'indicador'}),
+ validacionDeportiva:async()=>({estado:'verificado'})}});
+ const i=crearManejadores({agente:'ingenieria',proyectoId,proveedores:{
+ mejoraTecnica:async()=>({estado:'verificado',devolverRevision:true,privado:'NO PUBLICAR'}),
+ validacionTecnica:async()=>({estado:'verificado'})}});
+ const a=await d['revision.deportiva'](tarea);
+ const b=await i['mejora.tecnica']({id:a.evento.id,proyectoId});
+ assert.deepEqual(b,await i['mejora.tecnica']({id:a.evento.id,proyectoId}));
+ assert.equal(b.evento.destino,'rendimiento');
+ assert.equal(b.evento.tipo,'validacion.deportiva');
+ assert.notEqual(a.evento.id,b.evento.id);
+ assert.ok(!JSON.stringify(b).includes('NO PUBLICAR'));
+ const c=await d['validacion.deportiva']({id:b.evento.id,proyectoId});
+ assert.equal(c.evento,undefined);
+});
+test('retorno exige resultado técnico verificado y rol permitido',async()=>{
+ for(const estado of ['propuesta','insuficiente']){
+  const h=crearManejadores({agente:'ingenieria',proyectoId,proveedores:{mejoraTecnica:async()=>({estado,devolverRevision:true}),validacionTecnica:async()=>({estado:'verificado',devolverRevision:true})}});
+  await assert.rejects(h['mejora.tecnica'](tarea));
+  await assert.rejects(h['validacion.tecnica'](tarea));
+ }
+ const d=crearManejadores({agente:'rendimiento',proyectoId,proveedores:{revisionDeportiva:async()=>({estado:'verificado',devolverRevision:true}),validacionDeportiva:async()=>({estado:'verificado',solicitud:'indicador'})}});
+ await assert.rejects(d['revision.deportiva'](tarea));
+ await assert.rejects(d['validacion.deportiva'](tarea));
+});
