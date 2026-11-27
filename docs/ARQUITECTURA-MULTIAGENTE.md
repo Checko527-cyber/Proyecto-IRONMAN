@@ -32,3 +32,11 @@ Intervals.icu/Garmin -> servidor de ingestión autenticado -> BD privada/RLS
 
 ## Seguridad y límites
 Sin costos nuevos no aprobados; conservación de histórico y desarrollos previos. La independencia real depende de credenciales/autenticación servidor y persistencia, aún no comprobadas. No conectar una API pública sin autorización. Ningún estado `completada` implica que un despliegue a producción ocurriera; ese es otro control que debe validarse fuera de este contrato.
+
+
+## Incremento QA — cierre auditado de tareas (27/11/2026)
+- `crearAlmacenPostgres.aprobarTarea(id, revisiones)` solo permite cerrar tareas en `validacion`.
+- Requiere las tres categorías `tecnica`, `deportiva` y `visual`, cada una aprobada con referencia de evidencia de formato restringido.
+- El cierre y su registro de auditoría comparten una sentencia SQL; una tarea de otro `proyecto_id` o en otro estado no se completa.
+- **Límite relevante:** todavía no se autentica al revisor ni se verifica automáticamente que el commit, enlace de CI, captura o dictamen realmente exista. El método solo se puede conectar a un **servidor revisor confiable** después de implementar autenticación, permisos y comprobación real de las evidencias. Nunca exponerlo como API pública. Las pruebas unitarias no demuestran que se ejecutó la SQL en PostgreSQL ni que existe RLS real.
+- **Regla superior:** ATLAS-GIU es prioritario y totalmente separado. Prohibido consultar, reutilizar o modificar sus recursos para cualquier fase de IRONMAN.
