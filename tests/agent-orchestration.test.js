@@ -39,3 +39,14 @@ test('priorización dinámica pondera impacto, urgencia, riesgo y esfuerzo', () 
   assert.equal(priorizarTareas(tareas)[0].id, 'integridad');
   assert.throws(() => priorizarTareas([{ id: 'x', impacto: 9, urgencia: 1, riesgo: 1, esfuerzo: 1 }]), /Escala/);
 });
+
+test('IDs iguales entre proyectos requieren selección explícita y auditoría segregada', () => {
+  const a = ingresarEvento(null, evento).estado;
+  const b = ingresarEvento(a, {...evento, proyectoId:'laboratorio-b'}).estado;
+  assert.throws(() => moverTarea(b, evento.id, 'en_progreso', 'ingenieria'), /ambigua/);
+  assert.throws(() => moverTarea(b, evento.id, 'en_progreso', 'ingenieria', {proyectoId:'inexistente'}), /inexistente/);
+  const c = moverTarea(b, evento.id, 'en_progreso', 'ingenieria', {proyectoId:'laboratorio-b'});
+  assert.equal(c.tareas[0].estado, 'pendiente');
+  assert.equal(c.tareas[1].estado, 'en_progreso');
+  assert.equal(c.auditoria.at(-1).proyectoId, 'laboratorio-b');
+});
