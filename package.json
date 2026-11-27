@@ -5,5 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node --check analitica.js && node --check premium.js && node --check performance.js && node --check temporada2027.js && node --check victoria630.js && node --test"
+  },
+  "dependencies": {
+    "postgres": "3.4.7"
   }
 }
