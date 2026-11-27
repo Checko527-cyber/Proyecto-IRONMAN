@@ -142,3 +142,9 @@ test('ACK sin evento no inserta JSON null y rechaza colisiones en vez de ocultar
  }});
  await store.completar('t1','lease1',{estado:'validacion',resumen:'OK',extra:'no persistir'});
 });
+
+ test('idempotencia no depende del orden de columnas del driver', async () => {
+ const ev = { id: 'e-order', proyectoId: 'ironman', origen: 'rendimiento', destino: 'ingenieria', tipo: 'mejora.tecnica', resumen: 'Revisar unidades' };
+ const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async sql => ({ rows: sql.includes('WITH creado') ? [] : [{ resumen: ev.resumen, tipo: ev.tipo, destino: ev.destino, origen: ev.origen, proyectoId: ev.proyectoId, id: ev.id }] }) });
+ assert.deepEqual(await store.publicar(ev), { creado: false });
+ });
