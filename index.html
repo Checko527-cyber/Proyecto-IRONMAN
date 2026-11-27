@@ -658,7 +658,7 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   <div id="updBanner" class="updbanner" hidden></div>
   <header id="appHeader">
     <div class="brandrow">
-    <div class="brand" data-version="v1226">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1226</span><span class="vico">⟳</span></button></div>
+    <div class="brand" data-version="v1226-qa-agentes">PROYECTO <em>IRONMAN</em><button class="vbtn" id="btnUpd" title="Buscar actualizaciones" aria-label="Buscar actualizaciones"><span class="vnum">v1226</span><span class="vico">⟳</span></button></div>
       <div class="hdr-right">
         <span class="datechip" id="todayChip"></span>
         <button class="livemini js-live" id="syncAll"><span class="livedot"></span> Sync</button>
@@ -790,6 +790,18 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
     <details class="route-group"><summary>Alertas y riesgos <span>Fatiga · sobrecarga · lesión</span></summary>
       <section><div class="glass pad" id="riesgos"></div></section>
     </details>
+  </div>
+  <div class="view" id="v-agentes">
+    <section aria-labelledby="agentTitle">
+      <p class="eyebrow">Control multiagente · QA</p>
+      <h2 id="agentTitle">Centro de agentes</h2>
+      <p style="color:var(--mut)">Infraestructura privada pendiente. No hay telemetría real disponible.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px">
+        <article class="card pad"><h3>Rendimiento</h3><p style="color:var(--caution)">Sin conexión verificada</p><dl style="display:grid;grid-template-columns:1fr auto;gap:8px;margin:0"><dt>Pendientes</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En ejecución</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En validación</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Completadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Bloqueadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Vencidas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Última actividad</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd></dl></article>
+        <article class="card pad"><h3>Ingeniería</h3><p style="color:var(--caution)">Sin conexión verificada</p><dl style="display:grid;grid-template-columns:1fr auto;gap:8px;margin:0"><dt>Pendientes</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En ejecución</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En validación</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Completadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Bloqueadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Vencidas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Última actividad</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd></dl></article>
+      </div>
+      <p class="card pad" style="color:var(--mut)">ATLAS permanece independiente. La activación requiere base propia, permisos, proveedores autorizados y pruebas reales. Esta vista no inicia procesos ni consume servicios externos.</p>
+    </section>
   </div>
   <div class="view" id="v-nutricion"><section class="nutrition-view" id="nutritionPlanner">
     <div class="nutrition-head"><p class="eyebrow">NUTRICIÓN · PLAN DE COMPETENCIA</p><h2>Tu carrera, paso a paso</h2>
@@ -4113,8 +4125,8 @@ async function renderChecks(){
   document.querySelectorAll('.checkitem').forEach(el=>el.onclick=async()=>{const s=await Store.get('checks')||{};const id=el.dataset.id;const cur=(id in s)?s[id]:!!(CHECKS.find(c=>c.id===id)||{}).done;s[id]=!cur;await Store.set('checks',s);el.classList.toggle('on');});
 }
 
-const NAV_GRUPOS={inicio:['inicio'],plan:['semana'],rendimiento:['datos','analitica','motor'],competencias:['temporada','plan703','ruta'],nutricion:['nutricion']};
-const NAV_NOMBRES={semana:'Semana',datos:'Datos',analitica:'Análisis',motor:'Motor',temporada:'Temporada 2027',plan703:'Victoria 70.3',ruta:'Ruta'};
+const NAV_GRUPOS={inicio:['inicio'],plan:['semana'],rendimiento:['datos','analitica','motor','agentes'],competencias:['temporada','plan703','ruta'],nutricion:['nutricion']};
+const NAV_NOMBRES={semana:'Semana',datos:'Datos',analitica:'Análisis',motor:'Motor',agentes:'Agentes',temporada:'Temporada 2027',plan703:'Victoria 70.3',ruta:'Ruta'};
 let navAnterior={};
 function go(destino){
   const grupo=Object.keys(NAV_GRUPOS).find(k=>k===destino||NAV_GRUPOS[k].includes(destino))||'inicio';
