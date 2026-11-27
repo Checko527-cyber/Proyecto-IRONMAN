@@ -174,3 +174,44 @@ test('auditoría SQL no conserva mensajes arbitrarios de excepción', async () =
  }});
  await store.fallar('t1','lease1','secreto-sintetico-no-persistir','2026-11-27T00:00:00Z');
 });
+
+test('cierre definitivo exige tres validaciones con evidencia, sin exponer datos personales', async () => {
+  const consultas = [];
+  const store = crearAlmacenPostgres({
+    proyectoId: 'ironman',
+    query: async (sql, args) => {
+      consultas.push({ sql, args });
+      return { rows: [{ id: 'tarea-qa' }] };
+    }
+  });
+  const validas = {
+    tecnica: { aprobada: true, evidencia: 'actions/runs/45969797074' },
+    deportiva: { aprobada: true, evidencia: 'reports/verificacion-zonas' },
+    visual: { aprobada: true, evidencia: 'qa/capturas-movil' }
+  };
+  assert.deepEqual(await store.aprobarTarea('tarea-qa', validas),
+    { completada: true, tareaId: 'tarea-qa' });
+  assert.equal(consultas.length, 1);
+  assert.deepEqual(consultas[0].args.slice(0, 2), ['ironman', 'tarea-qa']);
+  assert.match(consultas[0].sql, /estado = 'validacion'/);
+  assert.match(consultas[0].sql, /qa_triple_aprobada/);
+  const dictamen = JSON.parse(consultas[0].args[2]);
+  assert.deepEqual(Object.keys(dictamen).sort(), ['deportiva','tecnica','visual']);
+  assert.ok(!JSON.stringify(dictamen).includes('secreto-sintetico'));
+  await assert.rejects(() => store.aprobarTarea('tarea-qa', {
+    ...validas, visual: { aprobada: false, evidencia: 'qa/falta-prueba' }
+  }), /visual/);
+  await assert.rejects(() => store.aprobarTarea('tarea-qa', {
+    ...validas, tecnica: { aprobada: true, evidencia: 'https://example.com?token=secreto-sintetico' }
+  }), /tecnica/);
+  assert.equal(consultas.length, 1, 'No consultar DB si el QA es incompleto o inseguro');
+});
+test('la revisión no puede cerrar una tarea pendiente', async () => {
+  const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async sql => {
+    assert.match(sql, /estado = 'validacion'/);
+    return { rows: [] };
+  } });
+  const revisiones = Object.fromEntries(['tecnica','deportiva','visual'].map(k =>
+    [k, { aprobada: true, evidencia: 'qa/evidencia-valida' }]));
+  await assert.rejects(() => store.aprobarTarea('pendiente', revisiones), /no disponible/);
+});
