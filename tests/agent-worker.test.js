@@ -30,7 +30,7 @@ test('registra error al fallar el ejecutor', async () => {
     fallar: async (id, lease, motivo) => { error = motivo; }
   }, manejadores: { 'mejora.tecnica': async () => { throw new Error('No hay datos'); } } });
   assert.equal((await worker.ejecutarUna()).estado, 'error');
-  assert.match(error, /No hay datos/);
+  assert.equal(error, 'Fallo de ejecución o validación');
 });
 test('rechaza evento saliente no autorizado', async () => {
   let error = '';
@@ -44,7 +44,7 @@ test('rechaza evento saliente no autorizado', async () => {
       destino: 'ingenieria', tipo: 'revision.deportiva', resumen: 'Incorrecto' }
   }) } });
   assert.equal((await worker.ejecutarUna()).estado, 'error');
-  assert.match(error, /no autorizado/);
+  assert.equal(error, 'Fallo de ejecución o validación');
 });
 test('adaptador PG consulta paramétricamente y valida tenant', async () => {
   const calls = [];
@@ -164,4 +164,13 @@ test('worker entrega únicamente los campos autorizados del evento al almacén',
   assert.equal((await worker.ejecutarUna()).estado, 'validacion');
   assert.deepEqual(Object.keys(resultado.evento).sort(),
     ['id','proyectoId','origen','destino','tipo','resumen'].sort());
+});
+
+test('auditoría SQL no conserva mensajes arbitrarios de excepción', async () => {
+ const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async (sql, params) => {
+   assert.equal(params[3], 'Fallo de ejecución o validación');
+   assert.match(sql, /jsonb_build_object/);
+   return {rows:[{id:'t1'}]};
+ }});
+ await store.fallar('t1','lease1','secreto-sintetico-no-persistir','2026-11-27T00:00:00Z');
 });
