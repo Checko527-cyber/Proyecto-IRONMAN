@@ -148,3 +148,20 @@ test('ACK sin evento no inserta JSON null y rechaza colisiones en vez de ocultar
  const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async sql => ({ rows: sql.includes('WITH creado') ? [] : [{ resumen: ev.resumen, tipo: ev.tipo, destino: ev.destino, origen: ev.origen, proyectoId: ev.proyectoId, id: ev.id }] }) });
  assert.deepEqual(await store.publicar(ev), { creado: false });
  });
+
+test('worker entrega únicamente los campos autorizados del evento al almacén', async () => {
+  let resultado;
+  const worker = crearWorker({ agente: 'ingenieria', almacen: {
+    reclamar: async () => tarea,
+    completar: async (id, lease, r) => { resultado = r; },
+    fallar: async () => { throw new Error('Inesperado'); }
+  }, manejadores: { 'mejora.tecnica': async () => ({
+    resumen: 'Revisión',
+    evento: { id: 'e-safe', proyectoId: 'ironman', origen: 'ingenieria',
+      destino: 'rendimiento', tipo: 'validacion.deportiva', resumen: 'Verificar unidades',
+      campoNoAutorizado: 'dato sintético de prueba' }
+  }) } });
+  assert.equal((await worker.ejecutarUna()).estado, 'validacion');
+  assert.deepEqual(Object.keys(resultado.evento).sort(),
+    ['id','proyectoId','origen','destino','tipo','resumen'].sort());
+});
