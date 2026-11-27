@@ -128,7 +128,8 @@ test('contratos SQL aíslan proyectos por claves foráneas compuestas', async ()
   });
   assert.match(llamadas[0].statement, /ON CONFLICT \(proyecto_id, id\) DO NOTHING/);
   await store.reclamar('ingenieria');
-  assert.match(llamadas[1].statement, /t\.proyecto_id = siguiente\.proyecto_id/);
+  assert.match(llamadas[1].statement, /lease_agotado/);
+  assert.match(llamadas[2].statement, /t\.proyecto_id = siguiente\.proyecto_id/);
 });
 
 test('ACK sin evento no inserta JSON null y rechaza colisiones en vez de ocultarlas', async () => {
