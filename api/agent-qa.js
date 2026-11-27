@@ -6,6 +6,7 @@ import {consultarEstadoAgentes} from '../lib/agent-status-service.js';
 import {crearLecturaIntervalsQA} from '../lib/agent-intervals-qa.js';
 const hash=s=>createHash('sha256').update(s).digest();
 const permitido=(header,token)=>typeof token==='string'&&token.length>=24&&typeof header==='string'&&header.startsWith('Bearer ')&&timingSafeEqual(hash(header.slice(7)),hash(token));
+const acceso=(h,e)=>permitido(h,e.COACH_TOKEN)||(typeof e.IRONMAN_QA_RUN_TOKEN==='string'&&e.IRONMAN_QA_RUN_TOKEN.length>=32&&permitido(h,e.IRONMAN_QA_RUN_TOKEN));
 // Diagnóstico privado solo Preview. No procesa tareas, no acepta secretos por URL.
 export function crearHandlerQA({env=process.env,conector=crearConectorPostgresQA,lectura=crearLecturaIntervalsQA}={}){
  return async (req,res)=>{
@@ -13,7 +14,7 @@ export function crearHandlerQA({env=process.env,conector=crearConectorPostgresQA
   res.setHeader('X-Content-Type-Options','nosniff');
   if(env.VERCEL_ENV!=='preview'||env.VERCEL_GIT_COMMIT_REF!=='qa/ironman-multiagente-fase0') return res.status(404).json({error:'no_disponible'});
   if(req.method!=='GET') return res.status(405).json({error:'metodo_no_permitido'});
-  if(!permitido(req.headers?.authorization,env.COACH_TOKEN)) return res.status(401).json({error:'no_autorizado'});
+  if(!acceso(req.headers?.authorization,env)) return res.status(401).json({error:'no_autorizado'});
   const prueba=req.query?.check??'status';
   if(!['status','intervals'].includes(prueba)) return res.status(400).json({error:'prueba_invalida'});
   try{
@@ -25,7 +26,7 @@ export function crearHandlerQA({env=process.env,conector=crearConectorPostgresQA
    }
    const conectar=protegerConexionQA({conectar:conector({env,funcion:'reader'}),funcion:'reader'});
    const r=await consultarEstadoAgentes({env,credencial:req.headers.authorization,
-    autorizar:async c=>({autorizado:permitido(c,env.COACH_TOKEN),proyectoId:config.proyectoId}),
+    autorizar:async c=>({autorizado:acceso(c,env),proyectoId:config.proyectoId}),
     conectar,consultarPolitica:async()=>({infraIndependiente:true,riesgoAtlas:false,costoAdicional:false})});
    return res.status(200).json(r);
   }catch{return res.status(503).json({error:'integracion_no_verificada'});}

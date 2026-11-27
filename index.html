@@ -793,14 +793,40 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(9,12,18,.95);backdrop
   </div>
   <div class="view" id="v-agentes">
     <section aria-labelledby="agentTitle">
-      <p class="eyebrow">Control multiagente · QA</p>
+      <p class="eyebrow">Control multiagente · QA privada</p>
       <h2 id="agentTitle">Centro de agentes</h2>
-      <p style="color:var(--mut)">Infraestructura privada pendiente. No hay telemetría real disponible.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px">
-        <article class="card pad"><h3>Rendimiento</h3><p style="color:var(--caution)">Sin conexión verificada</p><dl style="display:grid;grid-template-columns:1fr auto;gap:8px;margin:0"><dt>Pendientes</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En ejecución</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En validación</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Completadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Bloqueadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Vencidas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Última actividad</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd></dl></article>
-        <article class="card pad"><h3>Ingeniería</h3><p style="color:var(--caution)">Sin conexión verificada</p><dl style="display:grid;grid-template-columns:1fr auto;gap:8px;margin:0"><dt>Pendientes</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En ejecución</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>En validación</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Completadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Bloqueadas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Vencidas</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd><dt>Última actividad</dt><dd class="num" style="margin:0;color:var(--mut)">—</dd></dl></article>
+      <p style="color:var(--mut)">Datos del servidor únicamente cuando la conexión esté verificada. No modifica el plan deportivo.</p>
+      <style>
+        #v-agentes .agent-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+        #v-agentes .agent-controls button{min-height:40px;flex:1 1 145px;border:1px solid var(--line,#7778);border-radius:10px;background:transparent;color:inherit;padding:8px 12px;font:inherit;cursor:pointer}
+        #v-agentes .agent-controls button:disabled{opacity:.5;cursor:wait}
+        #v-agentes #agentAccessToken{box-sizing:border-box;width:100%;min-height:42px;padding:10px;border:1px solid var(--line,#7778);border-radius:9px;background:transparent;color:inherit;font:inherit;margin:6px 0 12px}
+        #v-agentes [role=status]{overflow-wrap:anywhere;min-height:2em}
+      </style>
+      <div class="card pad">
+        <label for="agentAccessToken">Token privado QA</label>
+        <input id="agentAccessToken" type="password" autocomplete="off" spellcheck="false" placeholder="Token privado de ejecución o consulta">
+        <div class="agent-controls">
+          <button type="button" data-qa-action="status">Consultar estado</button>
+          <button type="button" data-qa-action="intervals">Comprobar Intervals.icu</button>
+          <button type="button" data-qa-action="cycle">Ciclo completo QA</button>
+        </div>
+        <details style="margin-top:10px"><summary>Pruebas y ejecución por separado</summary>
+          <div class="agent-controls" style="margin-top:8px">
+            <button type="button" data-qa-action="seed">Preparar tareas</button>
+            <button type="button" data-qa-action="concurrencia">Probar concurrencia</button>
+            <button type="button" data-qa-action="rendimiento">Ejecutar rendimiento</button>
+            <button type="button" data-qa-action="ingenieria">Ejecutar ingeniería</button>
+          </div>
+        </details>
+        <p id="agentQaMessage" role="status" aria-live="polite" style="color:var(--mut);margin-top:10px">Conexión pendiente de comprobar. No hay procesos automáticos iniciados.</p>
+        <small style="color:var(--mut)">El token no se almacena. Cada acción es explícita y acotada a QA.</small>
       </div>
-      <p class="card pad" style="color:var(--mut)">ATLAS permanece independiente. La activación requiere base propia, permisos, proveedores autorizados y pruebas reales. Esta vista no inicia procesos ni consume servicios externos.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px;margin-top:12px">
+        <article class="card pad"><h3>Rendimiento</h3><p data-agent="rendimiento" data-field="actividad" style="color:var(--mut)">Sin conexión verificada</p><dl style="display:grid;grid-template-columns:1fr minmax(0,auto);gap:8px;margin:0"><dt>Pendientes</dt><dd data-agent="rendimiento" data-field="pendiente" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>En ejecución</dt><dd data-agent="rendimiento" data-field="en_progreso" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>En validación</dt><dd data-agent="rendimiento" data-field="validacion" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Completadas</dt><dd data-agent="rendimiento" data-field="completada" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Bloqueadas</dt><dd data-agent="rendimiento" data-field="bloqueada" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Leases vencidos</dt><dd data-agent="rendimiento" data-field="leasesVencidos" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Última actividad</dt><dd data-agent="rendimiento" data-field="ultimaActividad" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd></dl></article>
+<article class="card pad"><h3>Ingeniería</h3><p data-agent="ingenieria" data-field="actividad" style="color:var(--mut)">Sin conexión verificada</p><dl style="display:grid;grid-template-columns:1fr minmax(0,auto);gap:8px;margin:0"><dt>Pendientes</dt><dd data-agent="ingenieria" data-field="pendiente" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>En ejecución</dt><dd data-agent="ingenieria" data-field="en_progreso" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>En validación</dt><dd data-agent="ingenieria" data-field="validacion" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Completadas</dt><dd data-agent="ingenieria" data-field="completada" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Bloqueadas</dt><dd data-agent="ingenieria" data-field="bloqueada" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Leases vencidos</dt><dd data-agent="ingenieria" data-field="leasesVencidos" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd><dt>Última actividad</dt><dd data-agent="ingenieria" data-field="ultimaActividad" class="num" style="margin:0;overflow-wrap:anywhere;text-align:right">—</dd></dl></article>
+      </div>
+      <p class="card pad" style="color:var(--mut)">El ciclo prepara dos tareas idempotentes, comprueba bloqueos de PostgreSQL y ejecuta un trabajo por agente. Los resultados pasan a validación, no a aprobación automática. ATLAS está excluido.</p>
     </section>
   </div>
   <div class="view" id="v-nutricion"><section class="nutrition-view" id="nutritionPlanner">
@@ -4235,5 +4261,6 @@ function wireUpd(){
 <script type="module" src="/temporada2027.js?v=1"></script>
 <script type="module" src="/victoria630.js?v=1"></script>
 <script type="module" src="/nutricion.js?v=1"></script>
+<script type="module" src="/agent-qa-ui.js?v=1"></script>
 </body>
 </html>
