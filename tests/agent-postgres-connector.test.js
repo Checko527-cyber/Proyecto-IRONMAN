@@ -7,7 +7,7 @@ test('conexión fija, TLS y un cliente',()=>{
  const o=opcionesPostgresQA({config,funcion:'worker',uri});assert.equal(o.password,'synthetic@secret');assert.equal(o.ssl.rejectUnauthorized,true);assert.equal(o.ssl.servername,o.host);assert.equal(o.max,1);assert.equal(o.prepare,false);
 });
 test('rechaza usuario privilegiado, otra ref, otro host, ssl inseguro y puerto inesperado',()=>{
- for(const u of [uri.replace('ironman_qa_worker_login','postgres'),uri.replace('hifnimutdifkuchxdkrj','aaaaaaaaaaaaaaaaaaaa'),uri.replace('aws-0-us-east-2.pooler.supabase.com','evil.example'),uri+'?sslmode=disable',uri.replace(':5432',':6543'),uri+'?host=evil.example'])
+ for(const u of [uri.replace('ironman_qa_worker_login','postgres'),uri.replace('hifnimutdifkuchxdkrj','aaaaaaaaaaaaaaaaaaaa'),uri.replace('aws-0-us-east-2.pooler.supabase.com','evil.example'),uri.replace('aws-0-','aws-1-'),uri+'?sslmode=disable',uri.replace(':5432',':6543'),uri+'?host=evil.example'])
   assert.throws(()=>opcionesPostgresQA({config,funcion:'worker',uri:u}),/URI privada QA rechazada/);
 });
 test('parámetros separados y cierre una sola vez',async()=>{

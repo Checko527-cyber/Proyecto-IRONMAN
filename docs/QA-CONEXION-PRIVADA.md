@@ -7,3 +7,6 @@ GET /api/agent-qa?check=status y GET /api/agent-qa?check=intervals solo en previ
 
 ## Ciclo QA manual
 Variables sensibles adicionales: IRONMAN_QA_RUN_TOKEN (aleatorio, mínimo 32 caracteres). Tras verificar credenciales, habilitar IRONMAN_QA_AGENTS_ENABLED=true únicamente en el preview de la rama QA. El token de ejecución también permite consulta agregada, pero COACH_TOKEN no permite ejecutar. Con el preview protegido abierto, entrar en Rendimiento > Agentes y usar el token de ejecución, sin copiarlo al chat. El ciclo prueba concurrencia de dos conexiones antes de procesar un trabajo deportivo y uno de verificación CI. No requiere una API de IA de pago; los proveedores son deterministas. La automatización de ingeniería en ChatGPT sigue siendo responsable del desarrollo y las decisiones, no el verificador de CI. El aprobador permanece sin login. Los resultados son QA, no aprobaciones finales.
+
+## Configuración de la base exclusiva
+El servidor Session Pooler confirmado por el propietario es aws-0-us-east-2.pooler.supabase.com:5432. Las credenciales dedicadas worker y reader se configuraron como sensibles en Preview QA; aprobador NOLOGIN. Prueba de activación puntual en el build mediante IRONMAN_QA_BOOTSTRAP_CHECK (fecha Bogotá). No registrar datos deportivos, contraseñas ni tokens. No promover el build QA a producción.
