@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {X509Certificate} from 'node:crypto';import {cargarRaizSupabaseQA,validarRaizSupabaseQA,SUPABASE_CA_SHA256} from '../lib/agent-supabase-ca.js';
+test('raíz pública local y huella oficial fijada',async()=>{const pem=await cargarRaizSupabaseQA();const x=new X509Certificate(pem);assert.equal(x.fingerprint256.replaceAll(':','').toLowerCase(),SUPABASE_CA_SHA256);assert.equal(x.ca,true);assert.throws(()=>validarRaizSupabaseQA('invalid'),/no verificada/);});

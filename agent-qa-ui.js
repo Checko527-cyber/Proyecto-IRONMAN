@@ -32,10 +32,15 @@ function iniciar(root){
   try{
    if(accion==='cycle'){
     mensaje('Preparando tareas idempotentes…');await pedir(token,'seed');
-    mensaje('Verificando dos sesiones concurrentes…');const c=await pedir(token,'concurrencia');if(c.concurrente!==true)throw new Error('Concurrencia no comprobada');
-    mensaje('Ejecutando rendimiento…');const r=await pedir(token,'rendimiento');
-    mensaje('Ejecutando ingeniería…');const i=await pedir(token,'ingenieria');
-    render(await pedir(token,'status'));mensaje('Concurrencia comprobada. Rendimiento: '+r.procesadas+'; ingeniería: '+i.procesadas+'. Verifica los estados y los registros.');
+    const previo=await pedir(token,'status');render(previo);
+    const rPend=previo.agentes.rendimiento.estados.pendiente>0,iPend=previo.agentes.ingenieria.estados.pendiente>0;
+    if(!rPend&&!iPend){mensaje('Las tareas de este ciclo ya fueron procesadas. Se muestran los registros reales.');return;}
+    let simultanea=false;
+    if(rPend&&iPend){mensaje('Verificando dos sesiones concurrentes…');const c=await pedir(token,'concurrencia');if(c.concurrente!==true)throw new Error('Concurrencia no comprobada');simultanea=true;}
+    let r={procesadas:0},i={procesadas:0};
+    if(rPend){mensaje('Ejecutando rendimiento…');r=await pedir(token,'rendimiento');}
+    if(iPend){mensaje('Ejecutando ingeniería…');i=await pedir(token,'ingenieria');}
+    render(await pedir(token,'status'));mensaje((simultanea?'Concurrencia comprobada. ':'')+'Rendimiento: '+r.procesadas+'; ingeniería: '+i.procesadas+'. Verifica los estados y los registros.');
    }else{
     mensaje('Comprobando '+accion+'…');const d=await pedir(token,accion);
     if(accion==='status'){render(d);mensaje('Estado consultado en PostgreSQL.');}

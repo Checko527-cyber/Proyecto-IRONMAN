@@ -29,5 +29,6 @@
       ]
     }
   ],
-  "buildCommand": "node scripts/qa-vercel-smoke.mjs"
+  "buildCommand": "node scripts/qa-vercel-ci-recheck.mjs && node scripts/build-static.mjs",
+  "outputDirectory": "public"
 }
