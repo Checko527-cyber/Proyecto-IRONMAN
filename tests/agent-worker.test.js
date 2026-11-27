@@ -64,3 +64,44 @@ test('rechaza completado sin revisión', async () => {
   const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async () => ({ rows: [] }) });
   await assert.rejects(() => store.completar('t1', 'lease1', { estado: 'completada', resumen: 'Aprobado' }), /validación/);
 });
+
+test('publicar usa evento validado y crea tarea durable en una sola consulta', async () => {
+  const consultas = [];
+  const ev = { id: 'evento-unico', proyectoId: 'ironman', origen: 'rendimiento',
+    destino: 'ingenieria', tipo: 'mejora.tecnica', resumen: 'Revisar gráficos de potencia' };
+  const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async (sql, params) => {
+    consultas.push({ sql, params });
+    return { rows: [{ id: ev.id }] };
+  } });
+  assert.deepEqual(await store.publicar(ev), { creado: true });
+  assert.equal(consultas.length, 1);
+  assert.match(consultas[0].sql, /INSERT INTO ironman_agents.eventos/);
+  assert.match(consultas[0].sql, /INSERT INTO ironman_agents.tareas/);
+  await assert.rejects(() => store.publicar({ ...ev, proyectoId: 'otro' }), /Proyecto no autorizado/);
+});
+test('repetición exacta no duplica tarea, distinta carga falla', async () => {
+  const ev = { id: 'e1', proyectoId: 'ironman', origen: 'rendimiento',
+    destino: 'ingenieria', tipo: 'mejora.tecnica', resumen: 'Validar potencia' };
+  let distintos = false;
+  const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async (sql) => {
+    if (sql.includes('WITH creado')) return { rows: [] };
+    return { rows: [{ ...ev, ...(distintos ? { resumen: 'Otro objetivo' } : {}) }] };
+  } });
+  assert.deepEqual(await store.publicar(ev), { creado: false });
+  distintos = true;
+  await assert.rejects(() => store.publicar(ev), /idempotencia/);
+});
+test('ACK almacena publicación al segundo agente en la misma operación', async () => {
+  const llamadas = [];
+  const store = crearAlmacenPostgres({ proyectoId: 'ironman', query: async (sql, params) => {
+    llamadas.push({ sql, params });
+    return { rows: [{ id: 't1' }] };
+  } });
+  const outgoing = { id: 'r1', proyectoId: 'ironman', origen: 'ingenieria',
+    destino: 'rendimiento', tipo: 'validacion.deportiva', resumen: 'Verificar unidades' };
+  await store.completar('t1', 'lease1', { estado: 'validacion', resumen: 'Revisión técnica', evento: outgoing });
+  assert.equal(llamadas.length, 1);
+  assert.match(llamadas[0].sql, /nuevo_evento/);
+  assert.match(llamadas[0].sql, /nueva_tarea/);
+  assert.match(llamadas[0].sql, /WITH confirmada/);
+});
