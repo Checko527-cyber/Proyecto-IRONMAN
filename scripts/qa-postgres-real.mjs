@@ -48,6 +48,7 @@ try{
  assert.equal(resultB.procesadas,2);assert.equal(resultB.registro,'guardado');assert.equal(resultB.conteo.validacion,2);
  const reader=protegerConexionQA({conectar:connect('reader'),funcion:'reader'});
  const status=await consultarEstadoAgentes({env,credencial:'synthetic',autorizar:async()=>({autorizado:true,proyectoId}),conectar:reader,consultarPolitica:policy});
+ assert.equal(status.agentes.rendimiento.procesadasUltimoCiclo,1);assert.equal(status.agentes.ingenieria.procesadasUltimoCiclo,2);
  assert.equal(status.agentes.rendimiento.estados.validacion,1);assert.equal(status.agentes.ingenieria.estados.validacion,2);
  const ro=await reader(config);await assert.rejects(ro.query('SELECT resumen FROM ironman_agents.tareas'));await ro.cerrar();
  const ap=await protegerConexionQA({conectar:connect('approver'),funcion:'approver'})(config);

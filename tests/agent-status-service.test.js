@@ -14,12 +14,13 @@ test('agrega estados y actividad sin exponer datos libres',async()=>{
  let cerrado=0;
  const r=await consultarEstadoAgentes({...base,conectar:async()=>({supabaseRef:ref,proyectoId,query:async(sql,p)=>{
  assert.deepEqual(p,[proyectoId,ahora]);
- return {rows:[{tareas:[{agente:'rendimiento',estado:'en_progreso',cantidad:3,vencidas:1,ultima:ahora,secreto:'NO PUBLICAR'}],actividad:[{agente:'rendimiento',motivo:'cola_vacia',actualizada_en:ahora}]}]};
+ return {rows:[{tareas:[{agente:'rendimiento',estado:'en_progreso',cantidad:3,vencidas:1,ultima:ahora,secreto:'NO PUBLICAR'}],actividad:[{agente:'rendimiento',motivo:'cola_vacia',procesadas:0,actualizada_en:ahora}]}]};
  },cerrar:async()=>{cerrado++;}})});
  assert.equal(r.agentes.rendimiento.estados.en_progreso,3);
  assert.equal(r.agentes.rendimiento.leasesVencidos,1);
  assert.equal(r.agentes.rendimiento.actividad,'reporte_reciente');
  assert.equal(r.agentes.ingenieria.actividad,'sin_evidencia');
+ assert.equal(r.agentes.rendimiento.procesadasUltimoCiclo,0);assert.equal(r.agentes.ingenieria.procesadasUltimoCiclo,null);
  assert.equal(cerrado,1);assert.ok(!JSON.stringify(r).includes('NO PUBLICAR'));
 });
 test('lectura incompleta nunca produce ceros ficticios',async()=>{
@@ -27,3 +28,5 @@ test('lectura incompleta nunca produce ceros ficticios',async()=>{
  await assert.rejects(consultarEstadoAgentes({...base,conectar:async()=>({supabaseRef:ref,proyectoId,query:async()=>({rows:[]}),cerrar:async()=>{cerrado++;}})}));
  assert.equal(cerrado,1);
 });
+
+test('rechaza conteo de ejecución inválido y cierra lector',async()=>{for(const procesadas of [undefined,-1,'1',1.5]){let cerrado=0;await assert.rejects(consultarEstadoAgentes({...base,conectar:async()=>({supabaseRef:ref,proyectoId,query:async()=>({rows:[{tareas:[],actividad:[{agente:'ingenieria',motivo:'limite_tareas',procesadas,actualizada_en:ahora}]}]}),cerrar:async()=>{cerrado++;}})}),/Actividad inválida/);assert.equal(cerrado,1);}});
