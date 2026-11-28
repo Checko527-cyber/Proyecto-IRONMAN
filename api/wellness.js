@@ -1,3 +1,4 @@
+import {campoWellness,numeroWellness,pesoWellness} from '../lib/wellness-fields.js';
 import {fechaBogota,desplazarFecha,enRango} from '../lib/fecha-bogota.js';
 // api/wellness.js — Trae sueño, HRV, Body Battery y peso desde Intervals.icu (que a su vez los recibe de tu Garmin).
 //
@@ -45,26 +46,15 @@ export default async function handler(req, res) {
     }
 
     // Los nombres de campo pueden variar. Buscamos por coincidencia flexible.
-    const findKey = (obj, ...needles) => {
-      const keys = Object.keys(obj || {});
-      for (const n of needles) {
-        const exact = keys.find(k => k.toLowerCase() === n);
-        if (exact) return exact;
-      }
-      for (const n of needles) {
-        const partial = keys.find(k => k.toLowerCase().replace(/[_\s-]/g, '').includes(n.replace(/[_\s-]/g, '')));
-        if (partial) return partial;
-      }
-      return null;
-    };
-    const num = (v) => (v == null || v === '' || isNaN(+v)) ? null : +v;
+    const findKey = campoWellness;
+    const num = numeroWellness;
 
     const registros = raw.filter(d => d && enRango(d.id || d.date,oldest,newest));
     const sample = Object.assign({}, ...registros.map(d => Object.fromEntries(Object.entries(d).filter(([,v])=>v!=null&&v!==''))));
     const kSleep = findKey(sample, 'sleepsecs', 'sleep_secs', 'sleeptime', 'sleep');
     const kHrv = findKey(sample, 'hrv', 'hrvsdnn', 'hrv_sdnn');
     const kBB = findKey(sample, 'bodybattery', 'body_battery', 'battery');
-    const kWeight = findKey(sample, 'weight');
+    const kWeight = findKey(sample, 'weight', 'bodyweight', 'weightkg');
     const kRhr = findKey(sample, 'restinghr', 'resting_hr');
     const kReady = findKey(sample, 'readiness');
     const kCtl = findKey(sample, 'ctl');
@@ -86,7 +76,7 @@ export default async function handler(req, res) {
         sleepScore: kSleepScore ? num(d[kSleepScore]) : null,
         hrv: kHrv ? num(d[kHrv]) : null,
         bb: kBB ? num(d[kBB]) : null,
-        weight: kWeight ? num(d[kWeight]) : null,
+        weight: kWeight ? pesoWellness(d[kWeight]) : null,
         restingHR: kRhr ? num(d[kRhr]) : null,
         readiness: kReady ? num(d[kReady]) : null,
         ctl: ctl == null ? null : +ctl.toFixed(1),
