@@ -1,3 +1,4 @@
+import {fechaBogota,desplazarFecha,fechaActividad,enRango,diasEntre} from '../lib/fecha-bogota.js';
 import { mismaSesion } from '../lib/misma-sesion.js';
 
 // api/actividades.js — Actividades reales desde Intervals.icu (que las recibe de tu Garmin).
@@ -74,7 +75,7 @@ async function traerStrava(dias) {
       return 'other'; };
     return todas.map(a => ({
       id: a.id ? 's' + a.id : null,
-      date: (a.start_date_local || a.start_date || '').slice(0, 10),
+      date: fechaActividad(a),
       startedAt: a.start_date || a.start_date_local || null,
       sport: dep(a.sport_type || a.type),
       tipo_crudo: a.sport_type || a.type || '',
@@ -104,10 +105,8 @@ export default async function handler(req, res) {
     const auth = 'Basic ' + Buffer.from('API_KEY:' + INTERVALS_API_KEY).toString('base64');
 
     const dias = Math.min(900, Math.max(7, parseInt(req.query && req.query.dias, 10) || 120));
-    const pad = n => String(n).padStart(2, '0');
-    const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const desde = fmt(new Date(Date.now() - dias * 86400000));
-    const hasta = fmt(new Date(Date.now() + 86400000));
+    const hasta = fechaBogota();
+    const desde = desplazarFecha(hasta,-dias);
 
     const url = `https://intervals.icu/api/v1/athlete/${encodeURIComponent(athlete)}/activities?oldest=${desde}&newest=${hasta}`;
     const r = await fetch(url, { headers: { Authorization: auth, Accept: 'application/json' } });
@@ -148,7 +147,7 @@ export default async function handler(req, res) {
       const tipo = a.type || a.sport || '';
       return {
         id: a.id || null,
-        date: (a.start_date_local || a.start_date || '').slice(0, 10),
+        date: fechaActividad(a),
         startedAt: a.start_date || a.start_date_local || null,
         sport: DEPORTE[tipo] || 'other',
         tipo_crudo: tipo,
@@ -163,7 +162,7 @@ export default async function handler(req, res) {
         cadencia: num(a[kCad]),
         fuente: 'intervals'
       };
-    }).filter(a => a.date).sort((a, b) => a.date < b.date ? 1 : -1);
+    }).filter(a => enRango(a.date,desde,hasta)).sort((a, b) => a.date < b.date ? 1 : -1);
 
     // --- Fusión con Strava: solo rellena lo que Intervals no tiene ---
     const deStrava = await traerStrava(dias);
@@ -175,7 +174,7 @@ export default async function handler(req, res) {
     const fusionadas = actividades.slice();
     let rellenadas = 0, mejoradas = 0;
     for (const sv of deStrava) {
-      if (sv.date < desde) continue;
+      if (!enRango(sv.date,desde,hasta)) continue;
       const i = fusionadas.findIndex(x => mismaSesion(x, sv));
       if (i < 0) { fusionadas.push(sv); rellenadas++; continue; }
       // Misma sesion por dos vias: gana la version con mas datos, conservando
@@ -200,9 +199,9 @@ export default async function handler(req, res) {
 
     const conDatos = actividades.filter(a => a.min != null);
     const ultIntervals = conDatos.length ? conDatos[0].date : null;
-    const hoyStr = fmt(new Date());
+    const hoyStr = hasta;
     const desfase = ultIntervals
-      ? Math.round((new Date(hoyStr) - new Date(ultIntervals)) / 86400000) : null;
+      ? Math.max(0,diasEntre(ultIntervals,hoyStr)) : null;
 
     // Horas y carga agrupadas por semana ISO, para la barra de hecho vs objetivo.
     const semanaDe = iso => {
@@ -238,7 +237,7 @@ export default async function handler(req, res) {
           ? 'Intervals.icu lleva ' + desfase + ' dias sin recibir actividades. Los huecos se rellenaron con Strava.'
           : null
       },
-      rango: { desde, hasta },
+      rango: { desde, hasta, zona: 'America/Bogota' },
       campos_detectados: { kDur, kDist, kDesn, kFcAvg, kFcMax, kCarga, kKcal, kCad }
     });
   } catch (e) {
