@@ -1,3 +1,4 @@
+import {fechaBogota,desplazarFecha,enRango} from '../lib/fecha-bogota.js';
 // api/wellness.js — Trae sueño, HRV, Body Battery y peso desde Intervals.icu (que a su vez los recibe de tu Garmin).
 //
 // Variables de entorno requeridas en Vercel:
@@ -21,12 +22,10 @@ export default async function handler(req, res) {
     // Conservar el origen del progreso desde 2025 para el gráfico histórico de Ruta.
     // La ventana puede reducirse con ?days=120 para vistas de corto plazo.
     const days = Math.min(730, Math.max(7, parseInt(req.query && req.query.days, 10) || 540));
-    const pad = (n) => String(n).padStart(2, '0');
-    const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const newest = new Date();
-    const oldest = new Date(Date.now() - days * 86400000);
+    const newest = fechaBogota();
+    const oldest = desplazarFecha(newest,-days);
 
-    const url = `https://intervals.icu/api/v1/athlete/${encodeURIComponent(athlete)}/wellness?oldest=${fmt(oldest)}&newest=${fmt(newest)}`;
+    const url = `https://intervals.icu/api/v1/athlete/${encodeURIComponent(athlete)}/wellness?oldest=${oldest}&newest=${newest}`;
     const r = await fetch(url, { headers: { Authorization: auth, Accept: 'application/json' } });
 
     if (r.status === 401 || r.status === 403) {
@@ -60,7 +59,8 @@ export default async function handler(req, res) {
     };
     const num = (v) => (v == null || v === '' || isNaN(+v)) ? null : +v;
 
-    const sample = raw.find(d => d && Object.keys(d).length > 3) || raw[0] || {};
+    const registros = raw.filter(d => d && enRango(d.id || d.date,oldest,newest));
+    const sample = Object.assign({}, ...registros.map(d => Object.fromEntries(Object.entries(d).filter(([,v])=>v!=null&&v!==''))));
     const kSleep = findKey(sample, 'sleepsecs', 'sleep_secs', 'sleeptime', 'sleep');
     const kHrv = findKey(sample, 'hrv', 'hrvsdnn', 'hrv_sdnn');
     const kBB = findKey(sample, 'bodybattery', 'body_battery', 'battery');
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
     const kVo2 = findKey(sample, 'vo2max', 'vo2_max', 'icu_vo2max');
     const kSleepScore = findKey(sample, 'sleepscore', 'sleep_score');
 
-    const wellness = raw.map(d => {
+    const wellness = registros.map(d => {
       const sleepRawVal = kSleep ? num(d[kSleep]) : null;
       // sleep_secs viene en segundos; si el número es pequeño, ya son horas.
       const sleepH = sleepRawVal == null ? null
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
         rampRate: kRamp ? num(d[kRamp]) : null,
         vo2max: kVo2 ? num(d[kVo2]) : null
       };
-    }).filter(d => d.date && (d.sleep != null || d.hrv != null || d.bb != null || d.weight != null || d.ctl != null));
+    }).filter(d => d.date && ['sleep','sleepScore','hrv','bb','weight','restingHR','readiness','ctl','atl','rampRate','vo2max'].some(k=>d[k]!=null));
 
     wellness.sort((a, b) => (a.date < b.date ? 1 : -1));
 
@@ -116,6 +116,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       wellness,
+      rango: {desde:oldest,hasta:newest,zona:'America/Bogota'},
       count: wellness.length,
       diagnosis,
       withData,
