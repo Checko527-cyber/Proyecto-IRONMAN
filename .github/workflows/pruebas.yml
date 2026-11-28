@@ -46,3 +46,16 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Ciclos reales sobre PostgreSQL efímero (sin secretos ni conexiones externas)
         run: node scripts/qa-postgres-real.mjs
+
+  panel-navegador:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Comprobar panel en Chrome real sin datos personales
+        run: node scripts/qa-browser.mjs
